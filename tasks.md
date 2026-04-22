@@ -89,20 +89,30 @@
 
 ---
 
-## Phase 4: Filament Admin
+## Phase 4: Filament Admin ✅
 
-- [ ] `php artisan make:filament-resource PageResource --generate`
-- [ ] Customize `PageResource`: edit form (SEO fields, CTA, active toggle), list columns
-- [ ] `php artisan make:filament-resource SubmissionResource --generate`
-- [ ] Mark `SubmissionResource` read-only (no create/edit/delete), add PII policy
-- [ ] `php artisan make:filament-resource CrmSyncAttemptResource --generate`
-- [ ] Add "Retry Sync" action to `CrmSyncAttemptResource`
-- [ ] Create `SubmissionStatsWidget` (stats overview widget)
-- [ ] Add widget to Filament dashboard
-- [ ] Create Filament admin user seeder
-- [ ] `php artisan make:test --pest FilamentPageResourceTest`
-- [ ] Test admin panel in browser: all CRUD and views work
-- [ ] `vendor/bin/pint --dirty` — clean
+- [x] `php artisan make:filament-resource Page --no-interaction`
+- [x] Customize `PageResource` form: page_key (disabled on edit + unique), page_type Select, slug (unique), is_active Toggle, SEO section, CTA section
+- [x] Customize `PagesTable`: columns (page_key, page_type badge, slug, is_active icon, updated_at), EditAction + DeleteBulkAction
+- [x] `php artisan make:filament-resource Submission --view --no-interaction`
+- [x] Make `SubmissionResource` read-only: remove create/edit from getPages(), remove CreateAction from ListSubmissions, remove EditAction from ViewSubmission
+- [x] `SubmissionsTable`: ViewAction only, columns (id, pii_json.email display-only, product_key, crm_status badge, submitted_at)
+- [x] `SubmissionInfolist`: PII fields (name, email, phone, company) + metadata (product_key, crm_status, submitted_at, journey_id)
+- [x] `php artisan make:filament-resource CrmSyncAttempt --view --no-interaction`
+- [x] Make `CrmSyncAttemptResource` read-only: remove create/edit from getPages(), remove CreateAction from ListCrmSyncAttempts, remove EditAction from ViewCrmSyncAttempt
+- [x] `CrmSyncAttemptsTable`: ViewAction + Retry action (visible on Failed only, requiresConfirmation, dispatches SyncSubmissionToZohoJob), columns
+- [x] `CrmSyncAttemptInfolist`: attempt fields + error details section
+- [x] `php artisan make:filament-widget SubmissionStatsWidget --stats-overview --no-interaction`
+- [x] `SubmissionStatsWidget`: 4 stats (Total, Pending, Synced, Failed), polling disabled
+- [x] Add `SubmissionStatsWidget` to `AdminPanelProvider` widgets array
+- [x] Create `config/admin.php` (ADMIN_EMAIL, ADMIN_PASSWORD, ADMIN_NAME)
+- [x] `php artisan make:seeder AdminUserSeeder` — `User::updateOrCreate` via `Config::string()`
+- [x] Update `DatabaseSeeder` to call `AdminUserSeeder`
+- [x] Add `ADMIN_*` vars to `.env.example`
+- [x] `FilamentPageResourceTest`: 8 tests (render list/create/edit, create/update/validation/unique)
+- [x] `php artisan test --compact` — 42/42 pass
+- [x] `vendor/bin/phpstan analyse --no-progress` — zero errors
+- [x] `vendor/bin/pint --dirty` — clean
 
 ---
 

@@ -19,6 +19,7 @@ class DatabaseSeeder extends Seeder
         ]);
 
         $this->seedDefaultPages();
+        $this->call(AdminUserSeeder::class);
     }
 
     private function seedDefaultPages(): void
