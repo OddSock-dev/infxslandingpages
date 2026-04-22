@@ -26,3 +26,11 @@ yarn-error.log
 /.nova
 /.vscode
 /.zed
+/.github
+/.playwright
+/Reference/*
+
+
+.nvmrc
+boost.json
+AGENTS.md
