@@ -1,0 +1,186 @@
+# Zoho Landing Pages — Task Checklist
+
+> Linked to: session plan.md (C:/Users/justp/.copilot/session-state/c767821a-a4ec-46d0-8c5c-567b47ce8ee2/plan.md)
+> Domain: zoho.infxsolutions.co.za
+> Stack: Nuxt 3 (SSG) + Laravel 13 (API + Filament admin)
+
+---
+
+## Phase 0: Foundation & Infrastructure ✅
+
+- [x] Add `docker-compose.yml` (MariaDB 10.11 only — no Redis needed on this stack)
+- [x] Start Docker MariaDB, verify connectivity
+- [x] Switch Laravel DB: SQLite → MariaDB (`DB_*` env vars)
+- [x] Switch cache store: `database` → `file` (`CACHE_STORE=file` — simpler, no infra dep)
+- [x] Queue driver stays as `database` — already the starter kit default, no Redis needed
+- [x] Strip Inertia/Vue boilerplate from Laravel (resources/js/, web.php Inertia routes, Inertia middleware)
+- [x] Strip Inertia middleware from `bootstrap/app.php`
+- [x] Clean up `package.json` at repo root (remove Inertia/Vue deps — Nuxt will be in apps/frontend)
+- [x] Install Filament (resolved to v5.6 — Filament 3.x only supports Laravel ≤12)
+- [x] Run `php artisan filament:install --panels --no-interaction`
+- [x] Configure Filament panel: id=`admin`, path=`/admin`
+- [x] Extend `pnpm-workspace.yaml` to include `apps/*`
+- [x] Initialize Nuxt 4 in `apps/frontend/` via `nuxi init`
+- [x] Install Nuxt modules: `@tailwindcss/vite` (v4), `@pinia/nuxt@0.11.3`, `@vueuse/nuxt@14.2.1`
+- [x] Configure `nuxt.config.ts`: prerender all routes, runtimeConfig API base URL, Tailwind v4 via Vite plugin
+- [x] PHPStan level 10 — zero errors (added `vendor/pestphp/pest/extension.neon` to includes)
+- [x] `php artisan test --compact` — 1 test passing
+- [x] Verify: MariaDB Docker up, Laravel Herd serving, Nuxt `nuxt prepare` clean
+
+---
+
+## Phase 1: Laravel Data Layer ✅
+
+- [x] `php artisan make:migration create_pages_table`
+- [x] `php artisan make:migration create_journeys_table`
+- [x] `php artisan make:migration create_journey_answers_table`
+- [x] `php artisan make:migration create_submissions_table`
+- [x] `php artisan make:migration create_crm_sync_attempts_table`
+- [x] `php artisan make:model Page --factory`
+- [x] `php artisan make:model Journey --factory`
+- [x] `php artisan make:model JourneyAnswer --factory`
+- [x] `php artisan make:model Submission --factory`
+- [x] `php artisan make:model CrmSyncAttempt --factory`
+- [x] Add typed casts, fillable, relationships to all models
+- [x] Add `encrypted` cast to `Submission::pii_json` (encrypted:array) and `CrmSyncAttempt` payloads
+- [x] Add `expires_at` scope and ULID generation to `Journey`
+- [x] Create `DatabaseSeeder` to seed 4 default `pages` records (idempotent via updateOrCreate)
+- [x] `php artisan migrate --seed` — verify clean run
+- [x] `vendor/bin/phpstan analyse --no-progress` — zero errors
+- [x] `vendor/bin/pint --dirty` — zero errors
+
+---
+
+## Phase 2: Laravel API Layer
+
+- [ ] Create `routes/api.php` with all 4 endpoints
+- [ ] `php artisan make:controller Api/FunnelController`
+- [ ] `php artisan make:controller Api/JourneyController`
+- [ ] `php artisan make:controller Api/PageConfigController`
+- [ ] `php artisan make:request QualifyRequest`
+- [ ] `php artisan make:request SubmitRequest`
+- [ ] Create `app/DTOs/QualificationAnswersData.php`
+- [ ] Create `app/DTOs/SubmissionData.php`
+- [ ] Create `app/DTOs/PrefillData.php`
+- [ ] Create `app/Services/QualificationService.php` (routing logic)
+- [ ] Create `app/Services/PrefillService.php` (safe field extraction)
+- [ ] Create `app/Services/SubmissionRecorder.php` (save + dispatch)
+- [ ] Configure CORS: `config/cors.php` — allow `localhost:3000`, `zoho.infxsolutions.co.za`
+- [ ] `php artisan make:test --pest QualifyEndpointTest`
+- [ ] `php artisan make:test --pest PrefillEndpointTest`
+- [ ] `php artisan make:test --pest SubmitEndpointTest`
+- [ ] `php artisan make:test --pest PageConfigEndpointTest`
+- [ ] Run: `php artisan test --compact` — all pass
+- [ ] `vendor/bin/phpstan analyse --no-progress` — zero errors
+
+---
+
+## Phase 3: Zoho Integration Pipeline
+
+- [ ] Create `app/Integrations/Zoho/ZohoCrmClient.php` (OAuth2 + HTTP)
+- [ ] Create `app/Integrations/Zoho/LeadPayloadMapper.php` (DTO → Zoho schema)
+- [ ] Create `app/Actions/Zoho/SubmitLeadToZohoAction.php` (attempt lifecycle)
+- [ ] `php artisan make:job SyncSubmissionToZohoJob`
+- [ ] Configure job: retries=3, backoff, idempotency check
+- [ ] Wire `SubmissionRecorder` to dispatch `SyncSubmissionToZohoJob`
+- [ ] Add Zoho env vars to `.env.example`: `ZOHO_CLIENT_ID`, `ZOHO_CLIENT_SECRET`, `ZOHO_REFRESH_TOKEN`, `ZOHO_API_DOMAIN` (this should be db backed, refresh tokeens expire)
+- [ ] `php artisan make:test --pest ZohoSyncJobTest`
+- [ ] `php artisan make:test --pest SubmitLeadToZohoActionTest`
+- [ ] Run: `php artisan test --compact` — all pass
+- [ ] `vendor/bin/phpstan analyse --no-progress` — zero errors
+
+---
+
+## Phase 4: Filament Admin
+
+- [ ] `php artisan make:filament-resource PageResource --generate`
+- [ ] Customize `PageResource`: edit form (SEO fields, CTA, active toggle), list columns
+- [ ] `php artisan make:filament-resource SubmissionResource --generate`
+- [ ] Mark `SubmissionResource` read-only (no create/edit/delete), add PII policy
+- [ ] `php artisan make:filament-resource CrmSyncAttemptResource --generate`
+- [ ] Add "Retry Sync" action to `CrmSyncAttemptResource`
+- [ ] Create `SubmissionStatsWidget` (stats overview widget)
+- [ ] Add widget to Filament dashboard
+- [ ] Create Filament admin user seeder
+- [ ] `php artisan make:test --pest FilamentPageResourceTest`
+- [ ] Test admin panel in browser: all CRUD and views work
+- [ ] `vendor/bin/pint --dirty` — clean
+
+---
+
+## Phase 5: Nuxt Foundation
+
+- [ ] Configure `nuxt.config.ts`: prerender, modules, runtimeConfig
+- [ ] Create `apps/frontend/layouts/default.vue`
+- [ ] Create `apps/frontend/layouts/minimal.vue`
+- [ ] Create `apps/frontend/components/layout/AppHeader.vue`
+- [ ] Create `apps/frontend/components/layout/AppFooter.vue`
+- [ ] Create `apps/frontend/components/layout/SiteNav.vue`
+- [ ] Create `apps/frontend/composables/useSeo.ts`
+- [ ] Scaffold all 7 pages with basic structure and SEO meta
+- [ ] Add placeholder OG images (`assets/images/og/*.jpg`)
+- [ ] Add `public/robots.txt`
+- [ ] Verify `nuxt generate` — all routes prerendered without errors
+
+---
+
+## Phase 6: Nuxt Components & Form Layer
+
+- [ ] Create `sections/HeroSection.vue`
+- [ ] Create `sections/FeatureGrid.vue`
+- [ ] Create `sections/CtaBlock.vue`
+- [ ] Create `sections/FaqSection.vue`
+- [ ] Create `sections/TrustBadges.vue`
+- [ ] Create `sections/TestimonialBlock.vue`
+- [ ] Create `form/FormField.vue` (text, email, phone, select, radio, checkbox)
+- [ ] Create `form/FormStep.vue`
+- [ ] Create `form/MultiStepForm.vue` (step orchestrator + progress indicator)
+- [ ] Create `form/QualificationForm.vue` (calls useQualify)
+- [ ] Create `form/ProductForm.vue` (calls useSubmit)
+- [ ] Create `stores/journey.ts` (Pinia store)
+- [ ] Create `composables/useJourney.ts`
+- [ ] Create `composables/usePrefill.ts`
+- [ ] Create `composables/useQualify.ts`
+- [ ] Create `composables/useSubmit.ts`
+- [ ] Create `composables/useTracking.ts`
+- [ ] TypeScript types: `types/journey.ts`, `types/prefill.ts`, `types/submission.ts`, `types/seo.ts`
+
+---
+
+## Phase 7: Nuxt-Laravel Integration
+
+- [ ] Set `NUXT_PUBLIC_API_BASE_URL` in `apps/frontend/.env` (local: `https://infxslandingpages.test`)
+- [ ] Verify CORS: Laravel allows `localhost:3000` and target domain
+- [ ] Wire `QualificationForm` → `useQualify` → POST `/api/funnel/qualify` → redirect `?t=TOKEN`
+- [ ] Wire product page: read `?t` → `useJourney` store + cookie
+- [ ] Wire `usePrefill` on product page: hydrate `ProductForm` prefill fields
+- [ ] Wire `ProductForm` → `useSubmit` → POST `/api/funnel/submit` → redirect `/thanks`
+- [ ] Test Flow A: landing → qualify → route → product page (prefilled) → submit → thanks
+- [ ] Test Flow B: direct product page → submit → thanks
+- [ ] Test token expiry: expired token → graceful degradation (blank form, no error crash)
+- [ ] Verify all API error states handled gracefully
+
+---
+
+## Phase 8: Content & SEO Polish
+
+- [ ] Replace placeholder content with real Zoho copy (user to supply)
+- [ ] Final OG images per page (user to supply)
+- [ ] JSON-LD structured data on product pages (Organization + WebPage)
+- [ ] Verify all meta tags in page source
+- [ ] Test OG: Facebook Sharing Debugger + Twitter Card Validator
+- [ ] Add PageSense/analytics script via `useHead` in `app.vue`
+- [ ] Verify `sitemap.xml` generated and accurate
+
+---
+
+## Phase 9: Hardening & Production Prep
+
+- [ ] Rate limiting: throttle middleware on `POST /api/funnel/*` (e.g. 5/min per IP)
+- [ ] Honeypot field in forms (anti-bot)
+- [ ] Queue: tune retries/backoff, configure dead-letter channel notification
+- [ ] Nuxt build-time config fetch: `nuxt generate` calls `/api/config/pages/*`
+- [ ] Comprehensive Pest feature tests for all API flows
+- [ ] GitHub Actions CI: PHP (PHPStan + Pint + Pest) + Nuxt (lint + types:check + build)
+- [ ] Production env checklist: APP_ENV=production, APP_DEBUG=false, CORS origins locked, SSL, encrypted PII key
+- [ ] Document final API contract in README or `docs/`
