@@ -7,6 +7,7 @@ namespace App\Services;
 use App\DTOs\SubmissionData;
 use App\Enums\CrmStatus;
 use App\Enums\JourneyStatus;
+use App\Jobs\SyncSubmissionToZohoJob;
 use App\Models\Journey;
 use App\Models\Submission;
 use Illuminate\Support\Facades\DB;
@@ -57,6 +58,8 @@ class SubmissionRecorder
             if ($journey !== null) {
                 $journey->update(['status' => JourneyStatus::Submitted]);
             }
+
+            SyncSubmissionToZohoJob::dispatch($submission->id);
 
             return $submission;
         });

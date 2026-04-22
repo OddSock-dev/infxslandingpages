@@ -7,10 +7,12 @@ namespace Tests\Feature;
 use App\Enums\CrmStatus;
 use App\Enums\JourneyStatus;
 use App\Enums\PageType;
+use App\Jobs\SyncSubmissionToZohoJob;
 use App\Models\Journey;
 use App\Models\Page;
 use App\Models\Submission;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Queue;
 use Tests\TestCase;
 
 class SubmitEndpointTest extends TestCase
@@ -20,6 +22,8 @@ class SubmitEndpointTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+
+        Queue::fake();
 
         Page::factory()->create([
             'page_key' => 'zoho_one',
@@ -59,6 +63,8 @@ class SubmitEndpointTest extends TestCase
         $this->assertSame('zoho_one', $submission->product_key);
         $this->assertSame(CrmStatus::Pending, $submission->crm_status);
         $this->assertNull($submission->journey_id);
+
+        Queue::assertPushed(SyncSubmissionToZohoJob::class, fn (SyncSubmissionToZohoJob $job): bool => $job->submissionId === $submission->id);
     }
 
     public function test_creates_a_submission_linked_to_a_valid_journey_token(): void

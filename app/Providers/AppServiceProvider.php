@@ -1,7 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Providers;
 
+use App\Integrations\Zoho\ZohoCrmClient;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
@@ -15,7 +18,12 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->singleton(ZohoCrmClient::class, function (): ZohoCrmClient {
+            /** @var array{client_id: string, client_secret: string, api_domain: string, accounts_url: string} $config */
+            $config = config('services.zoho');
+
+            return new ZohoCrmClient($config);
+        });
     }
 
     /**

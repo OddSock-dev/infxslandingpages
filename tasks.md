@@ -72,19 +72,20 @@
 
 ---
 
-## Phase 3: Zoho Integration Pipeline
+## Phase 3: Zoho Integration Pipeline ✅
 
-- [ ] Create `app/Integrations/Zoho/ZohoCrmClient.php` (OAuth2 + HTTP)
-- [ ] Create `app/Integrations/Zoho/LeadPayloadMapper.php` (DTO → Zoho schema)
-- [ ] Create `app/Actions/Zoho/SubmitLeadToZohoAction.php` (attempt lifecycle)
-- [ ] `php artisan make:job SyncSubmissionToZohoJob`
-- [ ] Configure job: retries=3, backoff, idempotency check
-- [ ] Wire `SubmissionRecorder` to dispatch `SyncSubmissionToZohoJob`
-- [ ] Add Zoho env vars to `.env.example`: `ZOHO_CLIENT_ID`, `ZOHO_CLIENT_SECRET`, `ZOHO_REFRESH_TOKEN`, `ZOHO_API_DOMAIN` (this should be db backed, refresh tokeens expire)
-- [ ] `php artisan make:test --pest ZohoSyncJobTest`
-- [ ] `php artisan make:test --pest SubmitLeadToZohoActionTest`
-- [ ] Run: `php artisan test --compact` — all pass
-- [ ] `vendor/bin/phpstan analyse --no-progress` — zero errors
+- [x] Create `app/Integrations/Zoho/ZohoCrmClient.php` (OAuth2 + HTTP, Cache::lock for token refresh)
+- [x] Create `app/Integrations/Zoho/LeadPayloadMapper.php` (DTO → Zoho schema)
+- [x] Create `app/Actions/Zoho/SubmitLeadToZohoAction.php` (attempt lifecycle, DB::transaction)
+- [x] `php artisan make:job SyncSubmissionToZohoJob`
+- [x] Configure job: retries=3, backoff=[30,60,120], ShouldBeUniqueUntilProcessing, idempotency check
+- [x] Wire `SubmissionRecorder` to dispatch `SyncSubmissionToZohoJob`
+- [x] Create `database/migrations/create_zoho_credentials_table.php` + `ZohoCredential` model (key-value DB store)
+- [x] Add Zoho config block to `config/services.php`; add `ZOHO_*` env vars to `.env.example`
+- [x] `php artisan make:test --pest ZohoSyncJobTest` → 4 tests
+- [x] `php artisan make:test --pest SubmitLeadToZohoActionTest` → 4 tests
+- [x] `php artisan test --compact` — 33/33 pass
+- [x] `vendor/bin/phpstan analyse --no-progress` — zero errors
 
 ---
 
