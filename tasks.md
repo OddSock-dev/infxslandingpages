@@ -51,27 +51,24 @@
 
 ---
 
-## Phase 2: Laravel API Layer
+## Phase 2: Laravel API Layer ✅
 
-- [ ] Create `routes/api.php` with all 4 endpoints
-- [ ] `php artisan make:controller Api/FunnelController`
-- [ ] `php artisan make:controller Api/JourneyController`
-- [ ] `php artisan make:controller Api/PageConfigController`
-- [ ] `php artisan make:request QualifyRequest`
-- [ ] `php artisan make:request SubmitRequest`
-- [ ] Create `app/DTOs/QualificationAnswersData.php`
-- [ ] Create `app/DTOs/SubmissionData.php`
-- [ ] Create `app/DTOs/PrefillData.php`
-- [ ] Create `app/Services/QualificationService.php` (routing logic)
-- [ ] Create `app/Services/PrefillService.php` (safe field extraction)
-- [ ] Create `app/Services/SubmissionRecorder.php` (save + dispatch)
-- [ ] Configure CORS: `config/cors.php` — allow `localhost:3000`, `zoho.infxsolutions.co.za`
-- [ ] `php artisan make:test --pest QualifyEndpointTest`
-- [ ] `php artisan make:test --pest PrefillEndpointTest`
-- [ ] `php artisan make:test --pest SubmitEndpointTest`
-- [ ] `php artisan make:test --pest PageConfigEndpointTest`
-- [ ] Run: `php artisan test --compact` — all pass
-- [ ] `vendor/bin/phpstan analyse --no-progress` — zero errors
+- [x] Create `routes/api.php` with all 4 endpoints
+- [x] `php artisan make:controller Api/FunnelController`
+- [x] `php artisan make:controller Api/JourneyController`
+- [x] `php artisan make:controller Api/PageConfigController`
+- [x] `php artisan make:request QualifyRequest`
+- [x] `php artisan make:request SubmitRequest`
+- [x] Create `app/DTOs/QualificationAnswersData.php`
+- [x] Create `app/DTOs/SubmissionData.php`
+- [x] Create `app/DTOs/PrefillData.php`
+- [x] Create `app/Services/QualificationService.php` (routing logic)
+- [x] Create `app/Services/PrefillService.php` (safe field extraction)
+- [x] Create `app/Services/SubmissionRecorder.php` (save + dispatch)
+- [x] Configure CORS: `config/cors.php` — allow `localhost:3000`, `zoho.infxsolutions.co.za`
+- [x] Class-based feature tests (PHPUnit style — avoids PHPStan `$this: TestCall` cascade)
+- [x] `php artisan test --compact` — 25/25 pass
+- [x] `vendor/bin/phpstan analyse --no-progress` — zero errors
 
 ---
 
