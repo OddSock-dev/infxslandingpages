@@ -17,7 +17,9 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::post('/funnel/qualify', [FunnelController::class, 'qualify']);
-Route::post('/funnel/submit', [FunnelController::class, 'submit']);
+Route::middleware('throttle:10,1')->group(function (): void {
+    Route::post('/funnel/qualify', [FunnelController::class, 'qualify']);
+    Route::post('/funnel/submit', [FunnelController::class, 'submit']);
+});
 Route::get('/journeys/{token}/prefill', [JourneyController::class, 'prefill']);
 Route::get('/config/pages/{pageKey}', [PageConfigController::class, 'show']);

@@ -1,0 +1,138 @@
+@import "tailwindcss";
+
+@source "../views/**/*.blade.php";
+@source "../../app/**/*.php";
+
+@theme {
+    --font-sans: "Manrope", ui-sans-serif, system-ui, sans-serif;
+    --font-display: "Sora", ui-sans-serif, system-ui, sans-serif;
+    --color-canvas: #f8f5ef;
+}
+
+:root {
+    color-scheme: light;
+}
+
+html,
+body {
+    min-height: 100%;
+}
+
+body {
+    background:
+        radial-gradient(circle at top left, rgba(255, 159, 67, 0.12), transparent 28%),
+        radial-gradient(circle at top right, rgba(61, 224, 191, 0.10), transparent 30%),
+        #f8f5ef;
+}
+
+.bg-canvas {
+    background-color: var(--color-canvas);
+}
+
+.font-display {
+    font-family: var(--font-display);
+}
+
+.glass-panel {
+    background: rgba(255, 255, 255, 0.72);
+    backdrop-filter: blur(18px);
+    border: 1px solid rgba(255, 255, 255, 0.55);
+    box-shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
+}
+
+.panel {
+    background: rgba(255, 255, 255, 0.84);
+    border: 1px solid rgba(226, 232, 240, 0.9);
+    border-radius: 1.75rem;
+    box-shadow: 0 18px 42px rgba(15, 23, 42, 0.07);
+    backdrop-filter: blur(10px);
+}
+
+.panel-strong {
+    background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.96) 0%, rgba(248, 250, 252, 0.96) 100%);
+}
+
+.shadow-soft {
+    box-shadow: 0 16px 30px rgba(251, 146, 60, 0.18);
+}
+
+.shadow-hero {
+    box-shadow: 0 24px 70px rgba(15, 23, 42, 0.22);
+}
+
+.eyebrow {
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: #f97316;
+}
+
+.section-title {
+    font-family: var(--font-display);
+    font-size: clamp(2rem, 3vw, 3.2rem);
+    line-height: 1.05;
+    font-weight: 600;
+    letter-spacing: -0.04em;
+    color: rgb(15 23 42);
+}
+
+.section-copy {
+    max-width: 44rem;
+    font-size: 1rem;
+    line-height: 1.9;
+    color: rgb(71 85 105);
+}
+
+.field-input {
+    width: 100%;
+    border-radius: 1.1rem;
+    border: 1px solid rgb(203 213 225);
+    background: rgba(255, 255, 255, 0.92);
+    padding: 0.9rem 1rem;
+    color: rgb(15 23 42);
+    outline: none;
+    transition:
+        border-color 160ms ease,
+        box-shadow 160ms ease,
+        transform 160ms ease;
+}
+
+.field-input:focus {
+    border-color: rgb(249 115 22);
+    box-shadow: 0 0 0 4px rgba(249, 115, 22, 0.15);
+}
+
+.legal-copy h2 {
+    margin-top: 2rem;
+    font-family: var(--font-display);
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: rgb(15 23 42);
+}
+
+.legal-copy p {
+    margin-top: 0.9rem;
+    font-size: 0.98rem;
+    line-height: 1.9;
+    color: rgb(71 85 105);
+}
+
+.legal-copy a {
+    color: rgb(249 115 22);
+    font-weight: 600;
+}
+
+.js [data-reveal] {
+    opacity: 0;
+    transform: translateY(22px);
+    transition:
+        opacity 600ms ease,
+        transform 600ms ease;
+}
+
+.js [data-reveal].is-visible {
+    opacity: 1;
+    transform: translateY(0);
+}

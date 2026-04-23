@@ -5,6 +5,16 @@
     "description": "Monorepo: Laravel API/admin backend + Nuxt 3 public frontend",
     "engines": {
         "node": ">=20"
+    },
+    "type": "module",
+    "scripts": {
+        "dev": "vite",
+        "build": "vite build"
+    },
+    "devDependencies": {
+        "@tailwindcss/vite": "^4.2.4",
+        "laravel-vite-plugin": "^3.0.1",
+        "tailwindcss": "^4.2.4",
+        "vite": "^8.0.9"
     }
 }
-

@@ -172,8 +172,8 @@
 
 ## Phase 8: Content & SEO Polish
 
-- [ ] Replace placeholder content with real Zoho copy (user to supply)
-- [ ] Final OG images per page (user to supply)
+- [ ] Replace placeholder content with real Zoho copy (user to supply - this to come later than this phase. Use content derived from each Zoho actual page for now)
+- [ ] Final OG images per page (user to supplyn - this to come later than this phase. Use placeholder, downloaded from Zoho marketing pages images for now)
 - [ ] JSON-LD structured data on product pages (Organization + WebPage)
 - [ ] Verify all meta tags in page source
 - [ ] Test OG: Facebook Sharing Debugger + Twitter Card Validator

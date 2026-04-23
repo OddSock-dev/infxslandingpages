@@ -1,8 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
+use App\Http\Controllers\PublicSiteController;
 use Illuminate\Support\Facades\Route;
 
-// Public web routes are handled by the Nuxt frontend (zoho.infxsolutions.co.za).
-// This Laravel app serves the API (/api/*) and Filament admin (/admin).
-// The health check route is registered by the application bootstrap.
-Route::get('/', fn () => redirect('/admin'))->name('home');
+Route::get('/', [PublicSiteController::class, 'landing'])->name('home');
+Route::get('/products/{slug}', [PublicSiteController::class, 'product'])->name('products.show');
+Route::get('/thanks', [PublicSiteController::class, 'thanks'])->name('thanks');
+Route::get('/privacy', [PublicSiteController::class, 'privacy'])->name('privacy');
+Route::get('/terms', [PublicSiteController::class, 'terms'])->name('terms');
