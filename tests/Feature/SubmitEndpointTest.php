@@ -6,13 +6,14 @@ namespace Tests\Feature;
 
 use App\Enums\CrmStatus;
 use App\Enums\JourneyStatus;
-use App\Enums\PageType;
 use App\Jobs\SyncSubmissionToZohoJob;
 use App\Models\Journey;
-use App\Models\Page;
 use App\Models\Submission;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Queue;
+use Livewire\Component;
+use Livewire\Features\SupportTesting\Testable;
+use Livewire\Livewire;
 use Tests\TestCase;
 
 class SubmitEndpointTest extends TestCase
@@ -24,42 +25,81 @@ class SubmitEndpointTest extends TestCase
         parent::setUp();
 
         Queue::fake();
-
-        Page::factory()->create([
-            'page_key' => 'zoho_one',
-            'page_type' => PageType::Product,
-            'slug' => '/products/zoho-one',
-            'is_active' => true,
-        ]);
     }
 
     /**
-     * @return array{product_key: string, name: string, email: string, phone: string, company: string, journey_token?: string}
+     * @return array<string, string>
      */
-    private function submitPayload(string $productKey = 'zoho_one', ?string $journeyToken = null): array
+    private function baseSubmissionPayload(): array
     {
-        $payload = [
-            'product_key' => $productKey,
+        return [
+            'companySizeBand' => '11_50',
+            'implementationTimeline' => 'this_quarter',
+            'currentEnvironment' => 'multiple_line_of_business_tools',
+            'priorityOutcome' => 'shared_operating_system',
             'name' => 'Jane Doe',
             'email' => 'jane@example.com',
             'phone' => '+27211234567',
             'company' => 'ACME Ltd',
         ];
+    }
 
-        if ($journeyToken !== null) {
-            $payload['journey_token'] = $journeyToken;
+    private function trialUrlFor(string $pageKey): string
+    {
+        return match ($pageKey) {
+            'zoho_marketing_plus' => 'https://store.zoho.com/ResellerCustomerSignUp.do?id=cb03293c4f696fa1058bd992189acdee',
+            'zoho_workplace' => 'https://store.zoho.com/ResellerCustomerSignUp.do?id=2afc43fa6ca997e0dae84629788ad5e8',
+            default => 'https://store.zoho.com/ResellerCustomerSignUp.do?id=b90ffafff590634f12c003a7325340d7',
+        };
+    }
+
+    /**
+     * @return Testable<Component>
+     */
+    private function productLeadComponent(?string $journeyToken = null, string $pageKey = 'zoho_one', string $productName = 'Zoho One'): Testable
+    {
+        if ($journeyToken === null) {
+            /** @var Testable<Component> $component */
+            $component = Livewire::test('marketing.product-lead', [
+                'pageKey' => $pageKey,
+                'productName' => $productName,
+                'trialUrl' => $this->trialUrlFor($pageKey),
+            ]);
+
+            return $component;
         }
 
-        return $payload;
+        $livewire = Livewire::withQueryParams(['t' => $journeyToken]);
+
+        /** @var Testable<Component> $component */
+        // @phpstan-ignore-next-line File-based Livewire components are resolved via runtime aliases.
+        $component = $livewire->test('marketing.product-lead', [
+            'pageKey' => $pageKey,
+            'productName' => $productName,
+            'trialUrl' => $this->trialUrlFor($pageKey),
+        ]);
+
+        return $component;
     }
 
     public function test_creates_a_submission_without_a_journey_token(): void
     {
-        $response = $this->postJson('/api/funnel/submit', $this->submitPayload());
+        $this->productLeadComponent()
+            ->set('companySizeBand', $this->baseSubmissionPayload()['companySizeBand'])
+            ->set('implementationTimeline', $this->baseSubmissionPayload()['implementationTimeline'])
+            ->set('currentEnvironment', $this->baseSubmissionPayload()['currentEnvironment'])
+            ->set('priorityOutcome', $this->baseSubmissionPayload()['priorityOutcome'])
+            ->call('completeQualification')
+            ->call('requestConsultation')
+            ->set('name', $this->baseSubmissionPayload()['name'])
+            ->set('email', $this->baseSubmissionPayload()['email'])
+            ->set('phone', $this->baseSubmissionPayload()['phone'])
+            ->set('company', $this->baseSubmissionPayload()['company'])
+            ->call('submit')
+            ->assertRedirect(route('thanks'));
 
-        $response->assertCreated()->assertJsonPath('message', 'Submission received.');
+        $submission = Submission::query()->firstOrFail();
 
-        $submission = Submission::firstOrFail();
         $this->assertSame('zoho_one', $submission->product_key);
         $this->assertSame(CrmStatus::Pending, $submission->crm_status);
         $this->assertNull($submission->journey_id);
@@ -71,10 +111,20 @@ class SubmitEndpointTest extends TestCase
     {
         $journey = Journey::factory()->routed('zoho_one')->create();
 
-        $response = $this->postJson('/api/funnel/submit', $this->submitPayload('zoho_one', $journey->journey_token));
-        $response->assertCreated();
+        $this->productLeadComponent($journey->journey_token)
+            ->call('requestConsultation')
+            ->set('companySizeBand', $this->baseSubmissionPayload()['companySizeBand'])
+            ->set('implementationTimeline', $this->baseSubmissionPayload()['implementationTimeline'])
+            ->set('currentEnvironment', $this->baseSubmissionPayload()['currentEnvironment'])
+            ->set('priorityOutcome', $this->baseSubmissionPayload()['priorityOutcome'])
+            ->set('name', $this->baseSubmissionPayload()['name'])
+            ->set('email', $this->baseSubmissionPayload()['email'])
+            ->set('phone', $this->baseSubmissionPayload()['phone'])
+            ->set('company', $this->baseSubmissionPayload()['company'])
+            ->call('submit')
+            ->assertRedirect(route('thanks'));
 
-        $submission = Submission::firstOrFail();
+        $submission = Submission::query()->firstOrFail();
         $this->assertSame($journey->id, $submission->journey_id);
 
         $journey->refresh();
@@ -88,76 +138,127 @@ class SubmitEndpointTest extends TestCase
             'utm_campaign' => 'q1-promo',
         ]);
 
-        $this->postJson('/api/funnel/submit', $this->submitPayload('zoho_one', $journey->journey_token))
-            ->assertCreated();
+        $this->productLeadComponent($journey->journey_token)
+            ->call('requestConsultation')
+            ->set('companySizeBand', '11_50')
+            ->set('implementationTimeline', 'this_quarter')
+            ->set('currentEnvironment', 'multiple_line_of_business_tools')
+            ->set('priorityOutcome', 'shared_operating_system')
+            ->set('name', 'Jane Doe')
+            ->set('email', 'jane@example.com')
+            ->call('submit')
+            ->assertRedirect(route('thanks'));
 
-        $meta = Submission::firstOrFail()->meta_json;
+        $meta = Submission::query()->firstOrFail()->meta_json;
+
         $this->assertSame('facebook', $meta['utm_source']);
         $this->assertSame('q1-promo', $meta['utm_campaign']);
     }
 
-    public function test_returns_422_for_an_expired_journey_token(): void
+    public function test_starts_a_fresh_submission_when_the_journey_token_is_expired(): void
     {
         $journey = Journey::factory()->expired()->create();
 
-        $this->postJson('/api/funnel/submit', $this->submitPayload('zoho_one', $journey->journey_token))
-            ->assertUnprocessable()
-            ->assertJsonPath('message', 'Journey token is invalid or expired.');
+        /** @var Testable<Component> $component */
+        $component = $this->productLeadComponent($journey->journey_token);
+
+        $component->assertSee('start fresh');
+
+        $component
+            ->set('companySizeBand', '11_50')
+            ->set('implementationTimeline', 'this_quarter')
+            ->set('currentEnvironment', 'multiple_line_of_business_tools')
+            ->set('priorityOutcome', 'shared_operating_system')
+            ->call('completeQualification')
+            ->call('requestConsultation')
+            ->set('name', 'Jane Doe')
+            ->set('email', 'jane@example.com')
+            ->call('submit')
+            ->assertRedirect(route('thanks'));
+
+        $submission = Submission::query()->firstOrFail();
+        $this->assertNull($submission->journey_id);
     }
 
-    public function test_returns_409_when_the_journey_has_already_been_submitted(): void
+    public function test_blocks_resubmission_for_an_already_submitted_journey(): void
     {
         $journey = Journey::factory()->routed('zoho_one')->submitted()->create();
 
-        $this->postJson('/api/funnel/submit', $this->submitPayload('zoho_one', $journey->journey_token))
-            ->assertConflict()
-            ->assertJsonPath('message', 'This journey has already been submitted.');
+        /** @var Testable<Component> $component */
+        $component = $this->productLeadComponent($journey->journey_token);
+
+        $component
+            ->call('requestConsultation')
+            ->set('companySizeBand', '11_50')
+            ->set('implementationTimeline', 'this_quarter')
+            ->set('currentEnvironment', 'manual_ops_and_reporting')
+            ->set('priorityOutcome', 'privacy_and_control')
+            ->set('name', 'Jane Doe')
+            ->set('email', 'jane@example.com')
+            ->call('submit')
+            ->assertSee('This request has already been submitted.');
+
+        $this->assertDatabaseCount('submissions', 0);
     }
 
-    public function test_returns_422_when_product_key_does_not_match_the_journey(): void
+    public function test_ignores_a_mismatched_journey_token_and_submits_a_fresh_request(): void
     {
-        Page::factory()->create([
-            'page_key' => 'zoho_workplace',
-            'page_type' => PageType::Product,
-            'slug' => '/products/zoho-workplace',
-            'is_active' => true,
-        ]);
-
         $journey = Journey::factory()->routed('zoho_one')->create();
 
-        $this->postJson('/api/funnel/submit', $this->submitPayload('zoho_workplace', $journey->journey_token))
-            ->assertUnprocessable()
-            ->assertJsonPath('message', 'The product key does not match the journey.');
+        /** @var Testable<Component> $component */
+        $component = $this->productLeadComponent($journey->journey_token, 'zoho_workplace', 'Zoho Workplace');
+
+        $component->assertSee('start fresh');
+
+        $component
+            ->set('companySizeBand', '11_50')
+            ->set('implementationTimeline', 'this_quarter')
+            ->set('currentEnvironment', 'google_microsoft_mix')
+            ->set('priorityOutcome', 'cleaner_collaboration')
+            ->call('completeQualification')
+            ->call('requestConsultation')
+            ->set('name', 'Jane Doe')
+            ->set('email', 'jane@example.com')
+            ->call('submit')
+            ->assertRedirect(route('thanks'));
+
+        $submission = Submission::query()->firstOrFail();
+        $this->assertNull($submission->journey_id);
+        $this->assertSame('zoho_workplace', $submission->product_key);
     }
 
-    public function test_validates_required_fields(): void
+    public function test_blocks_submitting_before_the_quick_fit_is_complete(): void
     {
-        $this->postJson('/api/funnel/submit', [])
-            ->assertUnprocessable()
-            ->assertJsonValidationErrors(['product_key', 'name', 'email']);
+        $this->productLeadComponent()
+            ->call('submit')
+            ->assertSee('Answer the four quick questions before choosing your next step.');
+    }
+
+    public function test_validates_required_contact_fields_after_the_next_step_is_unlocked(): void
+    {
+        $this->productLeadComponent()
+            ->set('companySizeBand', '11_50')
+            ->set('implementationTimeline', 'this_quarter')
+            ->set('currentEnvironment', 'multiple_line_of_business_tools')
+            ->set('priorityOutcome', 'shared_operating_system')
+            ->call('completeQualification')
+            ->call('requestConsultation')
+            ->call('submit')
+            ->assertHasErrors(['name', 'email']);
     }
 
     public function test_rejects_an_invalid_email_address(): void
     {
-        $payload = $this->submitPayload();
-        $payload['email'] = 'not-an-email';
-
-        $this->postJson('/api/funnel/submit', $payload)
-            ->assertUnprocessable()
-            ->assertJsonValidationErrors(['email']);
-    }
-
-    public function test_rejects_an_inactive_product_page(): void
-    {
-        Page::factory()->create([
-            'page_key' => 'zoho_inactive',
-            'page_type' => PageType::Product,
-            'slug' => '/products/zoho-inactive',
-            'is_active' => false,
-        ]);
-
-        $this->postJson('/api/funnel/submit', $this->submitPayload('zoho_inactive'))
-            ->assertUnprocessable()
-            ->assertJsonValidationErrors(['product_key']);
+        $this->productLeadComponent()
+            ->set('companySizeBand', '11_50')
+            ->set('implementationTimeline', 'this_quarter')
+            ->set('currentEnvironment', 'multiple_line_of_business_tools')
+            ->set('priorityOutcome', 'shared_operating_system')
+            ->call('completeQualification')
+            ->call('requestConsultation')
+            ->set('name', 'Jane Doe')
+            ->set('email', 'not-an-email')
+            ->call('submit')
+            ->assertHasErrors(['email']);
     }
 }

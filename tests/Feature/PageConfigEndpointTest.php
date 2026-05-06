@@ -13,43 +13,43 @@ class PageConfigEndpointTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_returns_full_page_config_for_an_active_page(): void
+    public function test_renders_product_page_overrides_on_the_public_route(): void
     {
         Page::factory()->create([
             'page_key' => 'zoho_one',
             'page_type' => PageType::Product,
             'slug' => '/products/zoho-one',
             'is_active' => true,
-            'seo_title' => 'Zoho One | INFX',
+            'seo_title' => 'Custom Zoho One | INFX',
             'meta_description' => 'All-in-one productivity suite.',
             'robots' => 'index, follow',
-            'cta_text' => 'Get a Free Trial',
+            'cta_text' => 'Book My Custom Consultation',
             'cta_url' => 'https://example.com/trial',
-            'body_config' => ['hero_headline' => 'Scale your business'],
+            'body_config' => ['offer_title' => 'Custom Offer Title'],
         ]);
 
-        $this->getJson('/api/config/pages/zoho_one')
+        $this->get('/products/zoho-one')
             ->assertOk()
-            ->assertJsonPath('page_key', 'zoho_one')
-            ->assertJsonPath('page_type', 'product')
-            ->assertJsonPath('slug', '/products/zoho-one')
-            ->assertJsonPath('seo_title', 'Zoho One | INFX')
-            ->assertJsonPath('robots', 'index, follow')
-            ->assertJsonPath('cta_text', 'Get a Free Trial')
-            ->assertJsonPath('body_config.hero_headline', 'Scale your business');
+            ->assertSee('Custom Zoho One | INFX')
+            ->assertSee('Book My Custom Consultation')
+            ->assertSee('Custom Offer Title');
     }
 
-    public function test_returns_404_for_an_inactive_page(): void
+    public function test_returns_404_for_an_inactive_product_page(): void
     {
-        Page::factory()->inactive()->create(['page_key' => 'zoho_hidden', 'slug' => '/hidden']);
+        Page::factory()->inactive()->create([
+            'page_key' => 'zoho_hidden',
+            'page_type' => PageType::Product,
+            'slug' => '/products/zoho-hidden',
+        ]);
 
-        $this->getJson('/api/config/pages/zoho_hidden')
+        $this->get('/products/zoho-hidden')
             ->assertNotFound();
     }
 
-    public function test_returns_404_for_a_non_existent_page_key(): void
+    public function test_returns_404_for_a_non_existent_product_slug(): void
     {
-        $this->getJson('/api/config/pages/does_not_exist')
+        $this->get('/products/does-not-exist')
             ->assertNotFound();
     }
 }

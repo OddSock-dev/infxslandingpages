@@ -1,8 +1,8 @@
 {
     "$schema": "https://www.schemastore.org/package.json",
     "private": true,
-    "name": "infxslandingpages-workspace",
-    "description": "Monorepo: Laravel API/admin backend + Nuxt 3 public frontend",
+    "name": "infxslandingpages",
+    "description": "INFX landing pages: Laravel Blade + Livewire marketing site, API, and Filament admin",
     "engines": {
         "node": ">=20"
     },

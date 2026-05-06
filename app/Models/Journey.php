@@ -29,13 +29,14 @@ use Illuminate\Support\Str;
  * @property string|null $referrer
  * @property string|null $ip_hash
  * @property string|null $user_agent
+ * @property array{name?: string, email?: string, phone?: string, company?: string}|null $contact_json
  * @property CarbonImmutable|null $consent_at
  * @property CarbonImmutable $expires_at
  */
 #[Fillable([
     'journey_token', 'source_page_key', 'assigned_product_key', 'status',
     'utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content',
-    'referrer', 'ip_hash', 'user_agent', 'consent_at', 'expires_at',
+    'referrer', 'ip_hash', 'user_agent', 'contact_json', 'consent_at', 'expires_at',
 ])]
 class Journey extends Model
 {
@@ -56,6 +57,7 @@ class Journey extends Model
     {
         return [
             'status' => JourneyStatus::class,
+            'contact_json' => 'encrypted:array',
             'consent_at' => 'immutable_datetime',
             'expires_at' => 'immutable_datetime',
         ];

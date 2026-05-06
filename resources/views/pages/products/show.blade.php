@@ -3,6 +3,25 @@
 @php
     /** @var array<string, mixed> $page */
     $content = $page['body_config'];
+    $heroAction = [
+        'label' => request()->filled('t') ? 'Review My Next Steps' : 'Qualify for a Free Trial',
+        'url' => '#consultation',
+    ];
+    $heroSecondaryAction = filled($page['cta_url'] ?? null) && data_get($page, 'cta_url') !== '#consultation'
+        ? ['label' => $page['cta_text'] ?? 'Learn More', 'url' => $page['cta_url']]
+        : null;
+    $spotlightUsesContain = data_get($content, 'spotlight.media_fit') === 'contain';
+    $spotlightLogo = data_get($content, 'hero_logo_block.items.0');
+    $spotlightFrameClasses = $spotlightUsesContain
+        ? 'relative overflow-hidden rounded-[1.75rem] border border-slate-200/70 bg-linear-to-br from-white via-white to-teal-50 shadow-hero'
+        : 'relative overflow-hidden rounded-[1.75rem] border border-slate-200/70 bg-slate-950 shadow-hero';
+    $spotlightBadgeClasses = $spotlightUsesContain
+        ? 'absolute left-5 top-5 z-10 inline-flex items-center gap-3 rounded-full border border-slate-200 bg-white/95 px-4 py-2 shadow-[0_12px_30px_rgba(15,23,42,0.12)]'
+        : 'absolute left-5 top-5 z-10 inline-flex items-center gap-3 rounded-full border border-white/15 bg-slate-950/70 px-4 py-2';
+    $spotlightBadgeTextClasses = $spotlightUsesContain ? 'text-slate-700' : 'text-white';
+    $spotlightMediaClasses = $spotlightUsesContain
+        ? 'h-full min-h-[18rem] w-full object-contain p-10 sm:p-14'
+        : 'h-full min-h-[18rem] w-full object-cover';
 @endphp
 
 @section('content')
@@ -10,59 +29,96 @@
         :eyebrow="$content['eyebrow']"
         :headline="$content['headline']"
         :subheadline="$content['subheadline']"
-        :highlights="$content['hero_points']"
-        :stats="$content['hero_metrics']"
-        :primary-action="['label' => $page['cta_text'], 'url' => '#consultation']"
-        :secondary-action="['label' => 'Start Free Trial', 'url' => $page['trial_url']]"
+        :primary-action="$heroAction"
+        :secondary-action="$heroSecondaryAction"
     >
         <div id="consultation" class="relative">
-            <div class="absolute inset-0 rounded-[2rem] bg-linear-to-br from-teal-300/20 via-transparent to-orange-300/20 blur-2xl"></div>
+            <div class="absolute inset-0 rounded-[2rem] bg-linear-to-br from-teal-300/14 via-transparent to-cyan-400/10 blur-2xl"></div>
             <div class="relative">
-                <livewire:marketing.product-lead :page-key="$page['page_key']" :product-name="$content['nav_label']" />
+                <livewire:marketing.product-lead :page-key="$page['page_key']" :product-name="$content['nav_label']" :trial-url="$page['trial_url']" />
             </div>
         </div>
     </x-marketing.hero>
 
-    <section class="pb-16 sm:pb-20">
-        <div class="mx-auto grid max-w-7xl gap-8 px-6 lg:grid-cols-[1.05fr_0.95fr] lg:px-8">
-            <div class="panel p-8" data-reveal>
-                <p class="eyebrow">Best Fit</p>
-                <h2 class="section-title mt-4">{{ $content['offer_title'] }}</h2>
-                <p class="section-copy mt-4">{{ $content['offer_copy'] }}</p>
-            </div>
+    <x-marketing.trust-block
+        eyebrow="Why this page stands alone"
+        :title="data_get($content, 'trust_heading')"
+        :copy="data_get($content, 'trust_copy')"
+        :items="data_get($content, 'trust_blocks', [])"
+    />
 
-            <div class="panel p-8" data-reveal style="transition-delay: 120ms">
-                <p class="text-sm font-semibold uppercase tracking-[0.24em] text-slate-400">Common Outcomes</p>
-                <ul class="mt-6 space-y-4">
-                    @foreach($content['highlights'] as $highlight)
-                        <li class="flex items-start gap-3 text-sm leading-6 text-slate-700">
-                            <span class="mt-1 inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-orange-100 text-orange-600">
-                                <svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                                    <path fill-rule="evenodd" d="M16.704 5.29a1 1 0 010 1.42l-7.2 7.2a1 1 0 01-1.415.005l-3.2-3.15a1 1 0 011.402-1.43l2.492 2.454 6.496-6.5a1 1 0 011.425 0z" clip-rule="evenodd" />
-                                </svg>
+    <section class="pb-16 sm:pb-20">
+        <div class="mx-auto max-w-7xl px-6 lg:px-8">
+            <div class="relative overflow-hidden rounded-[2rem] border border-slate-200/80 bg-linear-to-br from-white/95 via-white/92 to-teal-50/70 px-6 py-6 shadow-[0_28px_70px_rgba(15,23,42,0.08)] sm:px-8 sm:py-8">
+                <div class="pointer-events-none absolute inset-x-0 top-0 h-40 bg-[radial-gradient(circle_at_top_left,rgba(61,224,191,0.12),transparent_60%),radial-gradient(circle_at_top_right,rgba(56,189,248,0.09),transparent_55%)]"></div>
+                <div class="relative grid gap-8 lg:grid-cols-[1.05fr_0.95fr]">
+                    <div class="panel panel-strong p-8" data-reveal>
+                        <p class="eyebrow">Best Fit</p>
+                        <h2 class="section-title mt-4 text-balance">{{ $content['offer_title'] }}</h2>
+                        <p class="section-copy mt-4">{{ $content['offer_copy'] }}</p>
+                        @if(data_get($content, 'highlights', []) !== [])
+                            <div class="mt-6 grid gap-3 sm:grid-cols-2">
+                                @foreach(data_get($content, 'highlights', []) as $highlight)
+                                    <div class="flex items-start gap-3 rounded-2xl border border-slate-200/80 bg-white/90 px-4 py-3 text-sm font-medium text-slate-700">
+                                        <span class="mt-1 h-2.5 w-2.5 shrink-0 rounded-full bg-linear-to-br from-teal-400 to-cyan-400"></span>
+                                        <span>{{ $highlight }}</span>
+                                    </div>
+                                @endforeach
+                            </div>
+                        @endif
+                    </div>
+
+                    <div class="{{ $spotlightFrameClasses }}" data-reveal style="transition-delay: 120ms">
+                        <div class="{{ $spotlightBadgeClasses }}">
+                            @if(is_array($spotlightLogo))
+                                <img src="{{ $spotlightLogo['src'] }}" alt="{{ $spotlightLogo['alt'] }}" class="h-6 w-auto object-contain">
+                            @endif
+                            <span class="text-[0.65rem] font-semibold uppercase tracking-[0.28em] {{ $spotlightBadgeTextClasses }}">
+                                {{ $content['nav_label'] }}
                             </span>
-                            <span>{{ $highlight }}</span>
-                        </li>
-                    @endforeach
-                </ul>
+                        </div>
+                        @if(data_get($content, 'spotlight.media_type') === 'video')
+                            <video class="{{ $spotlightMediaClasses }}" src="{{ asset(data_get($content, 'spotlight.media_url')) }}" controls playsinline muted preload="metadata"></video>
+                        @else
+                            <img src="{{ asset(data_get($content, 'spotlight.media_url')) }}" alt="{{ data_get($content, 'spotlight.media_alt', $content['nav_label']) }}" class="{{ $spotlightMediaClasses }}">
+                        @endif
+                    </div>
+                </div>
             </div>
         </div>
     </section>
+
+    <x-marketing.logo-bank
+        eyebrow="Where this product wins"
+        :title="data_get($content, 'logo_bank.title')"
+        :copy="data_get($content, 'logo_bank.copy')"
+        :items="data_get($content, 'logo_bank.items', [])"
+    />
+
+    <x-marketing.outcome-grid
+        eyebrow="What improves after the move"
+        :title="data_get($content, 'outcome_heading')"
+        :copy="data_get($content, 'outcome_copy')"
+        :items="data_get($content, 'outcomes', [])"
+    />
 
     <x-marketing.feature-grid
         :title="$content['feature_heading']"
         :subtitle="$content['feature_subheading']"
         :features="$content['features']"
+        :columns="4"
     />
 
-    <x-marketing.testimonial-grid :items="$content['testimonials']" />
-
-    <x-marketing.faq-list :items="$content['faq']" />
+    <x-marketing.faq-list
+        :items="$content['faq']"
+        :title="data_get($content, 'faq_heading', 'Questions buyers usually need answered before they convert.')"
+        :copy="data_get($content, 'faq_copy', 'The goal is clarity and confidence, not over-explaining the platform.')"
+    />
 
     <x-marketing.cta-band
         :headline="$content['cta_heading']"
         :copy="$content['cta_copy']"
-        :primary="['label' => $page['cta_text'], 'url' => '#consultation']"
+        :primary="$heroAction"
         :secondary="['label' => 'Explore Another Product', 'url' => route('home') . '#qualify']"
     />
 @endsection

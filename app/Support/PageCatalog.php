@@ -10,10 +10,29 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use InvalidArgumentException;
 
+/**
+ * @phpstan-type PageCatalogDefinition array{
+ *     page_key: string,
+ *     page_type: PageType,
+ *     slug: string,
+ *     is_active: bool,
+ *     seo_title: ?string,
+ *     meta_description: ?string,
+ *     og_title: ?string,
+ *     og_description: ?string,
+ *     og_image_url: ?string,
+ *     robots: string,
+ *     cta_text: ?string,
+ *     cta_url: ?string,
+ *     trial_url: ?string,
+ *     body_config: array<array-key, mixed>
+ * }
+ * @phpstan-type ProductNavigationItem array{page_key: string, label: string, slug: string}
+ */
 class PageCatalog
 {
     /**
-     * @return array<string, array<string, mixed>>
+     * @return array<string, PageCatalogDefinition>
      */
     public static function definitions(): array
     {
@@ -24,109 +43,203 @@ class PageCatalog
                 'slug' => '/',
                 'is_active' => true,
                 'seo_title' => 'Find the Right Zoho Solution for Your Business | INFX Solutions',
-                'meta_description' => 'High-converting Zoho landing pages, local South African rollout support, and a guided matching flow that gets teams to the right Zoho stack fast.',
+                'meta_description' => 'Find the Zoho apps that suit your business, with local South African support and a simple way to choose where to start.',
                 'og_title' => 'INFX Solutions | Zoho Growth Partner',
-                'og_description' => 'Match your business to the right Zoho solution in under two minutes, then launch with a local implementation team.',
+                'og_description' => 'Answer a few simple questions, see which Zoho option suits your business, and speak to a local team when you are ready.',
                 'og_image_url' => null,
                 'robots' => 'index, follow',
-                'cta_text' => 'Find My Zoho Stack',
+                'cta_text' => 'Find My Best Zoho Option',
                 'cta_url' => '#qualify',
                 'trial_url' => null,
                 'body_config' => [
-                    'eyebrow' => 'South Africa\'s Zoho Growth Partner',
-                    'headline' => 'Find the Zoho stack that actually fits the way your team sells, markets, and operates.',
-                    'subheadline' => 'Use a guided matching flow built for real buying journeys, then hand implementation to a local partner that knows how to turn interest into adoption.',
+                    'eyebrow' => 'Find the Right Zoho Starting Point',
+                    'headline' => 'Find the Zoho setup that matches where your business is leaking time, money, and visibility.',
+                    'subheadline' => 'Answer a few simple questions about your business, see which Zoho option is most likely to help next, and unlock the right free-trial path once you qualify.',
+                    'hero_badges' => [
+                        '5-minute guided match',
+                        'Built for South African SMMEs',
+                        'Trial-ready recommendations',
+                    ],
                     'hero_points' => [
-                        '45+ Zoho apps mapped into one connected operating system',
-                        'South African onboarding, implementation, and optimisation support',
-                        'POPIA-conscious journeys with CRM-ready lead handoff',
+                        'See which Zoho option suits your business needs',
+                        'Compare Zoho One, Marketing Plus, and Workplace with less guesswork',
+                        'Qualify once, then move into the right free trial or a guided consultation',
                     ],
                     'hero_metrics' => [
-                        ['value' => '200+', 'label' => 'South African teams launched'],
-                        ['value' => '45+', 'label' => 'Zoho apps across the platform'],
-                        ['value' => '7+', 'label' => 'Years of Zoho delivery experience'],
-                        ['value' => '98%', 'label' => 'Client satisfaction score'],
+                        ['value' => '15', 'label' => 'questions to guide your choice'],
+                        ['value' => '3', 'label' => 'Zoho options to explore'],
+                        ['value' => '24h', 'label' => 'reply window'],
+                        ['value' => 'POPIA', 'label' => 'privacy-aware support'],
                     ],
-                    'trust_marks' => [
-                        'Zoho Authorised Partner',
-                        'SA-Based Delivery Team',
-                        'POPIA-Aligned Lead Capture',
+                    'hero_logo_block' => [
+                        'label' => 'Explore these Zoho options',
+                        'items' => [
+                            [
+                                'src' => '/brand/zoho-one.svg',
+                                'alt' => 'Zoho One',
+                                'title' => 'Zoho One',
+                                'description' => 'Run sales, service, finance, and operations from one connected business suite.',
+                                'url' => '/products/zoho-one',
+                            ],
+                            [
+                                'src' => '/brand/zoho-marketing-plus.svg',
+                                'alt' => 'Zoho Marketing Plus',
+                                'title' => 'Zoho Marketing Plus',
+                                'description' => 'Coordinate campaigns, journeys, events, and reporting in one marketing workspace.',
+                                'url' => '/products/zoho-marketing-plus',
+                            ],
+                            [
+                                'src' => '/brand/zoho-workplace.svg',
+                                'alt' => 'Zoho Workplace',
+                                'title' => 'Zoho Workplace',
+                                'description' => 'Bring email, chat, docs, and meetings into one calmer collaboration suite.',
+                                'url' => '/products/zoho-workplace',
+                            ],
+                        ],
+                    ],
+                    'trust_heading' => 'Why businesses start here before choosing Zoho.',
+                    'trust_copy' => 'A few simple questions can save hours of guesswork and help you focus on the Zoho option that suits your business best.',
+                    'trust_blocks' => [
+                        [
+                            'icon' => 'shield',
+                            'title' => 'Your details stay protected',
+                            'description' => 'We keep your information secure and only use it to help you explore the right Zoho option with us.',
+                        ],
+                        [
+                            'icon' => 'compass',
+                            'title' => 'Clearer choices',
+                            'description' => 'See the difference between operations, marketing, and collaboration tools without getting lost in product jargon.',
+                        ],
+                        [
+                            'icon' => 'bolt',
+                            'title' => 'Local support when you need it',
+                            'description' => 'Talk to an INFX specialist who can help you compare options, plan next steps, and answer practical questions.',
+                        ],
+                    ],
+                    'spotlight' => [
+                        'eyebrow' => 'Start with what needs attention most',
+                        'title' => 'When systems are disconnected, work gets slower and decisions get harder.',
+                        'copy' => 'This quick check helps you focus on what matters most: running the business smoothly, improving marketing results, helping your team work better together, and deciding how soon you want to make a change.',
+                        'media_url' => 'media/systems-audit.webp',
+                        'media_alt' => 'Business systems review illustration',
                     ],
                     'journey_steps' => [
                         [
-                            'title' => 'Tell us what the business needs',
-                            'description' => 'Choose the closest match and we route you to the best-fit Zoho product journey.',
+                            'title' => 'Tell us what is frustrating the team',
+                            'description' => 'Share what needs attention most so we can focus on the kind of Zoho solution that will help.',
                         ],
                         [
-                            'title' => 'Capture the right buying context',
-                            'description' => 'We retain the qualification path so sales follow-up starts with context instead of guesswork.',
+                            'title' => 'See where to start',
+                            'description' => 'We will point you to the Zoho option that best matches your goals, team, and timing.',
                         ],
                         [
-                            'title' => 'Convert interest into implementation',
-                            'description' => 'Your team gets a focused consultation, rollout plan, and a partner who stays involved after the form fill.',
+                            'title' => 'Choose what you want to do next',
+                            'description' => 'You can continue to the suggested product page, qualify for a free trial, or speak to INFX when you want guidance.',
                         ],
                     ],
-                    'feature_heading' => 'Why high-intent buyers convert better with INFX',
-                    'feature_subheading' => 'The message, routing, and handoff are designed to feel premium without becoming complicated.',
+                    'logo_bank' => [
+                        'title' => 'Three Zoho options. One clearer choice.',
+                        'copy' => 'Whether you need better operations, stronger marketing, or calmer collaboration, you can explore the option that matches your business.',
+                        'items' => [
+                            [
+                                'src' => '/brand/zoho-one.svg',
+                                'alt' => 'Zoho One',
+                                'title' => 'Zoho One',
+                                'description' => 'For businesses that want sales, service, finance, and operations working from one connected place.',
+                                'media_type' => 'image',
+                                'media_url' => 'media/zoho-one-hero.jpg',
+                                'media_alt' => 'Zoho One connected business visual',
+                                'url' => '/products/zoho-one',
+                            ],
+                            [
+                                'src' => '/brand/zoho-marketing-plus.svg',
+                                'alt' => 'Zoho Marketing Plus',
+                                'title' => 'Zoho Marketing Plus',
+                                'description' => 'For teams that want cleaner campaign coordination, better reporting, and smoother customer communication.',
+                                'media_type' => 'image',
+                                'media_url' => 'brand/zoho-marketing-plus.svg',
+                                'media_alt' => 'Zoho Marketing Plus product icon',
+                                'media_fit' => 'contain',
+                                'url' => '/products/zoho-marketing-plus',
+                            ],
+                            [
+                                'src' => '/brand/zoho-workplace.svg',
+                                'alt' => 'Zoho Workplace',
+                                'title' => 'Zoho Workplace',
+                                'description' => 'For teams modernising email, collaboration, meetings, and knowledge sharing in one privacy-first suite.',
+                                'media_type' => 'video',
+                                'media_url' => 'media/zoho-workplace-happiness.mp4',
+                                'media_alt' => 'Zoho Workplace collaboration preview',
+                                'url' => '/products/zoho-workplace',
+                            ],
+                        ],
+                    ],
+                    'outcome_heading' => 'What this helps you do sooner.',
+                    'outcome_copy' => 'You get a clearer idea of where to start, which Zoho product is worth trialling first, and what to ask for when you want expert help.',
+                    'outcomes' => [
+                        [
+                            'metric' => '1',
+                            'title' => 'Clearer next step',
+                            'description' => 'You do not have to figure out a 45-app ecosystem on your own before you know what to look at next.',
+                        ],
+                        [
+                            'metric' => '4',
+                            'title' => 'Business priorities covered',
+                            'description' => 'Operations, marketing, collaboration, and timing questions keep the conversation focused on what matters most.',
+                        ],
+                        [
+                            'metric' => '24h',
+                            'title' => 'Quicker expert support',
+                            'description' => 'When you reach out, our team already understands the basics and can respond with useful advice faster.',
+                        ],
+                        [
+                            'metric' => '0',
+                            'title' => 'Less wasted time',
+                            'description' => 'A short check helps you avoid wasted time and focus on the option that best fits your needs.',
+                        ],
+                    ],
+                    'feature_heading' => 'Why businesses choose INFX to help them decide',
+                    'feature_subheading' => 'You get clear advice, practical answers, and a simpler way to move forward.',
                     'features' => [
                         [
                             'icon' => 'spark',
-                            'title' => 'Message-to-product fit',
-                            'description' => 'Each journey sharpens the promise so visitors do not have to interpret a generic all-in-one software pitch.',
+                            'title' => 'Clear product guidance',
+                            'description' => 'See the Zoho option that matches what your business actually needs.',
                         ],
                         [
                             'icon' => 'compass',
                             'title' => 'Faster buying confidence',
-                            'description' => 'Qualification creates momentum by reducing uncertainty before the contact form ever appears.',
+                            'description' => 'A few well-chosen questions can make the shortlist much clearer.',
                         ],
                         [
                             'icon' => 'shield',
-                            'title' => 'Clean downstream handoff',
-                            'description' => 'Every lead is saved with route context, UTM data, and CRM-ready metadata for the follow-up team.',
+                            'title' => 'You will not have to repeat yourself',
+                            'description' => 'When you speak to us, we already understand the basics of what you need.',
                         ],
                         [
                             'icon' => 'bolt',
-                            'title' => 'Local implementation edge',
-                            'description' => 'Strategy, setup, migration, and change management come from a South African team that knows the terrain.',
+                            'title' => 'Local Zoho expertise',
+                            'description' => 'Get practical setup, migration, and change support from a South African team that understands local businesses.',
                         ],
                     ],
-                    'testimonials' => [
-                        [
-                            'quote' => 'INFX helped us move from “we should probably look at Zoho” to a confident rollout plan in one conversation.',
-                            'author' => 'Alicia M.',
-                            'role' => 'Operations Lead, Cape Town',
-                        ],
-                        [
-                            'quote' => 'The qualification flow felt premium and the follow-up was already personalised. We never had to repeat ourselves.',
-                            'author' => 'Gareth N.',
-                            'role' => 'Managing Director, Johannesburg',
-                        ],
-                        [
-                            'quote' => 'They understood the commercial side and the implementation side. That combination is rare.',
-                            'author' => 'Lerato P.',
-                            'role' => 'Revenue Manager, Pretoria',
-                        ],
-                    ],
+                    'faq_heading' => 'Questions people usually ask before choosing a Zoho option.',
+                    'faq_copy' => 'Here are a few quick answers to help you decide with confidence.',
                     'faq' => [
                         [
-                            'question' => 'What does the matching flow actually do?',
-                            'answer' => 'It routes the visitor to the most relevant Zoho product journey, stores the journey context, and ties that context to the final consultation request.',
+                            'question' => 'What does this quick check actually do?',
+                            'answer' => 'It asks a few simple questions and points you to the Zoho option most likely to suit your business.',
                         ],
                         [
                             'question' => 'Do we have to commit to Zoho before talking to you?',
-                            'answer' => 'No. The goal is to clarify fit first. The consultation is there to help you understand whether Zoho One, Marketing Plus, Workplace, or another path makes the most sense.',
-                        ],
-                        [
-                            'question' => 'Can you migrate us from our current tools?',
-                            'answer' => 'Yes. We regularly help teams move from fragmented stacks, legacy CRMs, Google Workspace, Microsoft 365, and other marketing or collaboration tools.',
+                            'answer' => 'No. The goal is to clarify fit first. The consultation helps you understand whether Zoho One, Marketing Plus, Workplace, or another option makes the most sense.',
                         ],
                         [
                             'question' => 'Is this suited to South African compliance requirements?',
-                            'answer' => 'Yes. We design journeys and follow-up processes with POPIA-conscious data handling, practical governance, and regional delivery considerations in mind.',
+                            'answer' => 'Yes. We handle your information carefully and work with South African business requirements in mind.',
                         ],
                     ],
-                    'cta_heading' => 'Ready to stop guessing which Zoho product to back?',
-                    'cta_copy' => 'Start with a guided match, then let us shape the rollout plan around your revenue motion, delivery model, and team size.',
+                    'cta_heading' => 'Ready to find the Zoho product worth trialling first?',
+                    'cta_copy' => 'Start with a few simple questions and we will point you to the right product page, where you can qualify for a free trial or request guidance.',
                     'cta_primary' => [
                         'label' => 'Start the Match',
                         'url' => '#qualify',
@@ -145,34 +258,128 @@ class PageCatalog
                 'seo_title' => 'Zoho One for Fast-Growing Businesses | INFX Solutions',
                 'meta_description' => 'Run sales, delivery, finance, service, and operations on one connected Zoho platform with local implementation from INFX Solutions.',
                 'og_title' => 'Zoho One | INFX Solutions',
-                'og_description' => 'A single operating system for your entire business, implemented for real-world adoption.',
+                'og_description' => 'Bring sales, service, finance, and operations together in one connected Zoho setup with practical help from INFX.',
                 'og_image_url' => null,
                 'robots' => 'index, follow',
                 'cta_text' => 'Request a Zoho One Consultation',
                 'cta_url' => '#consultation',
-                'trial_url' => 'https://www.zoho.com/one/signup.html',
+                'trial_url' => 'https://store.zoho.com/ResellerCustomerSignUp.do?id=b90ffafff590634f12c003a7325340d7',
                 'body_config' => [
                     'nav_label' => 'Zoho One',
-                    'eyebrow' => 'One Operating System. 45+ Connected Apps.',
-                    'headline' => 'Replace software sprawl with a connected operating system built for ambitious teams.',
-                    'subheadline' => 'Zoho One brings sales, finance, operations, HR, marketing, and service into one ecosystem so your business can scale without stitching together disconnected tools.',
+                    'eyebrow' => 'One Connected Zoho Suite. 45+ Apps.',
+                    'headline' => 'Run the business from one connected system instead of patching together tools that were never built to scale together.',
+                    'subheadline' => 'Zoho One helps growing businesses bring sales, delivery, finance, service, and reporting into one connected setup so growth creates less admin and more clarity.',
+                    'hero_badges' => [
+                        'Qualify to unlock a free trial',
+                        'No card required',
+                        'Setup help available',
+                    ],
                     'hero_points' => [
-                        'CRM, finance, projects, HR, and support connected by design',
-                        'Fewer sync failures, fewer duplicate records, more operating clarity',
-                        'Implementation support tuned for real internal adoption, not shelfware',
+                        'One system for sales, marketing, finance, operations, and service',
+                        'Real-time visibility across the business instead of disconnected reporting',
+                        'Qualify below to unlock a free trial and bring INFX in for setup, migration, and onboarding support',
                     ],
                     'hero_metrics' => [
                         ['value' => '45+', 'label' => 'Integrated business apps'],
-                        ['value' => '1', 'label' => 'Connected commercial system'],
-                        ['value' => '24h', 'label' => 'Lead response target'],
+                        ['value' => '1', 'label' => 'Connected business setup'],
+                        ['value' => '24h', 'label' => 'response time'],
+                    ],
+                    'hero_logo_block' => [
+                        'label' => 'Built for businesses ready to scale properly',
+                        'items' => [
+                            [
+                                'src' => '/brand/zoho-one.svg',
+                                'alt' => 'Zoho One',
+                                'title' => 'Zoho One',
+                                'description' => 'A connected business suite for teams that want one clearer operating system as they scale.',
+                            ],
+                        ],
+                    ],
+                    'trust_heading' => 'Why Zoho One works when growth has outpaced the systems underneath it.',
+                    'trust_copy' => 'Zoho One suits businesses that want less duplication, less manual work, and a clearer view of how the whole business is performing.',
+                    'trust_blocks' => [
+                        [
+                            'icon' => 'layers',
+                            'title' => 'One clear view',
+                            'description' => 'Replace fragmented reporting and duplicated data with one connected place to work.',
+                        ],
+                        [
+                            'icon' => 'gear',
+                            'title' => 'Expert setup support',
+                            'description' => 'INFX helps you plan the setup, integrations, and training around the way your business works.',
+                        ],
+                        [
+                            'icon' => 'chart',
+                            'title' => 'Executive visibility',
+                            'description' => 'Bring revenue, delivery, finance, and operational health into a more usable reporting layer.',
+                        ],
+                    ],
+                    'spotlight' => [
+                        'media_type' => 'image',
+                        'media_url' => 'media/zoho-one-hero.jpg',
+                        'media_alt' => 'Zoho One connected business visual',
                     ],
                     'offer_title' => 'What Zoho One unlocks',
-                    'offer_copy' => 'Ideal for businesses that have outgrown tool-by-tool decision-making and now need one commercial backbone across the organisation.',
+                    'offer_copy' => 'Ideal for businesses that have outgrown separate tools and now want sales, service, finance, and operations working together. Qualify below to unlock a free trial and see where Zoho One can start delivering value first.',
                     'highlights' => [
                         'Sales and CRM visibility',
                         'Project and service delivery tracking',
                         'Finance and invoicing workflows',
                         'Cross-team reporting and automation',
+                    ],
+                    'logo_bank' => [
+                        'title' => 'See what a more connected business can look like.',
+                        'copy' => 'These visuals show how Zoho One brings your core tools together so work feels easier to manage.',
+                        'items' => [
+                            [
+                                'src' => '/brand/zoho-one.svg',
+                                'alt' => 'Zoho One',
+                                'title' => 'One place for the whole business',
+                                'description' => 'Bring sales, finance, delivery, and service into one environment instead of stitching disconnected apps together.',
+                                'media_type' => 'image',
+                                'media_url' => 'media/zoho-one-hero.jpg',
+                                'media_alt' => 'Zoho One connected business visual',
+                            ],
+                            [
+                                'src' => '/brand/zoho-authorized-partner.webp',
+                                'alt' => 'Zoho Authorized Partner',
+                                'title' => 'Setup and migration support',
+                                'description' => 'Move from disconnected tools to a more connected way of working with practical help from INFX.',
+                                'media_type' => 'image',
+                                'media_url' => 'media/systems-audit.webp',
+                                'media_alt' => 'INFX planning workshop illustration',
+                            ],
+                            [
+                                'src' => '/brand/zoho-one.svg',
+                                'alt' => 'Zoho One',
+                                'title' => 'Visibility that reaches leadership',
+                                'description' => 'See sales, finance, service, and operations more clearly in one place.',
+                            ],
+                        ],
+                    ],
+                    'outcome_heading' => 'What changes after you implement Zoho One properly.',
+                    'outcome_copy' => 'The biggest benefit is not the number of apps. It is how much easier the business becomes to run when information lives in one place.',
+                    'outcomes' => [
+                        [
+                            'metric' => '1',
+                            'title' => 'A simpler way to run the business',
+                            'description' => 'Replace scattered systems with one clearer way to run the business.',
+                        ],
+                        [
+                            'metric' => '45+',
+                            'title' => 'Apps in one place',
+                            'description' => 'Start where the pain is highest, then expand without re-platforming every year.',
+                        ],
+                        [
+                            'metric' => '↓',
+                            'title' => 'Less manual work',
+                            'description' => 'Reduce duplicated work, disconnected processes, and spreadsheet-driven reporting.',
+                        ],
+                        [
+                            'metric' => '↑',
+                            'title' => 'Faster decision-making',
+                            'description' => 'Give leaders clearer signals across sales, service, finance, and delivery.',
+                        ],
                     ],
                     'feature_heading' => 'Why buyers choose Zoho One',
                     'feature_subheading' => 'The value is not just the app count. It is the way those apps remove friction between teams.',
@@ -180,7 +387,7 @@ class PageCatalog
                         [
                             'icon' => 'layers',
                             'title' => 'Shared data foundation',
-                            'description' => 'Information flows across the stack without the brittle patchwork of third-party syncs.',
+                            'description' => 'Information moves between apps more smoothly without relying on a messy patchwork of extra connectors.',
                         ],
                         [
                             'icon' => 'chart',
@@ -190,7 +397,7 @@ class PageCatalog
                         [
                             'icon' => 'gear',
                             'title' => 'Process automation',
-                            'description' => 'Automate approvals, routing, handoffs, and alerts across departments as the business matures.',
+                            'description' => 'Automate approvals, tasks, alerts, and cross-team workflows as the business matures.',
                         ],
                         [
                             'icon' => 'rocket',
@@ -198,18 +405,8 @@ class PageCatalog
                             'description' => 'Start with the apps you need now and expand inside the same ecosystem as requirements evolve.',
                         ],
                     ],
-                    'testimonials' => [
-                        [
-                            'quote' => 'Zoho One replaced a stack of loosely connected tools and finally gave leadership one version of the truth.',
-                            'author' => 'David L.',
-                            'role' => 'CFO, Johannesburg',
-                        ],
-                        [
-                            'quote' => 'INFX made the rollout practical. We were not buying software in a vacuum; we were redesigning how the business ran.',
-                            'author' => 'Anele M.',
-                            'role' => 'COO, Cape Town',
-                        ],
-                    ],
+                    'faq_heading' => 'Questions we hear before a business moves more of its work into Zoho One.',
+                    'faq_copy' => 'The main question is usually not whether Zoho One can do the job. It is whether the move will feel practical for the business.',
                     'faq' => [
                         [
                             'question' => 'Is Zoho One only for large enterprises?',
@@ -217,15 +414,19 @@ class PageCatalog
                         ],
                         [
                             'question' => 'Can we implement in phases?',
-                            'answer' => 'Yes. We typically scope a phased rollout so the first wave creates operational lift quickly while later phases handle deeper process work.',
+                            'answer' => 'Yes. We can phase the move so you start where the benefit is biggest and expand from there at a sensible pace.',
                         ],
                         [
                             'question' => 'Can you migrate our existing data?',
                             'answer' => 'Yes. We handle structured migrations from CRMs, spreadsheets, support tools, finance systems, and collaboration platforms.',
                         ],
+                        [
+                            'question' => 'Can we start with a free trial before planning the rollout?',
+                            'answer' => 'Yes. Complete the quick fit check and you can start a free trial first, then bring INFX in when you want help with setup, migration, or expansion.',
+                        ],
                     ],
-                    'cta_heading' => 'Want to see whether Zoho One can become your commercial backbone?',
-                    'cta_copy' => 'Book a consultation and we will map your current stack, bottlenecks, and rollout priorities.',
+                    'cta_heading' => 'Ready to see whether Zoho One is the right system to trial first?',
+                    'cta_copy' => 'Complete the quick fit check to unlock your free trial option or book a consultation if you want rollout advice before you begin.',
                 ],
             ],
             'zoho_marketing_plus' => [
@@ -234,39 +435,135 @@ class PageCatalog
                 'slug' => '/products/zoho-marketing-plus',
                 'is_active' => true,
                 'seo_title' => 'Zoho Marketing Plus for Unified Growth Teams | INFX Solutions',
-                'meta_description' => 'Bring campaigns, social, webinars, events, journeys, and attribution together with Zoho Marketing Plus and INFX Solutions.',
+                'meta_description' => 'Bring campaigns, social, webinars, events, and automations together so your marketing team can work from one place with INFX.',
                 'og_title' => 'Zoho Marketing Plus | INFX Solutions',
                 'og_description' => 'A unified marketing platform for teams that need clarity, coordination, and conversion.',
                 'og_image_url' => null,
                 'robots' => 'index, follow',
                 'cta_text' => 'Plan My Marketing Plus Rollout',
                 'cta_url' => '#consultation',
-                'trial_url' => 'https://www.zoho.com/marketingplus/signup.html',
+                'trial_url' => 'https://store.zoho.com/ResellerCustomerSignUp.do?id=cb03293c4f696fa1058bd992189acdee',
                 'body_config' => [
                     'nav_label' => 'Zoho Marketing Plus',
                     'eyebrow' => 'One Home For Campaigns, Journeys, Events, and Attribution',
-                    'headline' => 'Turn fragmented campaign execution into one coordinated growth engine.',
-                    'subheadline' => 'Zoho Marketing Plus helps your team plan, launch, measure, and refine campaigns from one platform instead of juggling disconnected tools.',
+                    'headline' => 'Turn fragmented campaign execution into one coordinated marketing engine with clearer ROI.',
+                    'subheadline' => 'Zoho Marketing Plus gives your team one workspace for campaigns, automations, events, webinars, analytics, and assets instead of switching between disconnected tools all day.',
+                    'hero_badges' => [
+                        'Qualify to unlock a free trial',
+                        'No card required',
+                        'Implementation strategy support',
+                    ],
                     'hero_points' => [
-                        'Email, social, webinars, events, and journeys under one roof',
-                        'Sharper attribution and cleaner campaign coordination',
-                        'Built for marketing teams that need speed without losing control',
+                        'Campaign planning, social, webinars, events, and automations in one place',
+                        'Clearer reporting, cleaner collaboration, and stronger budget visibility',
+                        'Qualify below to unlock a free trial and get campaign setup guidance from INFX',
                     ],
                     'hero_metrics' => [
-                        ['value' => '40%', 'label' => 'Typical engagement lift after journey clean-up'],
+                        ['value' => '40%', 'label' => 'Typical engagement lift after campaign clean-up'],
                         ['value' => '1', 'label' => 'Unified campaign workspace'],
                         ['value' => '0', 'label' => 'Tolerance for tool sprawl'],
                     ],
+                    'hero_logo_block' => [
+                        'label' => 'Ideal for teams that want clearer marketing performance',
+                        'items' => [
+                            [
+                                'src' => '/brand/zoho-marketing-plus.svg',
+                                'alt' => 'Zoho Marketing Plus',
+                                'title' => 'Zoho Marketing Plus',
+                                'description' => 'A unified marketing workspace for campaigns, journeys, events, and reporting.',
+                            ],
+                        ],
+                    ],
+                    'trust_heading' => 'Why marketing teams choose Marketing Plus.',
+                    'trust_copy' => 'It helps teams plan, launch, measure, and improve campaigns without bouncing between disconnected tools.',
+                    'trust_blocks' => [
+                        [
+                            'icon' => 'megaphone',
+                            'title' => 'Cross-channel planning',
+                            'description' => 'Bring campaigns, content, events, and execution into one coordinated view.',
+                        ],
+                        [
+                            'icon' => 'pulse',
+                            'title' => 'Attribution clarity',
+                            'description' => 'See what is driving real interest instead of guessing which channels are working.',
+                        ],
+                        [
+                            'icon' => 'route',
+                            'title' => 'Marketing automation',
+                            'description' => 'Build helpful automations without having to stitch several tools together.',
+                        ],
+                    ],
+                    'spotlight' => [
+                        'media_type' => 'image',
+                        'media_url' => 'brand/zoho-marketing-plus.svg',
+                        'media_alt' => 'Zoho Marketing Plus product icon',
+                        'media_fit' => 'contain',
+                    ],
                     'offer_title' => 'What Zoho Marketing Plus unlocks',
-                    'offer_copy' => 'Best suited to teams that already have marketing motion, but need stronger orchestration, attribution, and campaign consistency.',
+                    'offer_copy' => 'Best suited to teams that are already active in marketing but need clearer reporting, easier coordination, and more consistent campaigns. Qualify below to unlock a free trial and explore the workspace with a sharper starting point.',
                     'highlights' => [
                         'Cross-channel campaign planning',
-                        'Journey automation and nurture design',
+                        'Marketing automation and nurture design',
                         'Webinar and event management',
                         'Attribution that informs better budget choices',
                     ],
+                    'logo_bank' => [
+                        'title' => 'See a more connected marketing workspace.',
+                        'copy' => 'These visuals show how Marketing Plus can bring planning, performance, and day-to-day marketing work closer together before you start your free trial.',
+                        'items' => [
+                            [
+                                'src' => '/brand/zoho-marketing-plus.svg',
+                                'alt' => 'Zoho Marketing Plus',
+                                'title' => 'A unified campaign workspace',
+                                'description' => 'Keep planning, execution, and reporting closer together so the team can move faster with more control.',
+                                'media_type' => 'image',
+                                'media_url' => 'brand/zoho-marketing-plus.svg',
+                                'media_alt' => 'Zoho Marketing Plus product icon',
+                                'media_fit' => 'contain',
+                            ],
+                            [
+                                'src' => '/brand/zoho-authorized-partner.webp',
+                                'alt' => 'Zoho Authorized Partner',
+                                'title' => 'Support from INFX',
+                                'description' => 'Get help setting up campaigns, reports, and automations in a way that suits your team.',
+                                'media_type' => 'image',
+                                'media_url' => 'media/systems-audit.webp',
+                                'media_alt' => 'INFX campaign planning illustration',
+                            ],
+                            [
+                                'src' => '/brand/zoho-marketing-plus.svg',
+                                'alt' => 'Zoho Marketing Plus',
+                                'title' => 'Clearer performance visibility',
+                                'description' => 'Turn channel and campaign activity into clearer reporting for marketing and revenue teams.',
+                            ],
+                        ],
+                    ],
+                    'outcome_heading' => 'What changes after the marketing team moves into one coordinated workspace.',
+                    'outcome_copy' => 'Your team spends less time switching tools, gets clearer reporting, and has more confidence in what is working.',
+                    'outcomes' => [
+                        [
+                            'metric' => '1',
+                            'title' => 'Unified campaign workspace',
+                            'description' => 'Bring the whole marketing operating rhythm into one platform instead of five disconnected tools.',
+                        ],
+                        [
+                            'metric' => '↑',
+                            'title' => 'Better campaign visibility',
+                            'description' => 'Sharpen the connection between campaign activity, pipeline movement, and ROI.',
+                        ],
+                        [
+                            'metric' => '↓',
+                            'title' => 'Less execution drag',
+                            'description' => 'Reduce switching costs across social, email, webinars, events, and reporting.',
+                        ],
+                        [
+                            'metric' => '24h',
+                            'title' => 'Quicker support from our team',
+                            'description' => 'Share what you need and get useful support faster when you are ready to talk.',
+                        ],
+                    ],
                     'feature_heading' => 'Why growth teams move to Marketing Plus',
-                    'feature_subheading' => 'It creates one coordinated operating model for the entire marketing team.',
+                    'feature_subheading' => 'It helps the marketing team plan, launch, and measure campaigns from one place.',
                     'features' => [
                         [
                             'icon' => 'megaphone',
@@ -275,13 +572,13 @@ class PageCatalog
                         ],
                         [
                             'icon' => 'route',
-                            'title' => 'Journey design that converts',
-                            'description' => 'Build behaviour-based customer journeys with less manual stitching and clearer follow-up logic.',
+                            'title' => 'Automations that keep momentum going',
+                            'description' => 'Build helpful automations across campaigns and customer follow-up without stitching tools together.',
                         ],
                         [
                             'icon' => 'pulse',
-                            'title' => 'Attribution with context',
-                            'description' => 'See which channels and campaigns are actually driving qualified demand and downstream revenue.',
+                            'title' => 'Clearer campaign reporting',
+                            'description' => 'See which channels and campaigns are bringing in real opportunities.',
                         ],
                         [
                             'icon' => 'spark',
@@ -289,22 +586,12 @@ class PageCatalog
                             'description' => 'Reduce switching costs between tools so the team can launch more confidently and iterate faster.',
                         ],
                     ],
-                    'testimonials' => [
-                        [
-                            'quote' => 'We replaced four separate tools and our campaign team finally started working from the same operating rhythm.',
-                            'author' => 'Leigh S.',
-                            'role' => 'Head of Marketing, Durban',
-                        ],
-                        [
-                            'quote' => 'The attribution clarity was the unlock. We stopped guessing which activity mattered.',
-                            'author' => 'Thabo N.',
-                            'role' => 'Digital Marketing Manager',
-                        ],
-                    ],
+                    'faq_heading' => 'Questions marketing teams ask before moving campaign operations into one platform.',
+                    'faq_copy' => 'Most teams already know they need better visibility. They mainly want to know whether the move will be worth it and how it fits with their current setup.',
                     'faq' => [
                         [
-                            'question' => 'How is Marketing Plus different from standalone email tools?',
-                            'answer' => 'It gives you orchestration across multiple channels, not just email execution. That means better coordination, cleaner journeys, and stronger reporting.',
+                            'question' => 'How is Marketing Plus different from separate email tools?',
+                            'answer' => 'It helps you manage more than email in one place, including social, webinars, events, and automation, with clearer reporting across the board.',
                         ],
                         [
                             'question' => 'Can it connect to Zoho CRM?',
@@ -314,9 +601,13 @@ class PageCatalog
                             'question' => 'Is it right for smaller teams?',
                             'answer' => 'Yes, especially when the cost of switching between separate marketing tools is already slowing the team down.',
                         ],
+                        [
+                            'question' => 'Can we start with a free trial before we redesign our campaigns?',
+                            'answer' => 'Yes. Complete the quick fit check and you can start a free trial first, then bring INFX in when you want help refining journeys, reporting, or campaign structure.',
+                        ],
                     ],
-                    'cta_heading' => 'Ready to unify your campaigns and stop managing growth from five disconnected tools?',
-                    'cta_copy' => 'Book a consultation and we will map the best-fit rollout for your demand generation engine.',
+                    'cta_heading' => 'Ready to stop switching tools and start trialling a more connected marketing workspace?',
+                    'cta_copy' => 'Complete the quick fit check to unlock your free trial or book a consultation if you want campaign guidance first.',
                 ],
             ],
             'zoho_workplace' => [
@@ -332,29 +623,126 @@ class PageCatalog
                 'robots' => 'index, follow',
                 'cta_text' => 'Scope My Workplace Migration',
                 'cta_url' => '#consultation',
-                'trial_url' => 'https://www.zoho.com/workplace/signup.html',
+                'trial_url' => 'https://store.zoho.com/ResellerCustomerSignUp.do?id=2afc43fa6ca997e0dae84629788ad5e8',
                 'body_config' => [
                     'nav_label' => 'Zoho Workplace',
                     'eyebrow' => 'Email, Chat, Docs, Meetings, and Intranet In One Workspace',
-                    'headline' => 'Give your team a modern collaboration layer without buying into more platform noise.',
-                    'subheadline' => 'Zoho Workplace replaces scattered collaboration habits with one privacy-first environment for communication, content, and internal alignment.',
+                    'headline' => 'Give the team one calmer collaboration stack instead of more platform noise.',
+                    'subheadline' => 'Zoho Workplace brings email, documents, meetings, chat, and internal communication together in a privacy-first suite that is easier to adopt and easier to manage.',
+                    'hero_badges' => [
+                        'Qualify to unlock a free trial',
+                        'Migration assistance available',
+                        'Privacy-first platform',
+                    ],
                     'hero_points' => [
-                        'Professional email, chat, meetings, docs, and intranet in one suite',
-                        'Strong fit for teams that care about privacy and platform simplicity',
-                        'Migration support for Google Workspace and Microsoft 365 environments',
+                        'Professional email, chat, docs, meetings, and intranet in one suite',
+                        'Strong fit for teams that care about privacy, simplicity, and cleaner collaboration habits',
+                        'Qualify below to unlock a free trial and bring INFX in when you want migration support',
                     ],
                     'hero_metrics' => [
                         ['value' => '120', 'label' => 'Users migrated in a single weekend'],
                         ['value' => '1', 'label' => 'Workspace instead of scattered tools'],
-                        ['value' => '24h', 'label' => 'Average turnaround for new consultation leads'],
+                        ['value' => '24h', 'label' => 'Average reply time'],
+                    ],
+                    'hero_logo_block' => [
+                        'label' => 'A better fit for privacy-first collaboration',
+                        'items' => [
+                            [
+                                'src' => '/brand/zoho-workplace.svg',
+                                'alt' => 'Zoho Workplace',
+                                'title' => 'Zoho Workplace',
+                                'description' => 'A calmer collaboration suite for email, documents, meetings, and team communication.',
+                            ],
+                        ],
+                    ],
+                    'trust_heading' => 'Why teams choose Zoho Workplace.',
+                    'trust_copy' => 'It brings email, files, chat, meetings, and intranet tools together in one calmer workspace that is easier to manage.',
+                    'trust_blocks' => [
+                        [
+                            'icon' => 'mail',
+                            'title' => 'Unified communication stack',
+                            'description' => 'Bring mail, meetings, chat, and file collaboration into one place the team can actually use daily.',
+                        ],
+                        [
+                            'icon' => 'document',
+                            'title' => 'Knowledge sharing without chaos',
+                            'description' => 'Give the team shared documents, intranet updates, and searchable information in one workspace.',
+                        ],
+                        [
+                            'icon' => 'shield',
+                            'title' => 'Privacy-first migration path',
+                            'description' => 'Move away from the current suite without losing the structure people rely on every day.',
+                        ],
+                    ],
+                    'spotlight' => [
+                        'media_type' => 'video',
+                        'media_url' => 'media/zoho-workplace-workdrive.mp4',
+                        'media_alt' => 'Zoho Workplace collaboration video',
                     ],
                     'offer_title' => 'What Zoho Workplace unlocks',
-                    'offer_copy' => 'A strong fit for businesses that want cleaner internal collaboration, simpler administration, and a privacy-first alternative to mainstream suites.',
+                    'offer_copy' => 'A strong fit for businesses that want cleaner internal collaboration, simpler administration, and a privacy-first alternative to mainstream suites. Qualify below to unlock a free trial and see how the suite fits your team\'s daily work.',
                     'highlights' => [
                         'Custom-domain business email',
                         'Channels, chat, and team communication',
                         'Document collaboration and file sharing',
                         'Internal communication through a company intranet',
+                    ],
+                    'logo_bank' => [
+                        'title' => 'A calmer collaboration stack is easier to picture with real product motion.',
+                        'copy' => 'These previews show the kind of workplace experience teams move into when email, docs, chat, and meetings stop living in separate silos.',
+                        'items' => [
+                            [
+                                'src' => '/brand/zoho-workplace.svg',
+                                'alt' => 'Zoho Workplace',
+                                'title' => 'File work without the clutter',
+                                'description' => 'Keep shared documents and daily collaboration in a simpler workspace that is easier for teams to adopt.',
+                                'media_type' => 'video',
+                                'media_url' => 'media/zoho-workplace-workdrive.mp4',
+                                'media_alt' => 'Zoho Workplace WorkDrive preview',
+                            ],
+                            [
+                                'src' => '/brand/zoho-workplace.svg',
+                                'alt' => 'Zoho Workplace',
+                                'title' => 'A workspace people actually enjoy using',
+                                'description' => 'Bring communication and teamwork into one calmer daily rhythm instead of scattered platform habits.',
+                                'media_type' => 'video',
+                                'media_url' => 'media/zoho-workplace-happiness.mp4',
+                                'media_alt' => 'Zoho Workplace collaboration preview',
+                            ],
+                            [
+                                'src' => '/brand/zoho-workplace.svg',
+                                'alt' => 'Zoho Workplace',
+                                'title' => 'Flexibility for hybrid teams',
+                                'description' => 'Support remote and in-office work without adding more platform noise or admin overhead.',
+                                'media_type' => 'video',
+                                'media_url' => 'media/zoho-workplace-flexibility.mp4',
+                                'media_alt' => 'Zoho Workplace flexibility preview',
+                            ],
+                        ],
+                    ],
+                    'outcome_heading' => 'What changes after the team moves into a cleaner workplace stack.',
+                    'outcome_copy' => 'The real value is less fragmentation and less confusion across the tools people touch every day.',
+                    'outcomes' => [
+                        [
+                            'metric' => '1',
+                            'title' => 'Unified workplace',
+                            'description' => 'Put communication, collaboration, and file access under one clearer daily stack.',
+                        ],
+                        [
+                            'metric' => '↓',
+                            'title' => 'Less disruption during migration',
+                            'description' => 'Use phased migration options and partner support to reduce risk for the team.',
+                        ],
+                        [
+                            'metric' => '↑',
+                            'title' => 'Better collaboration',
+                            'description' => 'Improve document access, internal communication, and cross-team work in one suite.',
+                        ],
+                        [
+                            'metric' => '0',
+                            'title' => 'Need for extra collaboration clutter',
+                            'description' => 'Reduce the number of ad hoc tools used to patch over gaps in the current setup.',
+                        ],
                     ],
                     'feature_heading' => 'Why teams move to Workplace',
                     'feature_subheading' => 'The real win is alignment: fewer disconnected habits, cleaner tooling, and better day-to-day collaboration.',
@@ -367,7 +755,7 @@ class PageCatalog
                         [
                             'icon' => 'document',
                             'title' => 'Shared knowledge and documents',
-                            'description' => 'Keep files, collaboration, and internal updates in one environment with less context switching.',
+                            'description' => 'Keep files, collaboration, and internal updates in one environment with less tool switching.',
                         ],
                         [
                             'icon' => 'shield',
@@ -380,18 +768,8 @@ class PageCatalog
                             'description' => 'Move people, mail, calendars, and collaboration patterns with a structured migration plan.',
                         ],
                     ],
-                    'testimonials' => [
-                        [
-                            'quote' => 'The migration from Google Workspace was smoother than we expected and the team adopted the new suite quickly.',
-                            'author' => 'Brendan T.',
-                            'role' => 'IT Manager, Pretoria',
-                        ],
-                        [
-                            'quote' => 'We cut costs, improved privacy posture, and gave the team a calmer collaboration setup.',
-                            'author' => 'Nomsa D.',
-                            'role' => 'CTO, Fintech Startup',
-                        ],
-                    ],
+                    'faq_heading' => 'Questions teams ask before migrating email and collaboration to Zoho Workplace.',
+                    'faq_copy' => 'Migration and adoption are the usual blockers, so the FAQ is designed to remove that uncertainty quickly.',
                     'faq' => [
                         [
                             'question' => 'Can you migrate us from Google Workspace or Microsoft 365?',
@@ -403,11 +781,15 @@ class PageCatalog
                         ],
                         [
                             'question' => 'Will our team struggle to adopt it?',
-                            'answer' => 'Adoption is part of the rollout. We help plan training, change communication, and the handover into day-to-day use.',
+                            'answer' => 'We help with onboarding, training, and the move into day-to-day use so the change feels easier on the team.',
+                        ],
+                        [
+                            'question' => 'Can we start with a free trial before committing to migration?',
+                            'answer' => 'Yes. Complete the quick fit check and you can start a free trial first, then bring INFX in when you want help with migration planning, onboarding, or rollout.',
                         ],
                     ],
-                    'cta_heading' => 'Thinking about a cleaner collaboration stack for your team?',
-                    'cta_copy' => 'Book a migration consultation and we will map the move, risks, and the right rollout path.',
+                    'cta_heading' => 'Thinking about trialling a cleaner collaboration stack for your team?',
+                    'cta_copy' => 'Complete the quick fit check to unlock your free trial or book a migration consultation if you want help planning the move first.',
                 ],
             ],
             'thanks' => [
@@ -469,7 +851,7 @@ class PageCatalog
     }
 
     /**
-     * @return array<string, mixed>
+     * @return PageCatalogDefinition
      */
     public static function definition(string $pageKey): array
     {
@@ -483,21 +865,27 @@ class PageCatalog
     }
 
     /**
-     * @return array<int, array{page_key: string, label: string, slug: string}>
+     * @return array<int, ProductNavigationItem>
      */
     public static function productNavigation(): array
     {
         return collect(self::definitions())
             ->filter(fn (array $definition): bool => $definition['page_type'] === PageType::Product)
-            ->map(fn (array $definition): array => [
-                'page_key' => $definition['page_key'],
-                'label' => (string) Arr::get($definition, 'body_config.nav_label', $definition['page_key']),
-                'slug' => $definition['slug'],
-            ])->values()->all();
+            ->map(static function (array $definition): array {
+                $navLabel = Arr::get($definition['body_config'], 'nav_label');
+
+                return [
+                    'page_key' => $definition['page_key'],
+                    'label' => is_string($navLabel) && $navLabel !== '' ? $navLabel : $definition['page_key'],
+                    'slug' => $definition['slug'],
+                ];
+            })
+            ->values()
+            ->all();
     }
 
     /**
-     * @return array<string, mixed>
+     * @return PageCatalogDefinition
      */
     public static function resolve(string $pageKey, ?Page $page = null): array
     {
@@ -526,11 +914,19 @@ class PageCatalog
             'trial_url' => $record?->trial_url,
         ], static fn (mixed $value): bool => $value !== null));
 
-        $resolved['page_type'] = $record?->page_type ?? $definition['page_type'];
-        $resolved['is_active'] = $record?->is_active ?? $definition['is_active'];
+        if ($record === null) {
+            $resolved['page_type'] = $definition['page_type'];
+            $resolved['is_active'] = $definition['is_active'];
+            $resolved['body_config'] = $definition['body_config'];
+
+            return $resolved;
+        }
+
+        $resolved['page_type'] = $record->page_type;
+        $resolved['is_active'] = $record->is_active;
         $resolved['body_config'] = array_replace_recursive(
-            $definition['body_config'] ?? [],
-            $record?->body_config ?? [],
+            $definition['body_config'],
+            $record->body_config ?? [],
         );
 
         return $resolved;
@@ -555,7 +951,8 @@ class PageCatalog
 
     public static function productRouteSegment(string $pageKey): string
     {
-        $slug = (string) self::definition($pageKey)['slug'];
+        $definition = self::definition($pageKey);
+        $slug = $definition['slug'];
 
         return Str::afterLast($slug, '/');
     }

@@ -1,6 +1,9 @@
 document.documentElement.classList.add('js')
 
 const revealElements = document.querySelectorAll('[data-reveal]')
+const scrollHeader = document.querySelector('[data-scroll-header]')
+const navToggles = document.querySelectorAll('[data-nav-toggle]')
+const mobileNav = document.querySelector('[data-mobile-nav]')
 
 if ('IntersectionObserver' in window) {
   const observer = new IntersectionObserver(
@@ -24,3 +27,82 @@ if ('IntersectionObserver' in window) {
 } else {
   revealElements.forEach((element) => element.classList.add('is-visible'))
 }
+
+if (scrollHeader) {
+  let lastScrollY = window.scrollY
+  const scrollThreshold = 8
+  const hideOffset = 120
+
+  const syncScrollHeader = () => {
+    const currentScrollY = window.scrollY
+    const mobileNavOpen = mobileNav?.dataset.open === 'true'
+
+    scrollHeader.classList.toggle('is-scrolled', currentScrollY > 24)
+
+    if (mobileNavOpen || currentScrollY <= hideOffset) {
+      scrollHeader.classList.remove('is-hidden')
+      lastScrollY = currentScrollY
+      return
+    }
+
+    if (Math.abs(currentScrollY - lastScrollY) < scrollThreshold) {
+      return
+    }
+
+    scrollHeader.classList.toggle('is-hidden', currentScrollY > lastScrollY)
+    lastScrollY = currentScrollY
+  }
+
+  syncScrollHeader()
+  window.addEventListener('scroll', syncScrollHeader, { passive: true })
+}
+
+window.infxTurnstileMount = (element, siteKey, onSuccess, onReset = null) => {
+  const mount = () => {
+    if (!window.turnstile || !element) {
+      window.setTimeout(mount, 150)
+      return
+    }
+
+    if (element.dataset.turnstileWidgetId) {
+      window.turnstile.remove(element.dataset.turnstileWidgetId)
+    }
+
+    element.innerHTML = ''
+
+    const widgetId = window.turnstile.render(element, {
+      sitekey: siteKey,
+      theme: 'light',
+      callback: onSuccess,
+      'expired-callback': () => onReset?.(),
+      'error-callback': () => onReset?.(),
+    })
+
+    element.dataset.turnstileWidgetId = `${widgetId}`
+  }
+
+  mount()
+}
+
+navToggles.forEach((toggle) => {
+  toggle.addEventListener('click', () => {
+    if (!mobileNav) {
+      return
+    }
+
+    const nextExpanded = mobileNav.dataset.open !== 'true'
+    mobileNav.dataset.open = nextExpanded ? 'true' : 'false'
+    mobileNav.classList.toggle('hidden', !nextExpanded)
+    toggle.setAttribute('aria-expanded', nextExpanded ? 'true' : 'false')
+    scrollHeader?.classList.toggle('is-scrolled', nextExpanded || window.scrollY > 24)
+    scrollHeader?.classList.remove('is-hidden')
+  })
+})
+
+mobileNav?.querySelectorAll('a').forEach((link) => {
+  link.addEventListener('click', () => {
+    mobileNav.dataset.open = 'false'
+    mobileNav.classList.add('hidden')
+    navToggles.forEach((toggle) => toggle.setAttribute('aria-expanded', 'false'))
+  })
+})

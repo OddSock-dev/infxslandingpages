@@ -5,6 +5,13 @@ declare(strict_types=1);
 namespace App\Filament\Resources\Submissions\Schemas;
 
 use App\Enums\CrmStatus;
+use App\Enums\SyncAttemptStatus;
+use App\Models\CrmSyncAttempt;
+use App\Models\Submission;
+use App\Support\CrmPayloadRedactor;
+use Carbon\CarbonImmutable;
+use Filament\Infolists\Components\RepeatableEntry;
+use Filament\Infolists\Components\RepeatableEntry\TableColumn;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
@@ -17,10 +24,18 @@ class SubmissionInfolist
             ->components([
                 Section::make('Contact Information')
                     ->schema([
-                        TextEntry::make('pii_json.name')->label('Name'),
-                        TextEntry::make('pii_json.email')->label('Email'),
-                        TextEntry::make('pii_json.phone')->label('Phone'),
-                        TextEntry::make('pii_json.company')->label('Company'),
+                        TextEntry::make('contact_name')
+                            ->label('Name')
+                            ->state(fn (Submission $record): ?string => self::contactValue($record, 'name')),
+                        TextEntry::make('contact_email')
+                            ->label('Email')
+                            ->state(fn (Submission $record): ?string => self::contactValue($record, 'email')),
+                        TextEntry::make('contact_phone')
+                            ->label('Phone')
+                            ->state(fn (Submission $record): ?string => self::contactValue($record, 'phone')),
+                        TextEntry::make('contact_company')
+                            ->label('Company')
+                            ->state(fn (Submission $record): ?string => self::contactValue($record, 'company')),
                     ])
                     ->columns(2),
 
@@ -39,6 +54,109 @@ class SubmissionInfolist
                         TextEntry::make('journey_id'),
                     ])
                     ->columns(2),
+
+                Section::make('CRM Sync Activity')
+                    ->description('Attempt summaries stay visible while contact and payload data remain masked for operators.')
+                    ->schema([
+                        TextEntry::make('latestSyncAttempt.status')
+                            ->label('Latest Attempt Status')
+                            ->state(fn (Submission $record) => $record->latestSyncAttempt?->status)
+                            ->badge()
+                            ->color(fn (?SyncAttemptStatus $state): string => match ($state) {
+                                SyncAttemptStatus::Pending => 'warning',
+                                SyncAttemptStatus::Success => 'success',
+                                SyncAttemptStatus::Failed => 'danger',
+                                default => 'gray',
+                            }),
+                        TextEntry::make('latestSyncAttempt.attempted_at')
+                            ->label('Latest Attempt')
+                            ->state(fn (Submission $record) => $record->latestSyncAttempt?->attempted_at)
+                            ->dateTime(),
+                        TextEntry::make('sync_attempts_count')
+                            ->label('Total Attempts')
+                            ->state(fn (Submission $record): int => $record->syncAttempts()->count()),
+                        TextEntry::make('latestSuccessfulSyncAttempt.attempted_at')
+                            ->label('Last Successful Push')
+                            ->state(fn (Submission $record) => $record->latestSuccessfulSyncAttempt?->attempted_at)
+                            ->dateTime(),
+                        RepeatableEntry::make('recent_attempts')
+                            ->label('Recent Attempts')
+                            ->state(fn (Submission $record): array => self::recentAttempts($record))
+                            ->table([
+                                TableColumn::make('Attempt'),
+                                TableColumn::make('Status'),
+                                TableColumn::make('When'),
+                                TableColumn::make('Error'),
+                            ])
+                            ->schema([
+                                TextEntry::make('id')
+                                    ->label('Attempt'),
+                                TextEntry::make('status')
+                                    ->badge()
+                                    ->color(fn (SyncAttemptStatus $state): string => match ($state) {
+                                        SyncAttemptStatus::Pending => 'warning',
+                                        SyncAttemptStatus::Success => 'success',
+                                        SyncAttemptStatus::Failed => 'danger',
+                                    }),
+                                TextEntry::make('attempted_at')
+                                    ->label('When')
+                                    ->dateTime(),
+                                TextEntry::make('error_message')
+                                    ->label('Error')
+                                    ->placeholder('—')
+                                    ->limit(100),
+                            ])
+                            ->columnSpanFull(),
+                    ])
+                    ->columns(2),
             ]);
+    }
+
+    private static function contactValue(Submission $record, string $field): ?string
+    {
+        $pii = $record->pii_json;
+
+        if ($field === 'name') {
+            $fullName = data_get($pii, 'name');
+
+            if (! is_string($fullName) || trim($fullName) === '') {
+                $firstName = data_get($pii, 'first_name');
+                $lastName = data_get($pii, 'last_name');
+
+                $fullName = trim(implode(' ', array_filter([
+                    is_string($firstName) ? $firstName : null,
+                    is_string($lastName) ? $lastName : null,
+                ])));
+            }
+
+            return $fullName === '' ? null : CrmPayloadRedactor::redactField('name', $fullName);
+        }
+
+        $value = data_get($pii, $field);
+
+        return is_string($value) ? CrmPayloadRedactor::redactField($field, $value) : null;
+    }
+
+    /**
+     * @return array<int, array{
+     *     id: int,
+     *     status: SyncAttemptStatus,
+     *     attempted_at: CarbonImmutable,
+     *     error_message: string|null
+     * }>
+     */
+    private static function recentAttempts(Submission $record): array
+    {
+        return $record->syncAttempts()
+            ->latest('attempted_at')
+            ->limit(5)
+            ->get()
+            ->map(static fn (CrmSyncAttempt $attempt): array => [
+                'id' => $attempt->id,
+                'status' => $attempt->status,
+                'attempted_at' => $attempt->attempted_at,
+                'error_message' => CrmPayloadRedactor::redactMessage($attempt->error_message),
+            ])
+            ->all();
     }
 }

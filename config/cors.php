@@ -10,8 +10,8 @@ return [
     |--------------------------------------------------------------------------
     |
     | This config controls which cross-origin requests are allowed to the API.
-    | The Nuxt frontend runs on localhost:3000 in development and on the
-    | production domain in production.
+    | The public marketing site now runs from the Laravel app itself, so these
+    | origins are only for explicit cross-origin clients that still need API access.
     |
     */
 
@@ -20,10 +20,6 @@ return [
     'allowed_methods' => ['GET', 'POST', 'OPTIONS'],
 
     'allowed_origins' => [
-        'http://localhost:3000',
-        'https://localhost:3000',
-        'http://localhost:3001',
-        'https://localhost:3001',
         'https://zoho.infxsolutions.co.za',
     ],
 

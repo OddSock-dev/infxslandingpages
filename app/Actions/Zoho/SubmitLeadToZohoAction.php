@@ -10,7 +10,11 @@ use App\Integrations\Zoho\LeadPayloadMapper;
 use App\Integrations\Zoho\ZohoCrmClient;
 use App\Models\CrmSyncAttempt;
 use App\Models\Submission;
+use App\Support\CrmPayloadRedactor;
+use Illuminate\Http\Client\ConnectionException;
+use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 /**
  * Executes a single Zoho CRM lead-creation attempt for a submission.
@@ -59,13 +63,118 @@ class SubmitLeadToZohoAction
             DB::transaction(function () use ($attempt, $submission, $e): void {
                 $attempt->update([
                     'status' => SyncAttemptStatus::Failed,
-                    'error_code' => 'API_ERROR',
-                    'error_message' => $e->getMessage(),
+                    'error_code' => $this->resolveErrorCode($e),
+                    'error_message' => $this->resolveErrorMessage($e),
+                    'response_payload' => $this->extractResponsePayload($e),
                 ]);
                 $submission->update(['crm_status' => CrmStatus::Failed]);
             });
 
             throw $e;
         }
+    }
+
+    private function resolveErrorCode(\Throwable $exception): string
+    {
+        if ($exception instanceof ConnectionException) {
+            return 'CONNECTION_ERROR';
+        }
+
+        if (! $exception instanceof RequestException || $exception->response === null) {
+            return 'SYNC_ERROR';
+        }
+
+        return match ($exception->response->status()) {
+            401 => 'HTTP_401_UNAUTHORIZED',
+            403 => 'HTTP_403_FORBIDDEN',
+            404 => 'HTTP_404_NOT_FOUND',
+            409 => 'HTTP_409_CONFLICT',
+            422 => 'HTTP_422_VALIDATION',
+            429 => 'HTTP_429_RATE_LIMITED',
+            500, 502, 503, 504 => 'HTTP_5XX_SERVER_ERROR',
+            default => sprintf('HTTP_%d', $exception->response->status()),
+        };
+    }
+
+    private function resolveErrorMessage(\Throwable $exception): string
+    {
+        if (! $exception instanceof RequestException || $exception->response === null) {
+            return CrmPayloadRedactor::redactMessage($exception->getMessage()) ?? 'CRM sync failed.';
+        }
+
+        $summary = [sprintf('HTTP %d', $exception->response->status())];
+        $messages = $this->collectResponseMessages($exception);
+
+        if ($messages !== []) {
+            $summary[] = implode(' | ', $messages);
+        } else {
+            $body = Str::of($exception->response->body())->squish()->limit(240)->toString();
+
+            if ($body !== '') {
+                $summary[] = $body;
+            }
+        }
+
+        return CrmPayloadRedactor::redactMessage(implode(': ', $summary)) ?? 'CRM sync failed.';
+    }
+
+    /**
+     * @return array<int|string, mixed>|null
+     */
+    private function extractResponsePayload(\Throwable $exception): ?array
+    {
+        if (! $exception instanceof RequestException || $exception->response === null) {
+            return null;
+        }
+
+        $json = $exception->response->json();
+
+        if (is_array($json)) {
+            return $json;
+        }
+
+        $body = trim($exception->response->body());
+
+        if ($body === '') {
+            return ['status' => $exception->response->status()];
+        }
+
+        return [
+            'status' => $exception->response->status(),
+            'body' => $body,
+        ];
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function collectResponseMessages(RequestException $exception): array
+    {
+        if ($exception->response === null) {
+            return [];
+        }
+
+        $payload = $exception->response->json();
+
+        if (! is_array($payload)) {
+            return [];
+        }
+
+        $messages = [];
+
+        foreach ([
+            data_get($payload, 'message'),
+            data_get($payload, 'error.message'),
+            data_get($payload, 'data.0.message'),
+            data_get($payload, 'data.0.details.api_name'),
+        ] as $candidate) {
+            if (! is_string($candidate) || trim($candidate) === '') {
+                continue;
+            }
+
+            $messages[] = Str::of($candidate)->squish()->limit(120)->toString();
+        }
+
+        return array_values(array_unique($messages));
     }
 }

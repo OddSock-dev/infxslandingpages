@@ -1,5 +1,0 @@
-export type { PageConfig } from './page'
-export type { QualifyAnswer, QualifyRequest, QualifyResponse } from './journey'
-export type { PrefillFields, PrefillResponse } from './prefill'
-export type { SubmitRequest, SubmitResponse } from './submission'
-export type { SeoMeta } from './seo'

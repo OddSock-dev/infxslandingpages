@@ -2,32 +2,55 @@
     $products = \App\Support\PageCatalog::productNavigation();
 @endphp
 
-<header class="fixed inset-x-0 top-0 z-50">
-    <div class="mx-auto max-w-7xl px-4 pt-4 sm:px-6 lg:px-8">
-        <div class="glass-panel flex items-center justify-between gap-4 rounded-full px-4 py-3 sm:px-6">
-            <a href="{{ route('home') }}" class="flex items-center gap-3">
-                <div class="flex h-11 w-11 items-center justify-center rounded-2xl bg-linear-to-br from-orange-500 to-amber-500 text-sm font-bold text-white shadow-soft">IX</div>
-                <div>
-                    <p class="font-display text-sm font-semibold tracking-tight text-slate-950">INFX Solutions</p>
-                    <p class="text-xs text-slate-500">Zoho Growth Partner</p>
-                </div>
-            </a>
+<header data-scroll-header class="site-header fixed inset-x-0 top-0 z-50">
+    <div class="mx-auto max-w-6xl px-4 pt-4 sm:px-6 lg:px-8">
+        <div class="site-header__panel rounded-[1.75rem] px-4 py-3 sm:px-5 sm:py-3.5">
+            <div class="flex items-center justify-between gap-4">
+                <a href="{{ route('home') }}" class="site-header__brand flex min-w-0 items-center">
+                    <img src="{{ asset('brand/infx-logo-wide.webp') }}" alt="INFX Solutions" class="site-header__brand-image h-11 w-auto sm:h-14">
+                </a>
 
-            <nav class="hidden items-center gap-6 lg:flex">
-                @foreach($products as $product)
-                    <a href="{{ $product['slug'] }}" class="text-sm font-medium text-slate-600 transition hover:text-slate-950">
-                        {{ $product['label'] }}
+                <nav class="hidden items-center gap-6 lg:flex">
+                    @foreach($products as $product)
+                        <a href="{{ $product['slug'] }}" class="site-header__link text-sm font-medium transition">
+                            {{ $product['label'] }}
+                        </a>
+                    @endforeach
+                    <a href="{{ route('privacy') }}" class="site-header__link text-sm font-medium transition">Privacy</a>
+                </nav>
+
+                <div class="flex items-center gap-3">
+                    <a
+                        href="{{ route('home') }}#qualify"
+                        class="site-header__cta hidden items-center rounded-full px-4 py-2.5 text-sm font-semibold transition hover:-translate-y-0.5 sm:inline-flex"
+                    >
+                        Start The Match
                     </a>
-                @endforeach
-                <a href="{{ route('privacy') }}" class="text-sm font-medium text-slate-600 transition hover:text-slate-950">Privacy</a>
-            </nav>
+                    <button
+                        type="button"
+                        data-nav-toggle
+                        aria-expanded="false"
+                        class="site-header__menu-button inline-flex h-11 w-11 items-center justify-center rounded-2xl transition lg:hidden"
+                    >
+                        <span class="sr-only">Toggle navigation</span>
+                        ☰
+                    </button>
+                </div>
+            </div>
 
-            <a
-                href="{{ route('home') }}#qualify"
-                class="inline-flex items-center rounded-full bg-slate-950 px-4 py-2.5 text-sm font-semibold text-white shadow-soft transition hover:-translate-y-0.5 hover:bg-slate-900"
-            >
-                Start The Match
-            </a>
+            <div data-mobile-nav data-open="false" class="site-header__mobile-panel hidden mt-4 border-t pt-4 lg:hidden">
+                <nav class="grid gap-3">
+                    @foreach($products as $product)
+                        <a href="{{ $product['slug'] }}" class="site-header__mobile-link rounded-2xl px-3 py-2 text-sm font-medium transition">
+                            {{ $product['label'] }}
+                        </a>
+                    @endforeach
+                    <a href="{{ route('privacy') }}" class="site-header__mobile-link rounded-2xl px-3 py-2 text-sm font-medium transition">Privacy</a>
+                    <a href="{{ route('home') }}#qualify" class="site-header__mobile-cta rounded-2xl px-3 py-2 text-sm font-semibold text-white">
+                        Start The Match
+                    </a>
+                </nav>
+            </div>
         </div>
     </div>
 </header>

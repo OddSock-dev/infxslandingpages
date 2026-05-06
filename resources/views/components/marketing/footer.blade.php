@@ -4,21 +4,15 @@
 
 <footer class="border-t border-slate-200/70 bg-white/70 backdrop-blur">
     <div class="mx-auto grid max-w-7xl gap-10 px-6 py-14 lg:grid-cols-[1.2fr_0.8fr_0.6fr] lg:px-8">
-        <div class="space-y-4">
-            <div class="flex items-center gap-3">
-                <div class="flex h-11 w-11 items-center justify-center rounded-2xl bg-linear-to-br from-orange-500 to-amber-500 text-sm font-bold text-white shadow-soft">IX</div>
-                <div>
-                    <p class="font-display text-base font-semibold tracking-tight text-slate-950">INFX Solutions</p>
-                    <p class="text-sm text-slate-500">Zoho Authorised Partner</p>
-                </div>
+        <div class="space-y-5">
+            <div class="flex items-center">
+                <img src="{{ asset('brand/infx-logo-wide.webp') }}" alt="INFX Solutions" class="h-12 w-auto sm:h-21">
             </div>
             <p class="max-w-xl text-sm leading-7 text-slate-600">
-                High-intent landing journeys, better lead handoff, and implementation support that keeps momentum going after the form fill.
+                Clear Zoho guidance, practical support, and local expertise to help your team move forward with confidence.
             </p>
-            <div class="flex flex-wrap gap-2">
-                <span class="inline-flex items-center rounded-full bg-orange-50 px-3 py-1 text-xs font-medium text-orange-700">SA-Based Delivery</span>
-                <span class="inline-flex items-center rounded-full bg-teal-50 px-3 py-1 text-xs font-medium text-teal-700">POPIA-Conscious</span>
-                <span class="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700">Zoho Rollouts</span>
+            <div class="flex items-center">
+                <img src="{{ asset('brand/zoho-authorized-partner.webp') }}" alt="Zoho Authorized Partner" class="h-11 w-auto sm:h-14">
             </div>
         </div>
 

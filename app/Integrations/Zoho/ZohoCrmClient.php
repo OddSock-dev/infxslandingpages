@@ -5,10 +5,14 @@ declare(strict_types=1);
 namespace App\Integrations\Zoho;
 
 use App\Models\ZohoCredential;
+use App\Services\ZohoConnectionSettings;
 use Carbon\CarbonImmutable;
+use Illuminate\Http\Client\ConnectionException;
+use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
+use Throwable;
 
 /**
  * Low-level Zoho CRM API client.
@@ -26,8 +30,9 @@ class ZohoCrmClient
 
     private const TOKEN_REFRESH_LOCK_SECONDS = 30;
 
-    /** @param  array{client_id: string, client_secret: string, api_domain: string, accounts_url: string}  $config */
-    public function __construct(private readonly array $config) {}
+    public function __construct(
+        private readonly ZohoConnectionSettings $settings,
+    ) {}
 
     /**
      * Returns a valid access token, refreshing first if the stored one is expired.
@@ -64,6 +69,7 @@ class ZohoCrmClient
      */
     public function refreshToken(): void
     {
+        $config = $this->settings->connectionConfig();
         $lock = Cache::lock(self::TOKEN_REFRESH_LOCK, self::TOKEN_REFRESH_LOCK_SECONDS);
 
         $lock->block(self::TOKEN_REFRESH_LOCK_SECONDS);
@@ -74,17 +80,17 @@ class ZohoCrmClient
                 return;
             }
 
-            $refreshToken = ZohoCredential::get('refresh_token');
+            $refreshToken = ZohoCredential::get(ZohoCredential::REFRESH_TOKEN);
 
             if ($refreshToken === null) {
-                throw new \RuntimeException('No Zoho refresh token found. Seed one with: php artisan zoho:set-token refresh_token <value>');
+                throw new \RuntimeException('No Zoho refresh token found. Connect Zoho from the admin panel first.');
             }
 
-            $response = Http::asForm()
-                ->post("{$this->config['accounts_url']}/oauth/v2/token", [
+            $response = $this->tokenRequest()
+                ->post($config['access_token_url'], [
                     'grant_type' => 'refresh_token',
-                    'client_id' => $this->config['client_id'],
-                    'client_secret' => $this->config['client_secret'],
+                    'client_id' => $config['client_id'],
+                    'client_secret' => $config['client_secret'],
                     'refresh_token' => $refreshToken,
                 ])
                 ->throw();
@@ -101,14 +107,14 @@ class ZohoCrmClient
                 : 3600;
 
             ZohoCredential::set(
-                'access_token',
+                ZohoCredential::ACCESS_TOKEN,
                 $accessToken,
                 CarbonImmutable::now()->addSeconds($expiresIn - 60),
             );
 
             // Some Zoho apps rotate the refresh token on each use.
             if (isset($body['refresh_token']) && is_string($body['refresh_token'])) {
-                ZohoCredential::set('refresh_token', $body['refresh_token']);
+                ZohoCredential::set(ZohoCredential::REFRESH_TOKEN, $body['refresh_token']);
             }
         } finally {
             $lock->forceRelease();
@@ -125,13 +131,69 @@ class ZohoCrmClient
      */
     public function createLead(array $payload): array
     {
-        $response = Http::withToken($this->getAccessToken())
-            ->post("{$this->config['api_domain']}/crm/v2/Leads", $payload)
-            ->throw();
+        $config = $this->settings->connectionConfig();
+        $response = $this->leadRequest($this->getAccessToken())
+            ->post("{$config['api_domain']}/crm/v2/Leads", $payload);
+
+        if ($response->status() === $config['token_expired_status_code']) {
+            ZohoCredential::clear(ZohoCredential::ACCESS_TOKEN);
+
+            $response = $this->leadRequest($this->getAccessToken())
+                ->post("{$config['api_domain']}/crm/v2/Leads", $payload);
+        }
+
+        $response->throw();
 
         /** @var array<string, mixed> $body */
         $body = $response->json() ?? [];
 
         return $body;
+    }
+
+    private function tokenRequest(): PendingRequest
+    {
+        return $this->baseRequest()->asForm();
+    }
+
+    private function leadRequest(string $token): PendingRequest
+    {
+        return $this->baseRequest(
+            nonRetryableStatus: $this->settings->connectionConfig()['token_expired_status_code'],
+            throw: false,
+        )
+            ->withToken($token);
+    }
+
+    private function baseRequest(?int $nonRetryableStatus = null, bool $throw = true): PendingRequest
+    {
+        $config = $this->settings->connectionConfig();
+        $request = Http::connectTimeout(5)
+            ->timeout(15)
+            ->retry(
+                [100, 500, 1000],
+                0,
+                function (Throwable $exception, PendingRequest $request) use ($nonRetryableStatus): bool {
+                    if ($exception instanceof ConnectionException) {
+                        return true;
+                    }
+
+                    if (! $exception instanceof RequestException) {
+                        return false;
+                    }
+
+                    if ($nonRetryableStatus !== null && $exception->response->status() === $nonRetryableStatus) {
+                        return false;
+                    }
+
+                    return $exception->response->serverError();
+                },
+                $throw,
+            );
+
+        if ($config['ignore_ssl_errors']) {
+            $request = $request->withoutVerifying();
+        }
+
+        return $request;
     }
 }

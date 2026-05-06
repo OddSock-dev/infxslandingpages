@@ -2,7 +2,8 @@
     /** @var array<string, mixed> $page */
     $page = $page ?? [];
     $minimal = $minimal ?? false;
-    $hasViteManifest = file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot'));
+    $shouldLoadVite = ! app()->runningUnitTests()
+        && (file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot')));
 @endphp
 <!DOCTYPE html>
 <html lang="en-ZA" class="scroll-smooth">
@@ -26,21 +27,24 @@
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Sora:wght@500;600;700;800&display=swap" rel="stylesheet">
 
-        @if($hasViteManifest)
+        @if($shouldLoadVite)
             @vite(['resources/css/app.css', 'resources/js/app.js'])
+        @endif
+        @if(config('turnstile.enabled') && filled(config('turnstile.site_key')))
+            <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" async defer></script>
         @endif
         @livewireStyles
     </head>
     <body class="bg-canvas font-sans text-slate-900 antialiased">
         <div class="relative isolate min-h-screen overflow-x-hidden">
-            <div class="pointer-events-none absolute inset-x-0 top-[-12rem] -z-10 h-[32rem] bg-[radial-gradient(circle_at_top,rgba(255,159,67,0.20),transparent_45%)]"></div>
+            <div class="pointer-events-none absolute inset-x-0 top-[-12rem] -z-10 h-[32rem] bg-[radial-gradient(circle_at_top,rgba(48,208,192,0.18),transparent_45%)]"></div>
             <div class="pointer-events-none absolute right-0 top-0 -z-10 h-[26rem] w-[26rem] rounded-full bg-[radial-gradient(circle,rgba(61,224,191,0.22),transparent_68%)] blur-3xl"></div>
 
             @unless($minimal)
                 <x-marketing.header />
             @endunless
 
-            <main class="{{ $minimal ? '' : 'pt-24 sm:pt-28' }}">
+            <main>
                 @yield('content')
             </main>
 

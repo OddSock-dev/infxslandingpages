@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Integrations\Zoho;
 
 use App\Models\Submission;
+use Illuminate\Support\Str;
 
 /**
  * Maps a local Submission to the Zoho CRM v2 Lead API payload.
@@ -23,7 +24,7 @@ class LeadPayloadMapper
         /** @var array{name?: mixed, first_name?: mixed, last_name?: mixed, email?: mixed, phone?: mixed, company?: mixed} $pii */
         $pii = $submission->pii_json;
 
-        /** @var array{utm_source?: mixed, utm_medium?: mixed, utm_campaign?: mixed, source_page_key?: mixed} $meta */
+        /** @var array<string, mixed> $meta */
         $meta = $submission->meta_json;
 
         [$firstName, $lastName] = $this->splitName($pii);
@@ -67,7 +68,7 @@ class LeadPayloadMapper
     /**
      * Maps utm_source to a Zoho Lead_Source picklist value.
      *
-     * @param  array{utm_source?: mixed}  $meta
+     * @param  array<string, mixed>  $meta
      */
     private function mapLeadSource(array $meta): ?string
     {
@@ -86,7 +87,7 @@ class LeadPayloadMapper
     }
 
     /**
-     * @param  array{utm_campaign?: mixed, source_page_key?: mixed}  $meta
+     * @param  array<string, mixed>  $meta
      */
     private function buildDescription(array $meta, string $productKey): string
     {
@@ -98,6 +99,27 @@ class LeadPayloadMapper
 
         if (isset($meta['source_page_key']) && is_string($meta['source_page_key'])) {
             $parts[] = "Source page: {$meta['source_page_key']}";
+        }
+
+        $contextLabels = [
+            'primary_goal' => 'Primary goal',
+            'biggest_gap' => 'Biggest gap',
+            'team_shape' => 'Team shape',
+            'timeline' => 'Homepage timeline',
+            'company_size_band' => 'Company size band',
+            'implementation_timeline' => 'Implementation timeline',
+            'current_environment' => 'Current environment',
+            'priority_outcome' => 'Priority outcome',
+        ];
+
+        foreach ($contextLabels as $key => $label) {
+            $value = $meta[$key] ?? null;
+
+            if (! is_string($value) || trim($value) === '') {
+                continue;
+            }
+
+            $parts[] = "{$label}: ".Str::of($value)->replace('_', ' ')->headline()->toString();
         }
 
         return implode(' | ', $parts);

@@ -1,194 +1,110 @@
-# Zoho Landing Pages — Task Checklist
+# INFX Landing Pages — Task Checklist
 
-> Linked to: session plan.md (C:/Users/justp/.copilot/session-state/c767821a-a4ec-46d0-8c5c-567b47ce8ee2/plan.md)
+> Linked to: session plan.md (C:\Users\justp\.copilot\session-state\5c569e46-12ac-4e3f-8171-4f038c25f271\plan.md)
 > Domain: zoho.infxsolutions.co.za
-> Stack: Nuxt 3 (SSG) + Laravel 13 (API + Filament admin)
+> Stack: Laravel 13 (Blade marketing site + file-based Livewire interactions + direct table persistence + Filament admin)
 
 ---
 
-## Phase 0: Foundation & Infrastructure ✅
+## Phase 0: Delivered platform foundation ✅
 
-- [x] Add `docker-compose.yml` (MariaDB 10.11 only — no Redis needed on this stack)
-- [x] Start Docker MariaDB, verify connectivity
-- [x] Switch Laravel DB: SQLite → MariaDB (`DB_*` env vars)
-- [x] Switch cache store: `database` → `file` (`CACHE_STORE=file` — simpler, no infra dep)
-- [x] Queue driver stays as `database` — already the starter kit default, no Redis needed
-- [x] Strip Inertia/Vue boilerplate from Laravel (resources/js/, web.php Inertia routes, Inertia middleware)
-- [x] Strip Inertia middleware from `bootstrap/app.php`
-- [x] Clean up `package.json` at repo root (remove Inertia/Vue deps — Nuxt will be in apps/frontend)
-- [x] Install Filament (resolved to v5.6 — Filament 3.x only supports Laravel ≤12)
-- [x] Run `php artisan filament:install --panels --no-interaction`
-- [x] Configure Filament panel: id=`admin`, path=`/admin`
-- [x] Extend `pnpm-workspace.yaml` to include `apps/*`
-- [x] Initialize Nuxt 4 in `apps/frontend/` via `nuxi init`
-- [x] Install Nuxt modules: `@tailwindcss/vite` (v4), `@pinia/nuxt@0.11.3`, `@vueuse/nuxt@14.2.1`
-- [x] Configure `nuxt.config.ts`: prerender all routes, runtimeConfig API base URL, Tailwind v4 via Vite plugin
-- [x] PHPStan level 10 — zero errors (added `vendor/pestphp/pest/extension.neon` to includes)
-- [x] `php artisan test --compact` — 1 test passing
-- [x] Verify: MariaDB Docker up, Laravel Herd serving, Nuxt `nuxt prepare` clean
+- [x] Provision the Laravel platform, database, queue, cache, and Filament admin surface
+- [x] Build the data layer, funnel APIs, journey tracking, and Zoho CRM integration
+- [x] Serve the public experience from Blade views in `resources/views/pages`
+- [x] Move the qualification and consultation flows into file-based Livewire components in `resources/views/components/marketing`
+- [x] Keep frontend assets limited to `resources/css/app.css` and `resources/js/app.js`
 
 ---
 
-## Phase 1: Laravel Data Layer ✅
+## Phase 1: Frontend migration cleanup ✅
 
-- [x] `php artisan make:migration create_pages_table`
-- [x] `php artisan make:migration create_journeys_table`
-- [x] `php artisan make:migration create_journey_answers_table`
-- [x] `php artisan make:migration create_submissions_table`
-- [x] `php artisan make:migration create_crm_sync_attempts_table`
-- [x] `php artisan make:model Page --factory`
-- [x] `php artisan make:model Journey --factory`
-- [x] `php artisan make:model JourneyAnswer --factory`
-- [x] `php artisan make:model Submission --factory`
-- [x] `php artisan make:model CrmSyncAttempt --factory`
-- [x] Add typed casts, fillable, relationships to all models
-- [x] Add `encrypted` cast to `Submission::pii_json` (encrypted:array) and `CrmSyncAttempt` payloads
-- [x] Add `expires_at` scope and ULID generation to `Journey`
-- [x] Create `DatabaseSeeder` to seed 4 default `pages` records (idempotent via updateOrCreate)
-- [x] `php artisan migrate --seed` — verify clean run
-- [x] `vendor/bin/phpstan analyse --no-progress` — zero errors
-- [x] `vendor/bin/pint --dirty` — zero errors
+- [x] Remove the obsolete Nuxt/Vue frontend from `apps/frontend/`
+- [x] Remove stale Nuxt/Vue/Inertia repo metadata, skills, reference docs, and lockfile entries
+- [x] Update CI, manifests, and config comments to target the Blade + Livewire + Vite frontend only
+- [x] Reconcile `plan.md`, `tasks.md`, `AGENTS.md`, and `.github/copilot-instructions.md` with the shipped architecture
 
 ---
 
-## Phase 2: Laravel API Layer ✅
+## Phase 2: Direct public funnel ownership ✅
 
-- [x] Create `routes/api.php` with all 4 endpoints
-- [x] `php artisan make:controller Api/FunnelController`
-- [x] `php artisan make:controller Api/JourneyController`
-- [x] `php artisan make:controller Api/PageConfigController`
-- [x] `php artisan make:request QualifyRequest`
-- [x] `php artisan make:request SubmitRequest`
-- [x] Create `app/DTOs/QualificationAnswersData.php`
-- [x] Create `app/DTOs/SubmissionData.php`
-- [x] Create `app/DTOs/PrefillData.php`
-- [x] Create `app/Services/QualificationService.php` (routing logic)
-- [x] Create `app/Services/PrefillService.php` (safe field extraction)
-- [x] Create `app/Services/SubmissionRecorder.php` (save + dispatch)
-- [x] Configure CORS: `config/cors.php` — allow `localhost:3000`, `zoho.infxsolutions.co.za`
-- [x] Class-based feature tests (PHPUnit style — avoids PHPStan `$this: TestCall` cascade)
-- [x] `php artisan test --compact` — 25/25 pass
-- [x] `vendor/bin/phpstan analyse --no-progress` — zero errors
+- [x] Confirm the public qualifier writes directly to `journeys` and `journey_answers`
+- [x] Confirm the public consultation form writes directly to `submissions` and links the active journey when present
+- [x] Keep qualification context and safe prefill inside the Livewire-driven public flow instead of depending on frontend API calls
+- [x] Realign public-flow tests and repo guidance around the direct Blade + Livewire persistence path
 
 ---
 
-## Phase 3: Zoho Integration Pipeline ✅
+## Phase 3: Remaining hardening backlog
 
-- [x] Create `app/Integrations/Zoho/ZohoCrmClient.php` (OAuth2 + HTTP, Cache::lock for token refresh)
-- [x] Create `app/Integrations/Zoho/LeadPayloadMapper.php` (DTO → Zoho schema)
-- [x] Create `app/Actions/Zoho/SubmitLeadToZohoAction.php` (attempt lifecycle, DB::transaction)
-- [x] `php artisan make:job SyncSubmissionToZohoJob`
-- [x] Configure job: retries=3, backoff=[30,60,120], ShouldBeUniqueUntilProcessing, idempotency check
-- [x] Wire `SubmissionRecorder` to dispatch `SyncSubmissionToZohoJob`
-- [x] Create `database/migrations/create_zoho_credentials_table.php` + `ZohoCredential` model (key-value DB store)
-- [x] Add Zoho config block to `config/services.php`; add `ZOHO_*` env vars to `.env.example`
-- [x] `php artisan make:test --pest ZohoSyncJobTest` → 4 tests
-- [x] `php artisan make:test --pest SubmitLeadToZohoActionTest` → 4 tests
-- [x] `php artisan test --compact` — 33/33 pass
-- [x] `vendor/bin/phpstan analyse --no-progress` — zero errors
+- [x] Reduce repo-wide PHPStan drift in `app/Support/PageCatalog.php` and the file-based Livewire marketing components
+- [x] Add anti-bot protection and review rate limiting for funnel endpoints
+- [ ] Review analytics/PageSense requirements for the Blade frontend
+- [ ] Finalize production environment and deployment checklist
+- [ ] Decide whether to retire the remaining compatibility `/api` funnel endpoints or keep them as supported integrations
+- [ ] Document the public journey flow and API contract once requirements settle
 
 ---
 
-## Phase 4: Filament Admin ✅
+## Phase 4: Landing page content and creative refresh
 
-- [x] `php artisan make:filament-resource Page --no-interaction`
-- [x] Customize `PageResource` form: page_key (disabled on edit + unique), page_type Select, slug (unique), is_active Toggle, SEO section, CTA section
-- [x] Customize `PagesTable`: columns (page_key, page_type badge, slug, is_active icon, updated_at), EditAction + DeleteBulkAction
-- [x] `php artisan make:filament-resource Submission --view --no-interaction`
-- [x] Make `SubmissionResource` read-only: remove create/edit from getPages(), remove CreateAction from ListSubmissions, remove EditAction from ViewSubmission
-- [x] `SubmissionsTable`: ViewAction only, columns (id, pii_json.email display-only, product_key, crm_status badge, submitted_at)
-- [x] `SubmissionInfolist`: PII fields (name, email, phone, company) + metadata (product_key, crm_status, submitted_at, journey_id)
-- [x] `php artisan make:filament-resource CrmSyncAttempt --view --no-interaction`
-- [x] Make `CrmSyncAttemptResource` read-only: remove create/edit from getPages(), remove CreateAction from ListCrmSyncAttempts, remove EditAction from ViewCrmSyncAttempt
-- [x] `CrmSyncAttemptsTable`: ViewAction + Retry action (visible on Failed only, requiresConfirmation, dispatches SyncSubmissionToZohoJob), columns
-- [x] `CrmSyncAttemptInfolist`: attempt fields + error details section
-- [x] `php artisan make:filament-widget SubmissionStatsWidget --stats-overview --no-interaction`
-- [x] `SubmissionStatsWidget`: 4 stats (Total, Pending, Synced, Failed), polling disabled
-- [x] Add `SubmissionStatsWidget` to `AdminPanelProvider` widgets array
-- [x] Create `config/admin.php` (ADMIN_EMAIL, ADMIN_PASSWORD, ADMIN_NAME)
-- [x] `php artisan make:seeder AdminUserSeeder` — `User::updateOrCreate` via `Config::string()`
-- [x] Update `DatabaseSeeder` to call `AdminUserSeeder`
-- [x] Add `ADMIN_*` vars to `.env.example`
-- [x] `FilamentPageResourceTest`: 8 tests (render list/create/edit, create/update/validation/unique)
-- [x] `php artisan test --compact` — 42/42 pass
-- [x] `vendor/bin/phpstan analyse --no-progress` — zero errors
-- [x] `vendor/bin/pint --dirty` — clean
+- [x] Replace fallback page copy with content adapted from `Reference\INFX LEAD MAGNET LANDING PAGE.md`, the product reference docs, and `Reference\FAQ SECTION (ADD TO WEBSITE).md`
+- [x] Redesign `/` so the hero, trust signals, mid-page sections, and CTA hierarchy match a premium lead-generation experience
+- [x] Redesign each product page so `zoho-one`, `zoho-marketing-plus`, and `zoho-workplace` stand on their own as direct-entry landing pages
+- [x] Optimise and integrate the available Zoho SVGs, partner artwork, and INFX logo assets from `Reference\`
+- [x] Keep landing-page body content code-managed in `App\Support\PageCatalog`
+- [x] Polish contrast, headline wrapping, section surfaces, and single-brand header treatment across the public marketing pages
+- [x] Refine the hero/header system so the header overlays the hero as a compact rounded white-leaning panel, scrolls away on downward movement, returns on upward movement, keeps gradients/headline contrast under control, and simplifies the footer brand lockup across public pages
+- [x] Add a stricter public-page hero headline fit pass so long landing and product headlines stay visually contained beside the funnel/forms
+- [x] Simplify the shared public hero by removing non-essential badge/highlight/stat rows so the headline, copy, and CTAs stay inside the dark readable field
+- [x] Rework the homepage hero so the diagnostic card stays overlaid on the hero edge with stronger z-indexing and cleaner title/copy proportioning, eliminating the dead desktop hero space without breaking the intended composition
+- [x] Replace internal process and architecture language in public copy with customer-facing marketing copy and sync the DB-backed page records to the refreshed `PageCatalog` content
+- [x] Sharpen free-trial framing, product SVG usage, and weak media so qualification flows lead cleanly into trial-ready product pages
 
 ---
 
-## Phase 5: Nuxt Foundation
+## Phase 5: Diagnostic qualification redesign
 
-- [ ] Configure `nuxt.config.ts`: prerender, modules, runtimeConfig
-- [ ] Create `apps/frontend/layouts/default.vue`
-- [ ] Create `apps/frontend/layouts/minimal.vue`
-- [ ] Create `apps/frontend/components/layout/AppHeader.vue`
-- [ ] Create `apps/frontend/components/layout/AppFooter.vue`
-- [ ] Create `apps/frontend/components/layout/SiteNav.vue`
-- [ ] Create `apps/frontend/composables/useSeo.ts`
-- [ ] Scaffold all 7 pages with basic structure and SEO meta
-- [ ] Add placeholder OG images (`assets/images/og/*.jpg`)
-- [ ] Add `public/robots.txt`
-- [ ] Verify `nuxt generate` — all routes prerendered without errors
+- [x] Define the main landing-page question set, routing weights, and tie-breaker rules using the lead-magnet reference as the starting point
+- [x] Rebuild the homepage qualifier from a product picker into a multi-step recommendation flow that captures richer `journey_answers`
+- [x] Add lighter product-page qualifying questions so direct visitors are still filtered before submitting a consultation request
+- [x] Carry safe qualification context into the final consultation step and enrich the Zoho CRM lead description/meta payload
+- [x] Expand feature tests around recommendation, routing, prefill, and context handoff
+- [x] Refresh funnel question copy, routed recommendation messaging, and gated product CTA handoff
 
 ---
 
-## Phase 6: Nuxt Components & Form Layer
+## Phase 6: Funnel security and anti-spam hardening
 
-- [ ] Create `sections/HeroSection.vue`
-- [ ] Create `sections/FeatureGrid.vue`
-- [ ] Create `sections/CtaBlock.vue`
-- [ ] Create `sections/FaqSection.vue`
-- [ ] Create `sections/TrustBadges.vue`
-- [ ] Create `sections/TestimonialBlock.vue`
-- [ ] Create `form/FormField.vue` (text, email, phone, select, radio, checkbox)
-- [ ] Create `form/FormStep.vue`
-- [ ] Create `form/MultiStepForm.vue` (step orchestrator + progress indicator)
-- [ ] Create `form/QualificationForm.vue` (calls useQualify)
-- [ ] Create `form/ProductForm.vue` (calls useSubmit)
-- [ ] Create `stores/journey.ts` (Pinia store)
-- [ ] Create `composables/useJourney.ts`
-- [ ] Create `composables/usePrefill.ts`
-- [ ] Create `composables/useQualify.ts`
-- [ ] Create `composables/useSubmit.ts`
-- [ ] Create `composables/useTracking.ts`
-- [ ] TypeScript types: `types/journey.ts`, `types/prefill.ts`, `types/submission.ts`, `types/seo.ts`
+- [x] Integrate Cloudflare Turnstile for all public Livewire funnel submissions
+- [x] Add rate limiting, duplicate-submission guards, and abuse review to the funnel paths
+- [x] Review consent copy, privacy copy, and data-handling boundaries after the new journey flow is in place
+- [x] Confirm anti-spam and throttling behavior across both the homepage and product-page flows
 
 ---
 
-## Phase 7: Nuxt-Laravel Integration
+## Phase 7: DB-backed Zoho connection management
 
-- [ ] Set `NUXT_PUBLIC_API_BASE_URL` in `apps/frontend/.env` (local: `https://infxslandingpages.test`)
-- [ ] Verify CORS: Laravel allows `localhost:3000` and target domain
-- [ ] Wire `QualificationForm` → `useQualify` → POST `/api/funnel/qualify` → redirect `?t=TOKEN`
-- [ ] Wire product page: read `?t` → `useJourney` store + cookie
-- [ ] Wire `usePrefill` on product page: hydrate `ProductForm` prefill fields
-- [ ] Wire `ProductForm` → `useSubmit` → POST `/api/funnel/submit` → redirect `/thanks`
-- [ ] Test Flow A: landing → qualify → route → product page (prefilled) → submit → thanks
-- [ ] Test Flow B: direct product page → submit → thanks
-- [ ] Test token expiry: expired token → graceful degradation (blank form, no error crash)
-- [ ] Verify all API error states handled gracefully
+- [x] Move Zoho client credentials and related connection settings from env-backed config to encrypted database-backed storage
+- [x] Build a Zoho-only Filament settings flow for connection details, scopes, token state, and health visibility
+- [x] Add a Filament-managed Zoho OAuth authorization-code bootstrap flow for the initial connection
+- [x] Refactor the Zoho integration layer to resolve persistent runtime settings safely
+- [x] Add tests for encrypted credential storage, callback handling, token refresh, and failure paths
 
 ---
 
-## Phase 8: Content & SEO Polish
+## Phase 8: Filament observability and operations
 
-- [ ] Replace placeholder content with real Zoho copy (user to supply - this to come later than this phase. Use content derived from each Zoho actual page for now)
-- [ ] Final OG images per page (user to supplyn - this to come later than this phase. Use placeholder, downloaded from Zoho marketing pages images for now)
-- [ ] JSON-LD structured data on product pages (Organization + WebPage)
-- [ ] Verify all meta tags in page source
-- [ ] Test OG: Facebook Sharing Debugger + Twitter Card Validator
-- [ ] Add PageSense/analytics script via `useHead` in `app.vue`
-- [ ] Verify `sitemap.xml` generated and accurate
+- [x] Expand the admin dashboard with funnel conversion, qualification drop-off, attribution, sync health, and lead-quality metrics
+- [x] Add richer failed-push inspection plus retry or requeue controls inside Filament
+- [x] Surface token expiry, connection health, and last-success indicators for operators
+- [x] Track failed API pushes and operational anomalies without leaking secrets or raw PII
+- [ ] Review alerting and reporting requirements for admins once the revised funnel is in place
 
 ---
 
-## Phase 9: Hardening & Production Prep
+## Phase 9: Final verification and rollout
 
-- [ ] Rate limiting: throttle middleware on `POST /api/funnel/*` (e.g. 5/min per IP)
-- [ ] Honeypot field in forms (anti-bot)
-- [ ] Queue: tune retries/backoff, configure dead-letter channel notification
-- [ ] Nuxt build-time config fetch: `nuxt generate` calls `/api/config/pages/*`
-- [ ] Comprehensive Pest feature tests for all API flows
-- [ ] GitHub Actions CI: PHP (PHPStan + Pint + Pest) + Nuxt (lint + types:check + build)
-- [ ] Production env checklist: APP_ENV=production, APP_DEBUG=false, CORS origins locked, SSL, encrypted PII key
-- [ ] Document final API contract in README or `docs/`
+- [x] Reconcile `plan.md`, `tasks.md`, and shipped behavior after implementation
+- [x] Run Pint, PHPStan, targeted tests, and frontend build after each change set
+- [x] Perform browser validation of the revised public journeys and Filament admin workflows
+- [ ] Finalize deployment and runtime notes once credential management and bot protection are locked

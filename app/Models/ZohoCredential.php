@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 use Carbon\CarbonImmutable;
+use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 
 /**
@@ -16,19 +17,47 @@ use Illuminate\Database\Eloquent\Model;
  * @property string|null $value
  * @property CarbonImmutable|null $expires_at
  */
+#[Fillable(['key', 'value', 'expires_at'])]
 class ZohoCredential extends Model
 {
+    public const string ACCESS_TOKEN = 'access_token';
+
+    public const string REFRESH_TOKEN = 'refresh_token';
+
+    public const string CLIENT_ID = 'client_id';
+
+    public const string CLIENT_SECRET = 'client_secret';
+
+    public const string API_DOMAIN = 'api_domain';
+
+    public const string ACCOUNTS_URL = 'accounts_url';
+
+    public const string AUTHORIZATION_URL = 'authorization_url';
+
+    public const string ACCESS_TOKEN_URL = 'access_token_url';
+
+    public const string SCOPE = 'scope';
+
+    public const string AUTH_QUERY_PARAMETERS = 'auth_query_parameters';
+
+    public const string IGNORE_SSL_ERRORS = 'ignore_ssl_errors';
+
+    public const string TOKEN_EXPIRED_STATUS_CODE = 'token_expired_status_code';
+
+    public const string ALLOWED_DOMAINS = 'allowed_domains';
+
+    public const string CONNECTED_AT = 'connected_at';
+
     protected $primaryKey = 'key';
 
     protected $keyType = 'string';
 
     public $incrementing = false;
 
-    protected $fillable = ['key', 'value', 'expires_at'];
-
     protected function casts(): array
     {
         return [
+            'value' => 'encrypted',
             'expires_at' => 'immutable_datetime',
         ];
     }

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Enums\CrmStatus;
+use App\Enums\SyncAttemptStatus;
 use Carbon\CarbonImmutable;
 use Database\Factories\SubmissionFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -13,6 +14,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 /**
  * @property-read int $id
@@ -23,6 +25,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property array<string, mixed> $meta_json
  * @property CrmStatus $crm_status
  * @property CarbonImmutable $submitted_at
+ * @property-read CrmSyncAttempt|null $latestSyncAttempt
+ * @property-read CrmSyncAttempt|null $latestSuccessfulSyncAttempt
  */
 #[Fillable([
     'journey_id', 'page_key', 'product_key',
@@ -59,5 +63,18 @@ class Submission extends Model
     public function syncAttempts(): HasMany
     {
         return $this->hasMany(CrmSyncAttempt::class);
+    }
+
+    /** @return HasOne<CrmSyncAttempt, $this> */
+    public function latestSyncAttempt(): HasOne
+    {
+        return $this->hasOne(CrmSyncAttempt::class)->latestOfMany('attempted_at');
+    }
+
+    /** @return HasOne<CrmSyncAttempt, $this> */
+    public function latestSuccessfulSyncAttempt(): HasOne
+    {
+        return $this->hasOne(CrmSyncAttempt::class)
+            ->ofMany(['attempted_at' => 'max'], fn (Builder $query): Builder => $query->where('status', SyncAttemptStatus::Success));
     }
 }

@@ -12,8 +12,9 @@ use Illuminate\Support\Facades\Route;
 | API Routes
 |--------------------------------------------------------------------------
 |
-| Funnel API endpoints for the Nuxt public frontend.
-| All routes are prefixed with /api automatically by the router.
+| Compatibility endpoints for integrations or alternate clients.
+| The public Blade + Livewire marketing flow persists directly through
+| Laravel models and services without using these routes.
 |
 */
 

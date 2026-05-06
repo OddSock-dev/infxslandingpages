@@ -1,7 +1,7 @@
 @extends('layouts.app', ['page' => $page])
 
 @section('content')
-    <section class="pb-20 pt-8 sm:pb-24">
+    <section class="pb-20 pt-28 sm:pb-24 sm:pt-32">
         <div class="mx-auto max-w-4xl px-6 lg:px-8">
             <div class="panel legal-copy p-8 sm:p-10" data-reveal>
                 <p class="eyebrow">Terms Of Service</p>

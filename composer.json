@@ -1,8 +1,8 @@
 {
     "$schema": "https://getcomposer.org/schema.json",
-    "name": "laravel/vue-starter-kit",
+    "name": "oddsock-dev/infxslandingpages",
     "type": "project",
-    "description": "The skeleton application for the Laravel framework.",
+    "description": "INFX landing pages built with Laravel, Blade, Livewire, and Filament.",
     "keywords": ["laravel", "framework"],
     "license": "MIT",
     "require": {
@@ -58,9 +58,7 @@
         ],
         "ci:check": [
             "Composer\\Config::disableProcessTimeout",
-            "npm run lint:check",
-            "npm run format:check",
-            "npm run types:check",
+            "npm run build",
             "@test"
         ],
         "test": [

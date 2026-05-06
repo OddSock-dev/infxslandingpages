@@ -2,71 +2,80 @@
     'eyebrow' => null,
     'headline',
     'subheadline',
-    'highlights' => [],
-    'stats' => [],
     'primaryAction' => null,
     'secondaryAction' => null,
 ])
 
-<section class="relative overflow-hidden pb-16 sm:pb-20">
-    <div class="pointer-events-none absolute inset-x-0 top-0 h-[42rem] bg-[radial-gradient(circle_at_top_left,rgba(11,19,43,0.96),rgba(15,23,42,0.92)_42%,rgba(15,23,42,0.86)_64%,transparent_85%)]"></div>
-    <div class="pointer-events-none absolute left-1/2 top-[-6rem] h-[30rem] w-[30rem] -translate-x-1/2 rounded-full bg-[radial-gradient(circle,rgba(61,224,191,0.16),transparent_70%)] blur-3xl"></div>
-    <div class="pointer-events-none absolute right-[-8rem] top-8 h-[22rem] w-[22rem] rounded-full bg-[radial-gradient(circle,rgba(255,159,67,0.22),transparent_70%)] blur-3xl"></div>
+@php
+    $hasAside = $slot->hasActualContent();
+@endphp
 
-    <div class="relative mx-auto grid max-w-7xl gap-12 px-6 pb-4 pt-10 lg:grid-cols-[1.08fr_0.92fr] lg:items-center lg:px-8">
-        <div class="space-y-8 text-white">
+<section data-hero-section class="relative overflow-hidden bg-slate-950 pb-8 pt-20 sm:pb-12 sm:pt-24 lg:pt-[6.5rem]">
+    <div class="pointer-events-none absolute inset-0 bg-[linear-gradient(115deg,rgba(15,23,42,0.98)_0%,rgba(15,23,42,0.97)_45%,rgba(15,23,42,0.94)_72%,rgba(17,94,89,0.62)_100%)]"></div>
+    <div class="pointer-events-none absolute inset-y-0 left-0 w-[58%] bg-[radial-gradient(circle_at_top_left,rgba(59,130,246,0.08),transparent_44%)]"></div>
+    <div class="pointer-events-none absolute left-1/2 top-[-7rem] h-[28rem] w-[28rem] -translate-x-1/2 rounded-full bg-[radial-gradient(circle,rgba(61,224,191,0.08),transparent_72%)] blur-3xl"></div>
+    <div class="pointer-events-none absolute right-[-10rem] top-8 h-[20rem] w-[20rem] rounded-full bg-[radial-gradient(circle,rgba(56,189,248,0.06),transparent_74%)] blur-3xl"></div>
+
+    <div
+        @class([
+            'relative mx-auto px-6 sm:pt-6 lg:px-8',
+            'grid max-w-7xl gap-6 pb-0 pt-4 lg:grid-cols-[minmax(0,1.1fr)_minmax(22rem,0.9fr)] lg:items-start lg:pt-8 xl:grid-cols-[minmax(0,1.06fr)_minmax(24rem,0.84fr)] xl:gap-10' => $hasAside,
+            'max-w-7xl pb-14 pt-6 sm:pb-16 lg:pb-20 lg:pt-6' => ! $hasAside,
+        ])
+    >
+        <div @class([
+            'space-y-5 text-white sm:space-y-6',
+            'lg:pr-6 lg:pt-4' => $hasAside,
+            'max-w-[42rem] sm:max-w-[46rem] lg:max-w-[48rem]' => ! $hasAside,
+        ])>
             @if($eyebrow)
-                <p class="inline-flex items-center rounded-full border border-white/15 bg-white/8 px-4 py-2 text-xs font-semibold uppercase tracking-[0.28em] text-orange-200" data-reveal>
+                <p class="inline-flex items-center rounded-full border border-white/10 bg-slate-950/35 px-4 py-2 text-xs font-semibold uppercase tracking-[0.28em] text-white/88 shadow-[0_12px_30px_rgba(15,23,42,0.18)] backdrop-blur" data-reveal>
                     {{ $eyebrow }}
                 </p>
             @endif
 
-            <div class="max-w-3xl space-y-5">
-                <h1 class="font-display text-4xl font-semibold leading-[1.02] tracking-tight text-balance sm:text-5xl lg:text-7xl" data-reveal>
+            <div @class([
+                'space-y-4 sm:space-y-5',
+                'max-w-[42rem] sm:max-w-[44rem] lg:max-w-[40rem] xl:max-w-[43rem]' => $hasAside,
+            ])>
+                <h1
+                    @class([
+                        'hero-title font-display font-semibold tracking-tight text-white' => $hasAside,
+                        'max-w-[15.5ch] font-display text-[clamp(2.25rem,4vw,3.95rem)] font-semibold leading-[0.95] tracking-[-0.055em] text-white text-balance sm:max-w-[17ch]' => ! $hasAside,
+                    ])
+                    data-reveal
+                >
                     {{ $headline }}
                 </h1>
-                <p class="max-w-2xl text-base leading-8 text-slate-300 sm:text-lg" data-reveal style="transition-delay: 90ms">
+                <p @class([
+                    'hero-copy text-slate-100/92',
+                    'max-w-xl' => $hasAside,
+                    'max-w-[34rem] text-[1.08rem] leading-8 text-slate-100/90' => ! $hasAside,
+                ]) data-reveal style="transition-delay: 90ms">
                     {{ $subheadline }}
                 </p>
             </div>
 
-            <div class="flex flex-col gap-4 sm:flex-row" data-reveal style="transition-delay: 160ms">
+            <div @class([
+                'flex flex-col gap-4 sm:flex-row',
+            ]) data-reveal style="transition-delay: 160ms">
                 @if($primaryAction)
-                    <a href="{{ $primaryAction['url'] }}" class="inline-flex items-center justify-center rounded-full bg-linear-to-r from-orange-500 to-amber-500 px-6 py-3.5 text-sm font-semibold text-white shadow-soft transition hover:-translate-y-0.5">
+                    <a href="{{ $primaryAction['url'] }}" class="inline-flex items-center justify-center rounded-full bg-linear-to-r from-teal-500 to-cyan-500 px-6 py-3.5 text-sm font-semibold text-white shadow-soft transition hover:-translate-y-0.5">
                         {{ $primaryAction['label'] }}
                     </a>
                 @endif
                 @if($secondaryAction)
-                    <a href="{{ $secondaryAction['url'] }}" class="inline-flex items-center justify-center rounded-full border border-white/15 bg-white/8 px-6 py-3.5 text-sm font-semibold text-white transition hover:border-white/25 hover:bg-white/12">
+                    <a href="{{ $secondaryAction['url'] }}" class="inline-flex items-center justify-center rounded-full border border-white/12 bg-slate-950/30 px-6 py-3.5 text-sm font-semibold text-white transition hover:border-white/22 hover:bg-slate-950/42">
                         {{ $secondaryAction['label'] }}
                     </a>
                 @endif
             </div>
-
-            @if($highlights !== [])
-                <div class="grid gap-3 sm:grid-cols-3" data-reveal style="transition-delay: 220ms">
-                    @foreach($highlights as $highlight)
-                        <div class="rounded-3xl border border-white/10 bg-white/7 px-4 py-4 text-sm leading-6 text-slate-200 backdrop-blur">
-                            {{ $highlight }}
-                        </div>
-                    @endforeach
-                </div>
-            @endif
-
-            @if($stats !== [])
-                <div class="grid gap-4 sm:grid-cols-4" data-reveal style="transition-delay: 300ms">
-                    @foreach($stats as $stat)
-                        <div class="rounded-3xl border border-white/10 bg-slate-950/35 px-4 py-4 backdrop-blur">
-                            <div class="font-display text-3xl font-semibold text-white">{{ $stat['value'] }}</div>
-                            <div class="mt-2 text-sm text-slate-300">{{ $stat['label'] }}</div>
-                        </div>
-                    @endforeach
-                </div>
-            @endif
         </div>
 
-        <div data-reveal style="transition-delay: 160ms">
-            {{ $slot }}
-        </div>
+        @if($hasAside)
+            <div data-reveal class="lg:pt-2" style="transition-delay: 160ms">
+                {{ $slot }}
+            </div>
+        @endif
     </div>
 </section>

@@ -2,7 +2,13 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\Widgets\AttributionInsightsWidget;
+use App\Filament\Widgets\FunnelOverviewWidget;
+use App\Filament\Widgets\FunnelPagePerformanceWidget;
+use App\Filament\Widgets\LeadQualitySegmentationWidget;
+use App\Filament\Widgets\QualificationDropOffWidget;
 use App\Filament\Widgets\SubmissionStatsWidget;
+use App\Filament\Widgets\ZohoConnectionHealthWidget;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -40,7 +46,13 @@ class AdminPanelProvider extends PanelProvider
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\Filament\Widgets')
             ->widgets([
                 AccountWidget::class,
+                FunnelOverviewWidget::class,
+                FunnelPagePerformanceWidget::class,
+                QualificationDropOffWidget::class,
+                AttributionInsightsWidget::class,
+                LeadQualitySegmentationWidget::class,
                 FilamentInfoWidget::class,
+                ZohoConnectionHealthWidget::class,
                 SubmissionStatsWidget::class,
             ])
             ->middleware([

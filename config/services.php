@@ -36,10 +36,12 @@ return [
     ],
 
     'zoho' => [
-        'client_id' => env('ZOHO_CLIENT_ID', ''),
-        'client_secret' => env('ZOHO_CLIENT_SECRET', ''),
         'api_domain' => env('ZOHO_API_DOMAIN', 'https://www.zohoapis.com'),
         'accounts_url' => env('ZOHO_ACCOUNTS_URL', 'https://accounts.zoho.com'),
+        'default_scope' => env(
+            'ZOHO_DEFAULT_SCOPE',
+            'ZohoCRM.modules.ALL,ZohoCRM.settings.ALL,ZohoCRM.users.ALL,ZohoCRM.org.ALL'
+        ),
     ],
 
 ];
