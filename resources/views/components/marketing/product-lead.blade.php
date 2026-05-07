@@ -429,7 +429,7 @@ new class extends Component
 
 <div class="panel panel-strong overflow-hidden p-0 shadow-hero">
     <div class="border-b border-white/10 bg-slate-950 px-6 py-5 text-white sm:px-7">
-        <p class="eyebrow !text-teal-200/90">{{ $qualificationComplete ? 'Your Next Steps' : 'Quick Product Questions' }}</p>
+        <p class="eyebrow text-teal-200/90!">{{ $qualificationComplete ? 'Your Next Steps' : 'Quick Product Questions' }}</p>
         <h2 class="mt-2 font-display text-2xl font-semibold leading-tight text-balance">
             {{ $qualificationComplete ? "Choose how you would like to continue with {$productName}." : "Answer four quick questions so we can unlock the right next step for {$productName}." }}
         </h2>
@@ -490,7 +490,7 @@ new class extends Component
             <div class="space-y-4">
                 <div class="grid gap-4 sm:grid-cols-2">
                     <div>
-                        <label for="lead-company-size" class="mb-2 block text-sm font-medium text-slate-700">How many people will use this?</label>
+                        <label for="lead-company-size" class="mb-2 block text-sm font-medium text-slate-700 sm:min-h-12">How many people will use this?</label>
                         <select wire:model.blur="companySizeBand" id="lead-company-size" class="field-input">
                             <option value="">Select one</option>
                             @foreach($companySizeOptions as $option)
@@ -503,7 +503,7 @@ new class extends Component
                     </div>
 
                     <div>
-                        <label for="lead-timeline" class="mb-2 block text-sm font-medium text-slate-700">When would you like to get started?</label>
+                        <label for="lead-timeline" class="mb-2 block text-sm font-medium text-slate-700 sm:min-h-12">When would you like to get started?</label>
                         <select wire:model.blur="implementationTimeline" id="lead-timeline" class="field-input">
                             <option value="">Select one</option>
                             @foreach($timelineOptions as $option)
@@ -602,7 +602,7 @@ new class extends Component
 
                             <div class="grid gap-4 sm:grid-cols-2">
                                 <div>
-                                    <label for="consult-company-size" class="mb-2 block text-sm font-medium text-slate-700">How many people will use this?</label>
+                                    <label for="consult-company-size" class="mb-2 block text-sm font-medium text-slate-700 sm:min-h-12">How many people will use this?</label>
                                     <select wire:model.blur="companySizeBand" id="consult-company-size" class="field-input">
                                         <option value="">Select one</option>
                                         @foreach($companySizeOptions as $option)
@@ -615,7 +615,7 @@ new class extends Component
                                 </div>
 
                                 <div>
-                                    <label for="consult-timeline" class="mb-2 block text-sm font-medium text-slate-700">When would you like to get started?</label>
+                                    <label for="consult-timeline" class="mb-2 block text-sm font-medium text-slate-700 sm:min-h-12">When would you like to get started?</label>
                                     <select wire:model.blur="implementationTimeline" id="consult-timeline" class="field-input">
                                         <option value="">Select one</option>
                                         @foreach($timelineOptions as $option)

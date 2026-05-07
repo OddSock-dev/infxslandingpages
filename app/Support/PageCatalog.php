@@ -267,7 +267,7 @@ class PageCatalog
                 'body_config' => [
                     'nav_label' => 'Zoho One',
                     'eyebrow' => 'One Connected Zoho Suite. 45+ Apps.',
-                    'headline' => 'Run the business from one connected system instead of patching together tools that were never built to scale together.',
+                    'headline' => 'Run your whole business from one connected system',
                     'subheadline' => 'Zoho One helps growing businesses bring sales, delivery, finance, service, and reporting into one connected setup so growth creates less admin and more clarity.',
                     'hero_badges' => [
                         'Qualify to unlock a free trial',
@@ -316,8 +316,8 @@ class PageCatalog
                     ],
                     'spotlight' => [
                         'media_type' => 'image',
-                        'media_url' => 'media/zoho-one-hero.jpg',
-                        'media_alt' => 'Zoho One connected business visual',
+                        'media_url' => 'media/zoho-one-content-team.webp',
+                        'media_alt' => 'Leadership team collaborating around a laptop in a meeting',
                     ],
                     'offer_title' => 'What Zoho One unlocks',
                     'offer_copy' => 'Ideal for businesses that have outgrown separate tools and now want sales, service, finance, and operations working together. Qualify below to unlock a free trial and see where Zoho One can start delivering value first.',
@@ -337,8 +337,8 @@ class PageCatalog
                                 'title' => 'One place for the whole business',
                                 'description' => 'Bring sales, finance, delivery, and service into one environment instead of stitching disconnected apps together.',
                                 'media_type' => 'image',
-                                'media_url' => 'media/zoho-one-hero.jpg',
-                                'media_alt' => 'Zoho One connected business visual',
+                                'media_url' => 'media/zoho-one-content-team.webp',
+                                'media_alt' => 'Leadership team collaborating around a laptop in a meeting',
                             ],
                             [
                                 'src' => '/brand/zoho-authorized-partner.webp',
@@ -346,8 +346,8 @@ class PageCatalog
                                 'title' => 'Setup and migration support',
                                 'description' => 'Move from disconnected tools to a more connected way of working with practical help from INFX.',
                                 'media_type' => 'image',
-                                'media_url' => 'media/systems-audit.webp',
-                                'media_alt' => 'INFX planning workshop illustration',
+                                'media_url' => 'media/zoho-one-content-planning.webp',
+                                'media_alt' => 'Planning notes beside a laptop during an operations workshop',
                             ],
                             [
                                 'src' => '/brand/zoho-one.svg',
@@ -446,7 +446,7 @@ class PageCatalog
                 'body_config' => [
                     'nav_label' => 'Zoho Marketing Plus',
                     'eyebrow' => 'One Home For Campaigns, Journeys, Events, and Attribution',
-                    'headline' => 'Turn fragmented campaign execution into one coordinated marketing engine with clearer ROI.',
+                    'headline' => 'Run every campaign from one smarter marketing workspace',
                     'subheadline' => 'Zoho Marketing Plus gives your team one workspace for campaigns, automations, events, webinars, analytics, and assets instead of switching between disconnected tools all day.',
                     'hero_badges' => [
                         'Qualify to unlock a free trial',
@@ -495,9 +495,8 @@ class PageCatalog
                     ],
                     'spotlight' => [
                         'media_type' => 'image',
-                        'media_url' => 'brand/zoho-marketing-plus.svg',
-                        'media_alt' => 'Zoho Marketing Plus product icon',
-                        'media_fit' => 'contain',
+                        'media_url' => 'media/marketing-plus-content-team.webp',
+                        'media_alt' => 'Marketing team gathered around a laptop during a workshop',
                     ],
                     'offer_title' => 'What Zoho Marketing Plus unlocks',
                     'offer_copy' => 'Best suited to teams that are already active in marketing but need clearer reporting, easier coordination, and more consistent campaigns. Qualify below to unlock a free trial and explore the workspace with a sharper starting point.',
@@ -517,9 +516,8 @@ class PageCatalog
                                 'title' => 'A unified campaign workspace',
                                 'description' => 'Keep planning, execution, and reporting closer together so the team can move faster with more control.',
                                 'media_type' => 'image',
-                                'media_url' => 'brand/zoho-marketing-plus.svg',
-                                'media_alt' => 'Zoho Marketing Plus product icon',
-                                'media_fit' => 'contain',
+                                'media_url' => 'media/marketing-plus-content-team.webp',
+                                'media_alt' => 'Marketing team gathered around a laptop during a workshop',
                             ],
                             [
                                 'src' => '/brand/zoho-authorized-partner.webp',
@@ -527,8 +525,8 @@ class PageCatalog
                                 'title' => 'Support from INFX',
                                 'description' => 'Get help setting up campaigns, reports, and automations in a way that suits your team.',
                                 'media_type' => 'image',
-                                'media_url' => 'media/systems-audit.webp',
-                                'media_alt' => 'INFX campaign planning illustration',
+                                'media_url' => 'media/marketing-plus-content-support.webp',
+                                'media_alt' => 'Campaign planning discussion around a laptop',
                             ],
                             [
                                 'src' => '/brand/zoho-marketing-plus.svg',
@@ -627,7 +625,7 @@ class PageCatalog
                 'body_config' => [
                     'nav_label' => 'Zoho Workplace',
                     'eyebrow' => 'Email, Chat, Docs, Meetings, and Intranet In One Workspace',
-                    'headline' => 'Give the team one calmer collaboration stack instead of more platform noise.',
+                    'headline' => 'Give your team one calmer workspace',
                     'subheadline' => 'Zoho Workplace brings email, documents, meetings, chat, and internal communication together in a privacy-first suite that is easier to adopt and easier to manage.',
                     'hero_badges' => [
                         'Qualify to unlock a free trial',

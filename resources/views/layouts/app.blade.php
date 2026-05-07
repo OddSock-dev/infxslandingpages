@@ -34,6 +34,9 @@
             <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" async defer></script>
         @endif
         @livewireStyles
+
+        <!-- Google Analytics GA4 -->
+        <x-analytics.ga4-script />
     </head>
     <body class="bg-canvas font-sans text-slate-900 antialiased">
         <div class="relative isolate min-h-screen overflow-x-hidden">

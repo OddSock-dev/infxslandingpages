@@ -31,6 +31,13 @@ class PublicPagesTest extends TestCase
             ->assertSee('Find Your Best Zoho Option')
             ->assertSee('Start the questionnaire')
             ->assertSee('What are you trying to improve first?')
+            ->assertSee('max-w-124', false)
+            ->assertSee('lg:absolute', false)
+            ->assertSee('lg:top-112', false)
+            ->assertSee('media/OpsTeam.webp', false)
+            ->assertSee('inset-x-0 top-0', false)
+            ->assertDontSee('bottom-0', false)
+            ->assertDontSee('lg:-translate-y-52', false)
             ->assertSee('Zoho One')
             ->assertSee('/products/zoho-one')
             ->assertSee('/products/zoho-marketing-plus')
@@ -44,18 +51,58 @@ class PublicPagesTest extends TestCase
 
     public function test_renders_a_product_page_with_the_gated_next_step_flow(): void
     {
-        Page::factory()->create([
-            'page_key' => 'zoho_one',
-            'page_type' => PageType::Product,
-            'slug' => '/products/zoho-one',
-            'is_active' => true,
-        ]);
+        $pages = [
+            'zoho_one' => [
+                'slug' => '/products/zoho-one',
+                'headline' => 'Run your whole business from one connected system',
+                'hero_image' => 'media/OpsTeam.webp',
+                'content_media' => [
+                    'media/zoho-one-content-team.webp',
+                    'media/zoho-one-content-planning.webp',
+                ],
+            ],
+            'zoho_marketing_plus' => [
+                'slug' => '/products/zoho-marketing-plus',
+                'headline' => 'Run every campaign from one smarter marketing workspace',
+                'hero_image' => 'media/MarketingTeam.webp',
+                'content_media' => [
+                    'media/marketing-plus-content-team.webp',
+                    'media/marketing-plus-content-support.webp',
+                ],
+            ],
+            'zoho_workplace' => [
+                'slug' => '/products/zoho-workplace',
+                'headline' => 'Give your team one calmer workspace',
+                'hero_image' => 'media/WorkspaceTeam.webp',
+                'content_media' => [],
+            ],
+        ];
 
-        $this->get('/products/zoho-one')
-            ->assertOk()
-            ->assertSee('Run the business from one connected system')
-            ->assertSee('Quick Product Questions')
-            ->assertDontSee('Start Free Trial');
+        foreach ($pages as $pageKey => $productPage) {
+            Page::factory()->create([
+                'page_key' => $pageKey,
+                'page_type' => PageType::Product,
+                'slug' => $productPage['slug'],
+                'is_active' => true,
+            ]);
+
+            $response = $this->get($productPage['slug'])
+                ->assertOk()
+                ->assertSee($productPage['headline'])
+                ->assertSee('Why teams choose', false)
+                ->assertDontSee('Why this page stands alone')
+                ->assertSee('Quick Product Questions')
+                ->assertSee($productPage['hero_image'], false)
+                ->assertSee('inset-x-0 top-0', false)
+                ->assertDontSee('bottom-0', false)
+                ->assertSee('lg:grid-cols-[minmax(0,0.96fr)_minmax(21rem,30rem)]', false)
+                ->assertSee('xl:top-116', false)
+                ->assertDontSee('Start Free Trial');
+
+            foreach ($productPage['content_media'] as $contentMedia) {
+                $response->assertSee($contentMedia, false);
+            }
+        }
     }
 
     public function test_routed_product_pages_show_recommendation_copy_and_unlocked_ctas(): void

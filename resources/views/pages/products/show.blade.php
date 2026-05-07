@@ -22,6 +22,11 @@
     $spotlightMediaClasses = $spotlightUsesContain
         ? 'h-full min-h-[18rem] w-full object-contain p-10 sm:p-14'
         : 'h-full min-h-[18rem] w-full object-cover';
+    $heroImage = match ($page['page_key']) {
+        'zoho_marketing_plus' => 'media/MarketingTeam.webp',
+        'zoho_workplace' => 'media/WorkspaceTeam.webp',
+        default => 'media/OpsTeam.webp',
+    };
 @endphp
 
 @section('content')
@@ -31,25 +36,30 @@
         :subheadline="$content['subheadline']"
         :primary-action="$heroAction"
         :secondary-action="$heroSecondaryAction"
+        :hero-image="$heroImage"
     >
         <div id="consultation" class="relative">
-            <div class="absolute inset-0 rounded-[2rem] bg-linear-to-br from-teal-300/14 via-transparent to-cyan-400/10 blur-2xl"></div>
-            <div class="relative">
+            <div class="absolute inset-0 rounded-4xl bg-linear-to-br from-teal-300/14 via-transparent to-cyan-400/10 blur-2xl"></div>
+            <div class="relative z-10">
                 <livewire:marketing.product-lead :page-key="$page['page_key']" :product-name="$content['nav_label']" :trial-url="$page['trial_url']" />
             </div>
         </div>
     </x-marketing.hero>
 
     <x-marketing.trust-block
-        eyebrow="Why this page stands alone"
+        :eyebrow="'Why teams choose '.$content['nav_label']"
         :title="data_get($content, 'trust_heading')"
         :copy="data_get($content, 'trust_copy')"
         :items="data_get($content, 'trust_blocks', [])"
+        intro-class="max-w-3xl lg:max-w-[40rem] xl:max-w-[44rem]"
+        items-class="mt-10 grid max-w-none gap-4 md:grid-cols-3 lg:max-w-[40rem] lg:grid-cols-2 xl:max-w-[44rem]"
+        section-class="pb-12 pt-12 sm:pb-16 sm:pt-14 lg:pt-20"
+        :span-last-odd-item="true"
     />
 
     <section class="pb-16 sm:pb-20">
         <div class="mx-auto max-w-7xl px-6 lg:px-8">
-            <div class="relative overflow-hidden rounded-[2rem] border border-slate-200/80 bg-linear-to-br from-white/95 via-white/92 to-teal-50/70 px-6 py-6 shadow-[0_28px_70px_rgba(15,23,42,0.08)] sm:px-8 sm:py-8">
+            <div class="relative overflow-hidden rounded-4xl border border-slate-200/80 bg-linear-to-br from-white/95 via-white/92 to-teal-50/70 px-6 py-6 shadow-[0_28px_70px_rgba(15,23,42,0.08)] sm:px-8 sm:py-8">
                 <div class="pointer-events-none absolute inset-x-0 top-0 h-40 bg-[radial-gradient(circle_at_top_left,rgba(61,224,191,0.12),transparent_60%),radial-gradient(circle_at_top_right,rgba(56,189,248,0.09),transparent_55%)]"></div>
                 <div class="relative grid gap-8 lg:grid-cols-[1.05fr_0.95fr]">
                     <div class="panel panel-strong p-8" data-reveal>

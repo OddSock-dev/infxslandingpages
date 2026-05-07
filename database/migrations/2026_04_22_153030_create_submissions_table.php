@@ -20,7 +20,7 @@ return new class extends Migration
             $table->text('pii_json');
             $table->json('meta_json');
             $table->string('crm_status', 20)->default('pending');
-            $table->timestamp('submitted_at');
+            $table->dateTime('submitted_at');
             $table->timestamps();
 
             $table->index(['crm_status', 'submitted_at']);

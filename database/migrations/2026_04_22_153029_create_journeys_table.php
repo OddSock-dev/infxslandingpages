@@ -26,7 +26,7 @@ return new class extends Migration
             $table->string('ip_hash', 64)->nullable();
             $table->text('user_agent')->nullable();
             $table->timestamp('consent_at')->nullable();
-            $table->timestamp('expires_at')->index();
+            $table->dateTime('expires_at')->index();
             $table->timestamps();
 
             $table->index(['status', 'expires_at']);

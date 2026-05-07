@@ -9,6 +9,7 @@ use App\Services\ZohoConnectionSettings;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
 
@@ -40,6 +41,13 @@ class AppServiceProvider extends ServiceProvider
     protected function configureDefaults(): void
     {
         Date::use(CarbonImmutable::class);
+
+        $defaultConnection = config('database.default');
+
+        if (is_string($defaultConnection) && in_array($defaultConnection, ['mysql', 'mariadb'], true)) {
+            // Keep indexed string columns compatible with older MySQL and MariaDB limits.
+            Schema::defaultStringLength(191);
+        }
 
         DB::prohibitDestructiveCommands(
             app()->isProduction(),

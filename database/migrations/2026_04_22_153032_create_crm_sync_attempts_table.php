@@ -21,7 +21,7 @@ return new class extends Migration
             $table->string('status', 20)->default('pending');
             $table->string('error_code', 50)->nullable();
             $table->text('error_message')->nullable();
-            $table->timestamp('attempted_at');
+            $table->dateTime('attempted_at');
             $table->timestamps();
 
             $table->index(['status', 'attempted_at']);

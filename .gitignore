@@ -26,7 +26,11 @@ yarn-error.log
 /.playwright-cli
 /.github
 /.vscode
+/.agents
+/.codex
+/.gemini
 /Reference/*
 .nvmrc
 boost.json
 tasks.md
+GEMINI.md
