@@ -14,6 +14,7 @@ use App\Filament\Widgets\ZohoConnectionHealthWidget;
 use App\Models\CrmSyncAttempt;
 use App\Models\Journey;
 use App\Models\Submission;
+use App\Models\TrialClick;
 use App\Models\User;
 use App\Models\ZohoCredential;
 use App\Services\DashboardMetricsService;
@@ -149,6 +150,27 @@ class FilamentDashboardMetricsTest extends TestCase
             'attempted_at' => CarbonImmutable::now()->subHour(),
         ]);
 
+        TrialClick::factory()->forJourney($submittedJourneyOne)->create([
+            'page_key' => 'zoho_marketing_plus',
+            'product_key' => 'zoho_marketing_plus',
+            'source_page_key' => 'landing',
+            'clicked_at' => CarbonImmutable::now()->subDays(8),
+        ]);
+
+        TrialClick::factory()->forJourney($submittedJourneyTwo)->create([
+            'page_key' => 'zoho_workplace',
+            'product_key' => 'zoho_workplace',
+            'source_page_key' => 'landing',
+            'clicked_at' => CarbonImmutable::now()->subDays(7),
+        ]);
+
+        TrialClick::factory()->create([
+            'page_key' => 'zoho_one',
+            'product_key' => 'zoho_one',
+            'source_page_key' => 'zoho_one',
+            'clicked_at' => CarbonImmutable::now()->subDay(),
+        ]);
+
         ZohoCredential::set(ZohoCredential::REFRESH_TOKEN, 'refresh-token');
         ZohoCredential::set(ZohoCredential::ACCESS_TOKEN, 'access-token', CarbonImmutable::now()->addHour());
 
@@ -158,12 +180,14 @@ class FilamentDashboardMetricsTest extends TestCase
         $this->assertSame(5, $funnel['journeys_started']);
         $this->assertSame(4, $funnel['recommendations_issued']);
         $this->assertSame(2, $funnel['journey_consultations']);
+        $this->assertSame(3, $funnel['trial_starts']);
         $this->assertSame(1, $funnel['stalled_handoffs']);
 
         $pageConversion = $metrics->pageConversion();
         $this->assertSame(['Homepage', 'Zoho One', 'Zoho Marketing Plus'], $pageConversion['labels']);
         $this->assertSame([5, 0, 0], $pageConversion['journey_starts']);
         $this->assertSame([2, 1, 1], $pageConversion['consultations']);
+        $this->assertSame([2, 1, 0], $pageConversion['trial_starts']);
 
         $dropOff = $metrics->qualificationDropOff();
         $this->assertSame(['Zoho One', 'Zoho Marketing Plus', 'Zoho Workplace'], $dropOff['labels']);

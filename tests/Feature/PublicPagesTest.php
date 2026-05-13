@@ -95,7 +95,8 @@ class PublicPagesTest extends TestCase
             ->assertSee('Based on what you shared, Zoho One looks like a strong fit for your business. Here is why:')
             ->assertSee('Request Consultation')
             ->assertSee('Start Free Trial')
-            ->assertSee('https://store.zoho.com/ResellerCustomerSignUp.do?id=b90ffafff590634f12c003a7325340d7');
+            ->assertSee('/products/zoho_one/start-trial?')
+            ->assertSee('start_free_trial_click');
     }
 
     public function test_returns_404_for_an_inactive_product_page(): void
@@ -135,5 +136,105 @@ class PublicPagesTest extends TestCase
         $this->get('/thanks')->assertOk()->assertSee('You are all set.');
         $this->get('/privacy')->assertOk()->assertSee('Privacy Policy');
         $this->get('/terms')->assertOk()->assertSee('Terms of Service');
+    }
+
+    public function test_exposes_a_sitemap_for_indexable_public_pages(): void
+    {
+        Page::factory()->inactive()->create([
+            'page_key' => 'zoho_workplace',
+            'page_type' => PageType::Product,
+            'slug' => '/products/zoho-workplace',
+        ]);
+
+        $response = $this->get('/sitemap.xml');
+
+        $response->assertOk();
+        $response->assertHeader('Content-Type', 'application/xml; charset=UTF-8');
+        $response->assertSee(url('/'), false);
+        $response->assertSee(url('/products/zoho-one'), false);
+        $response->assertSee(url('/products/zoho-marketing-plus'), false);
+        $response->assertSee(url('/privacy'), false);
+        $response->assertSee(url('/terms'), false);
+        $response->assertDontSee(url('/thanks'), false);
+        $response->assertDontSee(url('/products/zoho-workplace'), false);
+    }
+
+    public function test_exposes_robots_with_the_sitemap_url(): void
+    {
+        $response = $this->get('/robots.txt');
+
+        $response->assertOk();
+        $response->assertHeader('Content-Type', 'text/plain; charset=UTF-8');
+        $response->assertContent(implode(PHP_EOL, [
+            'User-agent: facebookexternalhit',
+            'Allow: /',
+            '',
+            'User-agent: Twitterbot',
+            'Allow: /',
+            '',
+            'User-agent: LinkedInBot',
+            'Allow: /',
+            '',
+            'User-agent: Slackbot',
+            'Allow: /',
+            '',
+            'User-agent: WhatsApp',
+            'Allow: /',
+            '',
+            'User-agent: Discordbot',
+            'Allow: /',
+            '',
+            'User-agent: TelegramBot',
+            'Allow: /',
+            '',
+            '# AI search & LLM crawlers — explicit opt-in for GEO/AEO indexing',
+            'User-agent: GPTBot',
+            'Allow: /',
+            '',
+            'User-agent: ChatGPT-User',
+            'Allow: /',
+            '',
+            'User-agent: OAI-SearchBot',
+            'Allow: /',
+            '',
+            'User-agent: ClaudeBot',
+            'Allow: /',
+            '',
+            'User-agent: anthropic-ai',
+            'Allow: /',
+            '',
+            'User-agent: PerplexityBot',
+            'Allow: /',
+            '',
+            'User-agent: Amazonbot',
+            'Allow: /',
+            '',
+            'User-agent: meta-externalagent',
+            'Allow: /',
+            '',
+            'User-agent: Meta-ExternalFetcher',
+            'Allow: /',
+            '',
+            'User-agent: YouBot',
+            'Allow: /',
+            '',
+            'User-agent: Applebot-Extended',
+            'Allow: /',
+            '',
+            'User-agent: cohere-ai',
+            'Allow: /',
+            '',
+            'User-agent: Diffbot',
+            'Allow: /',
+            '',
+            'User-agent: Bytespider',
+            'Allow: /',
+            '',
+            '# General crawlers',
+            'User-agent: *',
+            'Allow: /',
+            '',
+            'Sitemap: '.url('/sitemap.xml'),
+        ]));
     }
 }

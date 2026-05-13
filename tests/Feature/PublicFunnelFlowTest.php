@@ -86,4 +86,34 @@ class PublicFunnelFlowTest extends TestCase
 
         Queue::assertPushed(SyncSubmissionToZohoJob::class);
     }
+
+    public function test_request_consultation_replaces_the_next_step_panel_and_renders_trial_tracking(): void
+    {
+        /** @var Testable<Component> $component */
+        $component = Livewire::test('marketing.product-lead', [
+            'pageKey' => 'zoho_one',
+            'productName' => 'Zoho One',
+            'trialUrl' => $this->trialUrlFor('zoho_one'),
+        ]);
+
+        $component
+            ->set('companySizeBand', '11_50')
+            ->set('implementationTimeline', 'this_quarter')
+            ->set('currentEnvironment', 'multiple_line_of_business_tools')
+            ->set('priorityOutcome', 'shared_operating_system')
+            ->call('completeQualification');
+
+        $component->assertSee('Choose Your Next Step');
+        $component->assertSee('Start Free Trial');
+        $component->assertSeeHtml('data-ga4-track="start_free_trial_click"');
+        $component->assertSee('/products/zoho_one/start-trial?', false);
+
+        $component->call('requestConsultation');
+
+        $component->assertDontSee('Choose Your Next Step');
+        $component->assertDontSee('Start Free Trial');
+        $component->assertSee('Tell us who should hear back from us.');
+        $component->assertSee('Request Consultation');
+        $component->assertDontSee('Send Consultation');
+    }
 }

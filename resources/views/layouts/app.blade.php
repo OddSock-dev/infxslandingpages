@@ -22,7 +22,13 @@
             <meta property="og:image" content="{{ $page['og_image_url'] }}">
         @endif
         <link rel="canonical" href="{{ url()->current() }}">
-        <link rel="icon" href="/favicon.ico">
+        <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
+        <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('favicon-32x32.png') }}">
+        <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('favicon-16x16.png') }}">
+        <link rel="shortcut icon" href="{{ asset('favicon.ico') }}">
+        <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('apple-touch-icon.png') }}">
+        <link rel="manifest" href="{{ asset('site.webmanifest') }}">
+        <meta name="theme-color" content="#ffffff">
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Sora:wght@500;600;700;800&display=swap" rel="stylesheet">
@@ -34,6 +40,9 @@
             <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" async defer></script>
         @endif
         @livewireStyles
+
+        <!-- Google Analytics GA4 -->
+        <x-analytics.ga4-script />
     </head>
     <body class="bg-canvas font-sans text-slate-900 antialiased">
         <div class="relative isolate min-h-screen overflow-x-hidden">

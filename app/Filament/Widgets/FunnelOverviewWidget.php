@@ -29,6 +29,10 @@ class FunnelOverviewWidget extends StatsOverviewWidget
                 ->description(sprintf('%.1f%% of journeys became a submitted consultation', $metrics['submission_rate']))
                 ->chart($metrics['consultation_trend'])
                 ->color('info'),
+            Stat::make('Free Trial Starts', (string) $metrics['trial_starts'])
+                ->description('Recorded unique launches from the product-page trial CTA')
+                ->chart($metrics['trial_start_trend'])
+                ->color('warning'),
             Stat::make('Stalled Handoffs', (string) $metrics['stalled_handoffs'])
                 ->description(sprintf('%.1f%% of recommendations expired without a submission', $metrics['drop_off_rate']))
                 ->chart($metrics['stalled_trend'])

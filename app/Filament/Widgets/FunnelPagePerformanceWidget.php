@@ -29,6 +29,11 @@ class FunnelPagePerformanceWidget extends ChartWidget
                     'data' => $metrics['consultations'],
                     'backgroundColor' => '#1d4ed8',
                 ],
+                [
+                    'label' => 'Free-trial starts',
+                    'data' => $metrics['trial_starts'],
+                    'backgroundColor' => '#14b8a6',
+                ],
             ],
             'labels' => $metrics['labels'],
         ];

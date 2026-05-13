@@ -7,10 +7,13 @@ namespace Tests\Feature;
 use App\Actions\Zoho\SubmitLeadToZohoAction;
 use App\Enums\CrmStatus;
 use App\Enums\SyncAttemptStatus;
+use App\Models\Journey;
+use App\Models\JourneyAnswer;
 use App\Models\Submission;
 use App\Models\ZohoCredential;
 use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\Client\Request;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Facades\Http;
 use Tests\TestCase;
@@ -44,7 +47,7 @@ class SubmitLeadToZohoActionTest extends TestCase
         $submission = Submission::factory()->create();
 
         Http::fake([
-            'https://www.zohoapis.test/crm/v2/Leads' => Http::response([
+            'https://www.zohoapis.test/crm/v8/Leads' => Http::response([
                 'data' => [['code' => 'SUCCESS', 'details' => ['id' => '1234567890'], 'message' => 'record added', 'status' => 'success']],
             ], 201),
         ]);
@@ -66,7 +69,7 @@ class SubmitLeadToZohoActionTest extends TestCase
         $submission = Submission::factory()->create();
 
         Http::fake([
-            'https://www.zohoapis.test/crm/v2/Leads' => Http::response(['message' => 'Server Error'], 500),
+            'https://www.zohoapis.test/crm/v8/Leads' => Http::response(['message' => 'Server Error'], 500),
         ]);
 
         $action = app(SubmitLeadToZohoAction::class);
@@ -101,7 +104,7 @@ class SubmitLeadToZohoActionTest extends TestCase
                 'access_token' => 'fresh-access-token',
                 'expires_in' => 3600,
             ], 200),
-            'https://www.zohoapis.test/crm/v2/Leads' => Http::response([
+            'https://www.zohoapis.test/crm/v8/Leads' => Http::response([
                 'data' => [['code' => 'SUCCESS', 'details' => ['id' => '99'], 'message' => 'record added', 'status' => 'success']],
             ], 201),
         ]);
@@ -126,7 +129,7 @@ class SubmitLeadToZohoActionTest extends TestCase
                 'refresh_token' => 'replacement-refresh-token',
                 'expires_in' => 3600,
             ], 200),
-            'https://www.zohoapis.test/crm/v2/Leads' => Http::sequence()
+            'https://www.zohoapis.test/crm/v8/Leads' => Http::sequence()
                 ->push(['message' => 'Unauthorized'], 401)
                 ->push([
                     'data' => [[
@@ -220,7 +223,7 @@ class SubmitLeadToZohoActionTest extends TestCase
         ]);
 
         Http::fake([
-            'https://www.zohoapis.test/crm/v2/Leads' => Http::response(['data' => [['code' => 'SUCCESS']]], 201),
+            'https://www.zohoapis.test/crm/v8/Leads' => Http::response(['data' => [['code' => 'SUCCESS']]], 201),
         ]);
 
         $action = app(SubmitLeadToZohoAction::class);
@@ -229,6 +232,227 @@ class SubmitLeadToZohoActionTest extends TestCase
         $attempt = $submission->syncAttempts()->latest()->first();
         $this->assertNotNull($attempt);
         $this->assertArrayHasKey('data', $attempt->request_payload);
+    }
+
+    public function test_normalizes_whitespace_in_stored_email_before_calling_zoho(): void
+    {
+        $submission = Submission::factory()->create([
+            'pii_json' => [
+                'name' => 'Jane Doe',
+                'email' => ' jane @example .com ',
+                'phone' => null,
+                'company' => null,
+            ],
+        ]);
+
+        Http::fake([
+            'https://www.zohoapis.test/crm/v8/Leads' => Http::response(['data' => [['code' => 'SUCCESS']]], 201),
+        ]);
+
+        app(SubmitLeadToZohoAction::class)->execute($submission);
+
+        Http::assertSent(function (Request $request): bool {
+            /** @var array<string, mixed> $payload */
+            $payload = json_decode($request->body(), true, 512, JSON_THROW_ON_ERROR);
+
+            return data_get($payload, 'data.0.Email') === 'jane@example.com';
+        });
+    }
+
+    public function test_records_failed_attempt_without_calling_zoho_when_stored_email_is_invalid(): void
+    {
+        $submission = Submission::factory()->create([
+            'pii_json' => [
+                'name' => 'Jane Doe',
+                'email' => 'not-an-email',
+                'phone' => null,
+                'company' => null,
+            ],
+        ]);
+
+        Http::fake();
+
+        $action = app(SubmitLeadToZohoAction::class);
+
+        try {
+            $action->execute($submission);
+            $this->fail('Expected InvalidArgumentException was not thrown.');
+        } catch (\InvalidArgumentException $exception) {
+            $this->assertSame('Submission email is invalid for Zoho CRM.', $exception->getMessage());
+        }
+
+        Http::assertNothingSent();
+
+        $submission->refresh();
+        $this->assertSame(CrmStatus::Failed, $submission->crm_status);
+
+        $attempt = $submission->syncAttempts()->latest()->first();
+        $this->assertNotNull($attempt);
+        $this->assertSame(SyncAttemptStatus::Failed, $attempt->status);
+        $this->assertSame('INVALID_SUBMISSION_DATA', $attempt->error_code);
+        $this->assertSame('Submission email is invalid for Zoho CRM.', $attempt->error_message);
+        $this->assertSame('not-an-email', data_get($attempt->request_payload, 'data.0.Email'));
+    }
+
+    public function test_sends_the_expected_product_page_payload_to_zoho(): void
+    {
+        $submission = Submission::factory()->create([
+            'product_key' => 'zoho_one',
+            'page_key' => 'zoho_one',
+            'pii_json' => [
+                'name' => 'Jane Doe',
+                'email' => 'jane@example.com',
+                'phone' => '+27211234567',
+                'company' => '',
+            ],
+            'meta_json' => [
+                'company_size_band' => '11_50',
+                'implementation_timeline' => 'this_quarter',
+                'current_environment' => 'multiple_line_of_business_tools',
+                'priority_outcome' => 'shared_operating_system',
+            ],
+        ]);
+
+        Http::fake([
+            'https://www.zohoapis.test/crm/v8/Leads' => Http::response(['data' => [['code' => 'SUCCESS']]], 201),
+        ]);
+
+        app(SubmitLeadToZohoAction::class)->execute($submission);
+
+        Http::assertSent(function (Request $request): bool {
+            if ($request->url() !== 'https://www.zohoapis.test/crm/v8/Leads') {
+                return false;
+            }
+
+            /** @var array<string, mixed> $payload */
+            $payload = json_decode($request->body(), true, 512, JSON_THROW_ON_ERROR);
+            /** @var array<string, mixed>|null $lead */
+            $lead = data_get($payload, 'data.0');
+
+            if (! is_array($lead)) {
+                return false;
+            }
+
+            return $lead === [
+                'Owner' => [
+                    'name' => 'Alex Ndhlovu',
+                    'id' => '2960730000120595001',
+                    'email' => 'salcorporate@infinitybrands.co.za',
+                ],
+                'Lead_Stage' => '1. New (Important)',
+                'Lead_Status' => 'New',
+                'Interest' => 'INFX : ZOHO (Implementation)',
+                'Brand' => 'INFX: Zoho',
+                'Lead_Source' => 'INFX Zoho Magnet',
+                'Franchise' => 'INFX Solutions',
+                'Product' => 'Corporate (COR)',
+                'Sales_Department' => 'SAL COR: Product Sales',
+                'First_Name' => 'Jane',
+                'Last_Name' => 'Doe',
+                'Email' => 'jane@example.com',
+                'Mobile' => '+27211234567',
+                'Phone' => '+27211234567',
+                'Tag' => [
+                    ['name' => 'INFXS'],
+                    ['name' => 'INFX'],
+                ],
+                'Description' => implode("\n\n", [
+                    'Product: Zoho One',
+                    implode("\n", [
+                        'Product page answers',
+                        '1. How many people will use this? 11-50 people',
+                        '2. When would you like to get started? This quarter',
+                        '3. What does the current setup look like? Too many separate business tools are in use',
+                        '4. What is the main result you want from this product? One connected setup across the business',
+                        'Contact details: Jane Doe / jane@example.com / +27211234567',
+                    ]),
+                ]),
+            ];
+        });
+    }
+
+    public function test_sends_homepage_and_product_answers_in_the_description_when_a_journey_exists(): void
+    {
+        $journey = Journey::factory()->routed('zoho_one')->create();
+
+        JourneyAnswer::query()->create([
+            'journey_id' => $journey->id,
+            'step_key' => 'diagnostic_1',
+            'field_key' => 'primary_goal',
+            'value' => 'unify_operations',
+        ]);
+        JourneyAnswer::query()->create([
+            'journey_id' => $journey->id,
+            'step_key' => 'diagnostic_2',
+            'field_key' => 'biggest_gap',
+            'value' => 'manual_handoffs',
+        ]);
+        JourneyAnswer::query()->create([
+            'journey_id' => $journey->id,
+            'step_key' => 'diagnostic_3',
+            'field_key' => 'team_shape',
+            'value' => 'multi_department_growth',
+        ]);
+        JourneyAnswer::query()->create([
+            'journey_id' => $journey->id,
+            'step_key' => 'diagnostic_4',
+            'field_key' => 'timeline',
+            'value' => 'this_quarter',
+        ]);
+
+        $submission = Submission::factory()->create([
+            'journey_id' => $journey->id,
+            'product_key' => 'zoho_one',
+            'page_key' => 'zoho_one',
+            'pii_json' => [
+                'name' => 'Robin Myndos',
+                'email' => 'info@myndos.co.za',
+                'phone' => '0763029206',
+                'company' => 'Myndos',
+            ],
+            'meta_json' => [
+                'company_size_band' => '11_50',
+                'implementation_timeline' => 'this_quarter',
+                'current_environment' => 'multiple_line_of_business_tools',
+                'priority_outcome' => 'shared_operating_system',
+            ],
+        ]);
+
+        Http::fake([
+            'https://www.zohoapis.test/crm/v8/Leads' => Http::response(['data' => [['code' => 'SUCCESS']]], 201),
+        ]);
+
+        app(SubmitLeadToZohoAction::class)->execute($submission);
+
+        Http::assertSent(function (Request $request): bool {
+            /** @var array<string, mixed> $payload */
+            $payload = json_decode($request->body(), true, 512, JSON_THROW_ON_ERROR);
+            /** @var array<string, mixed>|null $lead */
+            $lead = data_get($payload, 'data.0');
+
+            if (! is_array($lead)) {
+                return false;
+            }
+
+            return ($lead['Description'] ?? null) === implode("\n\n", [
+                'Product: Zoho One',
+                implode("\n", [
+                    'Lead magnet answers',
+                    '1. What do you need to improve? Run the business from one connected set of tools',
+                    '2. What is slowing you down? Too much manual work between teams',
+                    '3. What does your team look like? A growing team across several departments',
+                    '4. When do you want this live? This quarter',
+                    '5. Where should we send it? Robin Myndos / info@myndos.co.za / 0763029206 / Myndos',
+                ]),
+                implode("\n", [
+                    'Product page answers',
+                    '1. How many people will use this? 11-50 people',
+                    '2. When would you like to get started? This quarter',
+                    '3. What does the current setup look like? Too many separate business tools are in use',
+                    '4. What is the main result you want from this product? One connected setup across the business',
+                ]),
+            ]);
+        });
     }
 
     public function test_redacts_pii_inside_recorded_error_messages(): void
@@ -243,7 +467,7 @@ class SubmitLeadToZohoActionTest extends TestCase
         ]);
 
         Http::fake([
-            'https://www.zohoapis.test/crm/v2/Leads' => Http::response([
+            'https://www.zohoapis.test/crm/v8/Leads' => Http::response([
                 'message' => 'Lead jane@example.com with phone +27 82 555 1212 was rejected.',
             ], 422),
         ]);

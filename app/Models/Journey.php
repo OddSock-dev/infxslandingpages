@@ -75,6 +75,12 @@ class Journey extends Model
         return $this->hasMany(JourneyAnswer::class);
     }
 
+    /** @return HasMany<TrialClick, $this> */
+    public function trialClicks(): HasMany
+    {
+        return $this->hasMany(TrialClick::class);
+    }
+
     /** @return HasOne<Submission, $this> */
     public function submission(): HasOne
     {

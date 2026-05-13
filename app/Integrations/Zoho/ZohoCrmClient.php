@@ -122,7 +122,7 @@ class ZohoCrmClient
     }
 
     /**
-     * Creates a lead in Zoho CRM via the v2 API.
+     * Creates a lead in Zoho CRM via the v8 API.
      *
      * @param  array<string, mixed>  $payload  Pre-built Zoho API payload (must contain 'data' key)
      * @return array<string, mixed> Parsed JSON response from Zoho
@@ -133,13 +133,13 @@ class ZohoCrmClient
     {
         $config = $this->settings->connectionConfig();
         $response = $this->leadRequest($this->getAccessToken())
-            ->post("{$config['api_domain']}/crm/v2/Leads", $payload);
+            ->post("{$config['api_domain']}/crm/v8/Leads", $payload);
 
         if ($response->status() === $config['token_expired_status_code']) {
             ZohoCredential::clear(ZohoCredential::ACCESS_TOKEN);
 
             $response = $this->leadRequest($this->getAccessToken())
-                ->post("{$config['api_domain']}/crm/v2/Leads", $payload);
+                ->post("{$config['api_domain']}/crm/v8/Leads", $payload);
         }
 
         $response->throw();

@@ -31,10 +31,10 @@ class CrmPayloadRedactor
      * @param  array<int|string, mixed>|null  $payload
      * @return array<string, string>
      */
-    public static function flattenForDisplay(?array $payload): array
+    public static function flattenForDisplay(?array $payload, bool $redact = true): array
     {
         $flattened = [];
-        self::flatten('', self::redactArray($payload), $flattened);
+        self::flatten('', $redact ? self::redactArray($payload) : ($payload ?? []), $flattened);
         ksort($flattened);
 
         return $flattened;

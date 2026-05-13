@@ -83,7 +83,7 @@ class ZohoSyncJobTest extends TestCase
         $submission = Submission::factory()->create();
 
         Http::fake([
-            'https://www.zohoapis.test/crm/v2/Leads' => Http::response([
+            'https://www.zohoapis.test/crm/v8/Leads' => Http::response([
                 'data' => [['code' => 'SUCCESS', 'details' => ['id' => '555'], 'message' => 'record added', 'status' => 'success']],
             ], 201),
         ]);
@@ -115,7 +115,7 @@ class ZohoSyncJobTest extends TestCase
         $submission = Submission::factory()->create();
 
         Http::fake([
-            'https://www.zohoapis.test/crm/v2/Leads' => Http::response(['message' => 'Internal Server Error'], 500),
+            'https://www.zohoapis.test/crm/v8/Leads' => Http::response(['message' => 'Internal Server Error'], 500),
         ]);
 
         $job = new SyncSubmissionToZohoJob($submission->id);

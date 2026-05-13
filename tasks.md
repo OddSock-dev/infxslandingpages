@@ -98,6 +98,7 @@
 - [x] Add richer failed-push inspection plus retry or requeue controls inside Filament
 - [x] Surface token expiry, connection health, and last-success indicators for operators
 - [x] Track failed API pushes and operational anomalies without leaking secrets or raw PII
+- [x] Track product-page free-trial launches in GA4 and surface those counts in Filament dashboard metrics
 - [ ] Review alerting and reporting requirements for admins once the revised funnel is in place
 
 ---
@@ -108,3 +109,32 @@
 - [x] Run Pint, PHPStan, targeted tests, and frontend build after each change set
 - [x] Perform browser validation of the revised public journeys and Filament admin workflows
 - [ ] Finalize deployment and runtime notes once credential management and bot protection are locked
+
+---
+
+## Phase 11: Product-page CTA UX refinement
+
+- [x] Rework the shared product lead "Choose Your Next Step" layout so the CTA buttons sit on their own row with breathing room across product landing pages
+- [x] Replace the CTA options block with the consultation form in-place while keeping the lead-card height stable through the state change
+- [x] Rename the consultation submit CTA to stronger copy that matches the request flow across all product landing pages
+
+---
+
+## Phase 12: Search indexing support
+
+- [x] Add an explicit public `/sitemap.xml` endpoint for indexable public pages
+- [x] Exclude inactive and `noindex` pages from the generated sitemap
+- [x] Replace the static `public/robots.txt` file with a dynamic response that advertises the current host sitemap URL
+- [x] Add feature coverage for sitemap generation and robots sitemap discovery
+
+---
+
+## Phase 10: Zoho lead payload alignment
+
+- [x] Update the Zoho lead payload mapper so homepage and standalone landing-page submissions send the confirmed fixed Zoho defaults, names-only tags, and both `Mobile` and `Phone`
+- [x] Build a deterministic multiline Zoho `Description` from homepage journey answers, product-page qualification answers, and captured contact details without changing the public UI components
+- [x] Extend Zoho sync tests to assert the exact outgoing payload for product-only submissions and homepage-routed product submissions
+- [x] Switch Zoho lead creation and related tests from the older `/crm/v2/Leads` path to the confirmed `/crm/v8/Leads` endpoint
+- [x] Add the fixed Zoho `Owner`, `Product`, and `Sales_Department` fields to every submitted lead payload
+- [x] Save a project-root markdown file containing the PowerShell `curl.exe` test example and matching JSON payload
+- [x] Include the routed Zoho solution label in `Description` so each synced lead clearly shows which landing-page product the user was funneled to

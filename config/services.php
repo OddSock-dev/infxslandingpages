@@ -44,4 +44,13 @@ return [
         ),
     ],
 
+    'analytics' => [
+        'enabled' => env('ANALYTICS_ENABLED', false),
+        'ga4_measurement_id' => env(
+            'GA4_MEASUREMENT_ID',
+            env('ANALYTICS_GA4_MEASUREMENT_ID', env('ANALYTICS_MEASUREMENT_ID'))
+        ),
+        'measurement_id' => env('ANALYTICS_MEASUREMENT_ID'),
+    ],
+
 ];

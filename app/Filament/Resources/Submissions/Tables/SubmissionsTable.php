@@ -7,20 +7,31 @@ namespace App\Filament\Resources\Submissions\Tables;
 use App\Enums\CrmStatus;
 use App\Enums\SyncAttemptStatus;
 use App\Filament\Resources\CrmSyncAttempts\CrmSyncAttemptResource;
+use App\Models\CrmSyncAttempt;
 use App\Models\Submission;
-use App\Support\CrmPayloadRedactor;
 use Filament\Actions\Action;
 use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Relations\Relation;
 
 class SubmissionsTable
 {
     public static function configure(Table $table): Table
     {
+        $syncAttempt = new CrmSyncAttempt;
+
         return $table
-            ->modifyQueryUsing(fn (Builder $query): Builder => $query->with('latestSyncAttempt:id,submission_id,status'))
+            ->modifyQueryUsing(fn (Builder $query): Builder => $query->with([
+                'latestSyncAttempt' => static function (Relation $relationQuery) use ($syncAttempt): void {
+                    $relationQuery->getQuery()->select([
+                        $syncAttempt->qualifyColumn('id'),
+                        $syncAttempt->qualifyColumn('submission_id'),
+                        $syncAttempt->qualifyColumn('status'),
+                    ]);
+                },
+            ]))
             ->columns([
                 TextColumn::make('id')
                     ->sortable(),
@@ -29,9 +40,7 @@ class SubmissionsTable
                     ->state(function (Submission $record): ?string {
                         $email = data_get($record->pii_json, 'email');
 
-                        return is_string($email)
-                            ? CrmPayloadRedactor::redactField('email', $email)
-                            : null;
+                        return is_string($email) ? $email : null;
                     })
                     ->searchable(false),
                 TextColumn::make('product_key')

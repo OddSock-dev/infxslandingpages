@@ -12,6 +12,7 @@ use App\Services\ProductRecommendationService;
 use App\Services\SubmissionRecorder;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Validation\ValidationException;
 use Livewire\Component;
 
@@ -302,6 +303,27 @@ new class extends Component
         $this->redirectRoute('thanks', navigate: true);
     }
 
+    public function trialStartUrl(): ?string
+    {
+        if ($this->trialUrl === null || trim($this->trialUrl) === '') {
+            return null;
+        }
+
+        return URL::temporarySignedRoute(
+            'products.trial.start',
+            now()->addDay(),
+            array_filter([
+                'pageKey' => $this->pageKey,
+                'journey' => $this->journeyToken,
+                'utm_source' => $this->tracking['utm_source'],
+                'utm_medium' => $this->tracking['utm_medium'],
+                'utm_campaign' => $this->tracking['utm_campaign'],
+                'utm_term' => $this->tracking['utm_term'],
+                'utm_content' => $this->tracking['utm_content'],
+            ], static fn (mixed $value): bool => $value !== null && $value !== ''),
+        );
+    }
+
     /**
      * @return array<string, list<string>>
      */
@@ -429,7 +451,7 @@ new class extends Component
 
 <div class="panel panel-strong overflow-hidden p-0 shadow-hero">
     <div class="border-b border-white/10 bg-slate-950 px-6 py-5 text-white sm:px-7">
-        <p class="eyebrow !text-teal-200/90">{{ $qualificationComplete ? 'Your Next Steps' : 'Quick Product Questions' }}</p>
+        <p class="eyebrow text-teal-200/90!">{{ $qualificationComplete ? 'Your Next Steps' : 'Quick Product Questions' }}</p>
         <h2 class="mt-2 font-display text-2xl font-semibold leading-tight text-balance">
             {{ $qualificationComplete ? "Choose how you would like to continue with {$productName}." : "Answer four quick questions so we can unlock the right next step for {$productName}." }}
         </h2>
@@ -490,7 +512,7 @@ new class extends Component
             <div class="space-y-4">
                 <div class="grid gap-4 sm:grid-cols-2">
                     <div>
-                        <label for="lead-company-size" class="mb-2 block text-sm font-medium text-slate-700">How many people will use this?</label>
+                        <label for="lead-company-size" class="mb-2 block text-sm font-medium text-slate-700 sm:min-h-12">How many people will use this?</label>
                         <select wire:model.blur="companySizeBand" id="lead-company-size" class="field-input">
                             <option value="">Select one</option>
                             @foreach($companySizeOptions as $option)
@@ -503,7 +525,7 @@ new class extends Component
                     </div>
 
                     <div>
-                        <label for="lead-timeline" class="mb-2 block text-sm font-medium text-slate-700">When would you like to get started?</label>
+                        <label for="lead-timeline" class="mb-2 block text-sm font-medium text-slate-700 sm:min-h-12">When would you like to get started?</label>
                         <select wire:model.blur="implementationTimeline" id="lead-timeline" class="field-input">
                             <option value="">Select one</option>
                             @foreach($timelineOptions as $option)
@@ -555,178 +577,189 @@ new class extends Component
                 </button>
             </div>
         @else
-            <div class="rounded-3xl border border-slate-200 bg-white p-5">
-                <div class="space-y-3 sm:flex sm:items-center sm:justify-between sm:gap-4 sm:space-y-0">
-                    <div>
-                        <p class="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">Choose Your Next Step</p>
-                        <p class="mt-2 text-sm leading-6 text-slate-600">Start the free trial when you want hands-on access first. Choose a consultation when you want rollout advice, migration planning, or a second opinion before you begin.</p>
-                    </div>
+            @php($trialStartUrl = $this->trialStartUrl())
 
-                    <div class="flex flex-col gap-3 sm:w-auto sm:flex-row">
-                        <button
-                            type="button"
-                            wire:click="requestConsultation"
-                            class="{{ $showConsultationForm ? 'border-teal-400 bg-teal-50 text-teal-700' : 'border-slate-200 bg-slate-950 text-white hover:bg-slate-900' }} inline-flex items-center justify-center rounded-2xl border px-5 py-3 text-sm font-semibold transition"
-                        >
-                            Request Consultation
-                        </button>
+            <div class="rounded-3xl border border-slate-200 bg-white p-5 sm:min-h-[38rem]">
+                @if($showConsultationForm)
+                    <form wire:submit="submit" wire:key="consultation-form" class="flex h-full flex-col gap-4">
+                        <div class="space-y-1">
+                            <p class="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">Consultation</p>
+                            <h3 class="text-lg font-semibold text-slate-950">Tell us who should hear back from us.</h3>
+                            <p class="text-sm leading-6 text-slate-600">We will use this information to tailor our reply and help you move forward with confidence.</p>
+                        </div>
 
-                        @if($trialUrl)
-                            <a href="{{ $trialUrl }}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center rounded-2xl border border-teal-200 bg-teal-50 px-5 py-3 text-sm font-semibold text-teal-700 transition hover:border-teal-300 hover:bg-teal-100">
-                                Start Free Trial
-                            </a>
+                        @if($companySizeBand === '' || $implementationTimeline === '' || $currentEnvironment === '' || $priorityOutcome === '')
+                            <div class="space-y-4 rounded-3xl border border-slate-200 bg-slate-50 p-4">
+                                <p class="text-sm font-medium text-slate-700">Before we send this, add a little more detail about what you need.</p>
+
+                                <div class="grid gap-4 sm:grid-cols-2">
+                                    <div>
+                                        <label for="consult-company-size" class="mb-2 block text-sm font-medium text-slate-700 sm:min-h-12">How many people will use this?</label>
+                                        <select wire:model.blur="companySizeBand" id="consult-company-size" class="field-input">
+                                            <option value="">Select one</option>
+                                            @foreach($companySizeOptions as $option)
+                                                <option value="{{ $option['value'] }}">{{ $option['label'] }}</option>
+                                            @endforeach
+                                        </select>
+                                        @error('companySizeBand')
+                                            <p class="mt-2 text-sm text-rose-600">{{ $message }}</p>
+                                        @enderror
+                                    </div>
+
+                                    <div>
+                                        <label for="consult-timeline" class="mb-2 block text-sm font-medium text-slate-700 sm:min-h-12">When would you like to get started?</label>
+                                        <select wire:model.blur="implementationTimeline" id="consult-timeline" class="field-input">
+                                            <option value="">Select one</option>
+                                            @foreach($timelineOptions as $option)
+                                                <option value="{{ $option['value'] }}">{{ $option['label'] }}</option>
+                                            @endforeach
+                                        </select>
+                                        @error('implementationTimeline')
+                                            <p class="mt-2 text-sm text-rose-600">{{ $message }}</p>
+                                        @enderror
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label for="consult-environment" class="mb-2 block text-sm font-medium text-slate-700">What does the current setup look like?</label>
+                                    <select wire:model.blur="currentEnvironment" id="consult-environment" class="field-input">
+                                        <option value="">Select one</option>
+                                        @foreach($environmentOptions as $option)
+                                            <option value="{{ $option['value'] }}">{{ $option['label'] }}</option>
+                                        @endforeach
+                                    </select>
+                                    @error('currentEnvironment')
+                                        <p class="mt-2 text-sm text-rose-600">{{ $message }}</p>
+                                    @enderror
+                                </div>
+
+                                <div>
+                                    <label for="consult-outcome" class="mb-2 block text-sm font-medium text-slate-700">What matters most to you?</label>
+                                    <select wire:model.blur="priorityOutcome" id="consult-outcome" class="field-input">
+                                        <option value="">Select one</option>
+                                        @foreach($outcomeOptions as $option)
+                                            <option value="{{ $option['value'] }}">{{ $option['label'] }}</option>
+                                        @endforeach
+                                    </select>
+                                    @error('priorityOutcome')
+                                        <p class="mt-2 text-sm text-rose-600">{{ $message }}</p>
+                                    @enderror
+                                </div>
+                            </div>
                         @endif
-                    </div>
-                </div>
 
-                @if($trialUrl)
-                    <p class="mt-4 text-sm leading-6 text-slate-600">The quick fit check unlocks your free trial with a clearer starting point, so you can explore the product around your priorities instead of starting cold.</p>
+                        <div>
+                            <label for="lead-name" class="mb-2 block text-sm font-medium text-slate-700">Full Name</label>
+                            <input wire:model.blur="name" id="lead-name" type="text" placeholder="Jane Smith" class="field-input">
+                            @error('name')
+                                <p class="mt-2 text-sm text-rose-600">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div>
+                            <label for="lead-email" class="mb-2 block text-sm font-medium text-slate-700">Work Email</label>
+                            <input wire:model.blur="email" id="lead-email" type="email" placeholder="jane@company.co.za" class="field-input">
+                            @error('email')
+                                <p class="mt-2 text-sm text-rose-600">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div class="grid gap-4 sm:grid-cols-2">
+                            <div>
+                                <label for="lead-phone" class="mb-2 block text-sm font-medium text-slate-700">Phone Number</label>
+                                <input wire:model.blur="phone" id="lead-phone" type="tel" placeholder="+27 82 123 4567" class="field-input">
+                                @error('phone')
+                                    <p class="mt-2 text-sm text-rose-600">{{ $message }}</p>
+                                @enderror
+                            </div>
+
+                            <div>
+                                <label for="lead-company" class="mb-2 block text-sm font-medium text-slate-700">Company</label>
+                                <input wire:model.blur="company" id="lead-company" type="text" placeholder="Acme (Pty) Ltd" class="field-input">
+                                @error('company')
+                                    <p class="mt-2 text-sm text-rose-600">{{ $message }}</p>
+                                @enderror
+                            </div>
+                        </div>
+
+                        @error('form')
+                            <p class="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">{{ $message }}</p>
+                        @enderror
+
+                        @if($turnstileEnabled)
+                            <div
+                                x-data
+                                x-init="window.infxTurnstileMount($refs.turnstile, '{{ config('turnstile.site_key') }}', (token) => $wire.set('turnstileToken', token), () => $wire.set('turnstileToken', ''))"
+                                class="rounded-3xl border border-slate-200 bg-slate-50 p-4"
+                            >
+                                <div wire:ignore x-ref="turnstile"></div>
+                            </div>
+                            @error('turnstileToken')
+                                <p class="text-sm text-rose-600">{{ $message }}</p>
+                            @enderror
+                        @endif
+
+                        <div class="mt-auto flex flex-col gap-3 sm:flex-row">
+                            <button
+                                type="button"
+                                wire:click="backToOptions"
+                                class="inline-flex items-center justify-center rounded-2xl border border-slate-200 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50"
+                            >
+                                Back to Options
+                            </button>
+
+                            <button
+                                type="submit"
+                                wire:loading.attr="disabled"
+                                class="inline-flex flex-1 items-center justify-center rounded-2xl bg-linear-to-r from-teal-500 to-cyan-500 px-5 py-3.5 text-sm font-semibold text-white shadow-soft transition-transform hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-70"
+                            >
+                                <span wire:loading.remove wire:target="submit">Request Consultation</span>
+                                <span wire:loading wire:target="submit">Submitting Your Request...</span>
+                            </button>
+                        </div>
+                    </form>
+                @else
+                    <div wire:key="next-step-options" class="flex h-full flex-col justify-between">
+                        <div>
+                            <p class="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">Choose Your Next Step</p>
+                            <p class="mt-3 text-sm leading-6 text-slate-600">Start the free trial when you want hands-on access first. Choose a consultation when you want rollout advice, migration planning, or a second opinion before you begin.</p>
+
+                            @if($trialStartUrl)
+                                <p class="mt-4 text-sm leading-6 text-slate-600">The quick fit check unlocks your free trial with a clearer starting point, so you can explore the product around your priorities instead of starting cold.</p>
+                            @endif
+                        </div>
+
+                        <div class="mt-6 flex flex-col gap-3 sm:flex-row">
+                            <button
+                                type="button"
+                                wire:click="requestConsultation"
+                                class="inline-flex flex-1 items-center justify-center rounded-2xl border border-slate-200 bg-slate-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-900"
+                            >
+                                Request Consultation
+                            </button>
+
+                            @if($trialStartUrl)
+                                <a
+                                    href="{{ $trialStartUrl }}"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    data-ga4-track="start_free_trial_click"
+                                    data-ga4-category="trial"
+                                    data-ga4-label="{{ $productName }}"
+                                    data-ga4-value="{{ $pageKey }}"
+                                    class="inline-flex flex-1 items-center justify-center rounded-2xl border border-teal-200 bg-teal-50 px-5 py-3 text-sm font-semibold text-teal-700 transition hover:border-teal-300 hover:bg-teal-100"
+                                >
+                                    Start Free Trial
+                                </a>
+                            @endif
+                        </div>
+                    </div>
                 @endif
             </div>
 
             @error('qualification')
                 <p class="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">{{ $message }}</p>
             @enderror
-
-            @if($showConsultationForm)
-                <form wire:submit="submit" class="space-y-4 rounded-3xl border border-slate-200 bg-slate-50 p-5">
-                    <div class="space-y-1">
-                        <p class="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">Consultation</p>
-                        <h3 class="text-lg font-semibold text-slate-950">Tell us who should hear back from us.</h3>
-                        <p class="text-sm leading-6 text-slate-600">We will use this information to tailor our reply and help you move forward with confidence.</p>
-                    </div>
-
-                    @if($companySizeBand === '' || $implementationTimeline === '' || $currentEnvironment === '' || $priorityOutcome === '')
-                        <div class="space-y-4 rounded-3xl border border-slate-200 bg-white p-4">
-                            <p class="text-sm font-medium text-slate-700">Before we send this, add a little more detail about what you need.</p>
-
-                            <div class="grid gap-4 sm:grid-cols-2">
-                                <div>
-                                    <label for="consult-company-size" class="mb-2 block text-sm font-medium text-slate-700">How many people will use this?</label>
-                                    <select wire:model.blur="companySizeBand" id="consult-company-size" class="field-input">
-                                        <option value="">Select one</option>
-                                        @foreach($companySizeOptions as $option)
-                                            <option value="{{ $option['value'] }}">{{ $option['label'] }}</option>
-                                        @endforeach
-                                    </select>
-                                    @error('companySizeBand')
-                                        <p class="mt-2 text-sm text-rose-600">{{ $message }}</p>
-                                    @enderror
-                                </div>
-
-                                <div>
-                                    <label for="consult-timeline" class="mb-2 block text-sm font-medium text-slate-700">When would you like to get started?</label>
-                                    <select wire:model.blur="implementationTimeline" id="consult-timeline" class="field-input">
-                                        <option value="">Select one</option>
-                                        @foreach($timelineOptions as $option)
-                                            <option value="{{ $option['value'] }}">{{ $option['label'] }}</option>
-                                        @endforeach
-                                    </select>
-                                    @error('implementationTimeline')
-                                        <p class="mt-2 text-sm text-rose-600">{{ $message }}</p>
-                                    @enderror
-                                </div>
-                            </div>
-
-                            <div>
-                                <label for="consult-environment" class="mb-2 block text-sm font-medium text-slate-700">What does the current setup look like?</label>
-                                <select wire:model.blur="currentEnvironment" id="consult-environment" class="field-input">
-                                    <option value="">Select one</option>
-                                    @foreach($environmentOptions as $option)
-                                        <option value="{{ $option['value'] }}">{{ $option['label'] }}</option>
-                                    @endforeach
-                                </select>
-                                @error('currentEnvironment')
-                                    <p class="mt-2 text-sm text-rose-600">{{ $message }}</p>
-                                @enderror
-                            </div>
-
-                            <div>
-                                <label for="consult-outcome" class="mb-2 block text-sm font-medium text-slate-700">What matters most to you?</label>
-                                <select wire:model.blur="priorityOutcome" id="consult-outcome" class="field-input">
-                                    <option value="">Select one</option>
-                                    @foreach($outcomeOptions as $option)
-                                        <option value="{{ $option['value'] }}">{{ $option['label'] }}</option>
-                                    @endforeach
-                                </select>
-                                @error('priorityOutcome')
-                                    <p class="mt-2 text-sm text-rose-600">{{ $message }}</p>
-                                @enderror
-                            </div>
-                        </div>
-                    @endif
-
-                    <div>
-                        <label for="lead-name" class="mb-2 block text-sm font-medium text-slate-700">Full Name</label>
-                        <input wire:model.blur="name" id="lead-name" type="text" placeholder="Jane Smith" class="field-input">
-                        @error('name')
-                            <p class="mt-2 text-sm text-rose-600">{{ $message }}</p>
-                        @enderror
-                    </div>
-
-                    <div>
-                        <label for="lead-email" class="mb-2 block text-sm font-medium text-slate-700">Work Email</label>
-                        <input wire:model.blur="email" id="lead-email" type="email" placeholder="jane@company.co.za" class="field-input">
-                        @error('email')
-                            <p class="mt-2 text-sm text-rose-600">{{ $message }}</p>
-                        @enderror
-                    </div>
-
-                    <div class="grid gap-4 sm:grid-cols-2">
-                        <div>
-                            <label for="lead-phone" class="mb-2 block text-sm font-medium text-slate-700">Phone Number</label>
-                            <input wire:model.blur="phone" id="lead-phone" type="tel" placeholder="+27 82 123 4567" class="field-input">
-                            @error('phone')
-                                <p class="mt-2 text-sm text-rose-600">{{ $message }}</p>
-                            @enderror
-                        </div>
-
-                        <div>
-                            <label for="lead-company" class="mb-2 block text-sm font-medium text-slate-700">Company</label>
-                            <input wire:model.blur="company" id="lead-company" type="text" placeholder="Acme (Pty) Ltd" class="field-input">
-                            @error('company')
-                                <p class="mt-2 text-sm text-rose-600">{{ $message }}</p>
-                            @enderror
-                        </div>
-                    </div>
-
-                    @error('form')
-                        <p class="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">{{ $message }}</p>
-                    @enderror
-
-                    @if($turnstileEnabled)
-                        <div
-                            x-data
-                            x-init="window.infxTurnstileMount($refs.turnstile, '{{ config('turnstile.site_key') }}', (token) => $wire.set('turnstileToken', token), () => $wire.set('turnstileToken', ''))"
-                            class="rounded-3xl border border-slate-200 bg-white p-4"
-                        >
-                            <div wire:ignore x-ref="turnstile"></div>
-                        </div>
-                        @error('turnstileToken')
-                            <p class="text-sm text-rose-600">{{ $message }}</p>
-                        @enderror
-                    @endif
-
-                    <div class="flex flex-col gap-3 sm:flex-row">
-                        <button
-                            type="button"
-                            wire:click="backToOptions"
-                            class="inline-flex items-center justify-center rounded-2xl border border-slate-200 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-white"
-                        >
-                            Back to Options
-                        </button>
-
-                        <button
-                            type="submit"
-                            wire:loading.attr="disabled"
-                            class="inline-flex flex-1 items-center justify-center rounded-2xl bg-linear-to-r from-teal-500 to-cyan-500 px-5 py-3.5 text-sm font-semibold text-white shadow-soft transition-transform hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-70"
-                        >
-                            <span wire:loading.remove wire:target="submit">Send Consultation</span>
-                            <span wire:loading wire:target="submit">Sending Your Request...</span>
-                        </button>
-                    </div>
-                </form>
-            @endif
         @endunless
 
         <p class="text-center text-xs text-slate-400">Your details stay protected. Verification is enabled. Clear next steps within one business day.</p>

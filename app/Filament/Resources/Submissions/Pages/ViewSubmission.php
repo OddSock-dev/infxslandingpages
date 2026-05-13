@@ -32,9 +32,9 @@ class ViewSubmission extends ViewRecord
                 ->icon('heroicon-o-arrow-path')
                 ->requiresConfirmation()
                 ->modalDescription('This resets the submission to pending and safely queues a new Zoho push.')
-                ->visible(fn (RequeueSubmissionSyncAction $action): bool => $action->canRequeueSubmission($this->record()))
-                ->action(function (RequeueSubmissionSyncAction $action): void {
-                    $this->sendNotification($action->executeForSubmission($this->record()));
+                ->visible(fn (RequeueSubmissionSyncAction $requeueSubmissionSyncAction): bool => $requeueSubmissionSyncAction->canRequeueSubmission($this->record()))
+                ->action(function (RequeueSubmissionSyncAction $requeueSubmissionSyncAction): void {
+                    $this->sendNotification($requeueSubmissionSyncAction->executeForSubmission($this->record()));
                 }),
         ];
     }

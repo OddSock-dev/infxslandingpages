@@ -24,7 +24,7 @@ class CrmSyncAttemptInfolist
         return $schema
             ->components([
                 Section::make('Attempt')
-                    ->description('Failure metadata stays searchable for operators while sensitive values stay masked.')
+                    ->description('Failure metadata stays searchable while admins can inspect the full CRM payload details.')
                     ->schema([
                         TextEntry::make('id')->label('ID'),
                         TextEntry::make('submission_id')
@@ -69,18 +69,18 @@ class CrmSyncAttemptInfolist
                     ->columns(2),
 
                 Section::make('Submission Context')
-                    ->description('Contact details are masked here. Raw values remain encrypted at rest.')
+                    ->description('Contact details remain encrypted at rest and are shown in full to admins here.')
                     ->schema([
                         TextEntry::make('submission.product_key')
                             ->label('Product'),
                         TextEntry::make('submission.submitted_at')
                             ->label('Submitted')
                             ->dateTime(),
-                        KeyValueEntry::make('masked_submission_contact')
-                            ->label('Masked Contact Details')
+                        KeyValueEntry::make('submission_contact')
+                            ->label('Contact Details')
                             ->state(fn (CrmSyncAttempt $record): array => $record->submission === null
                                 ? []
-                                : CrmPayloadRedactor::flattenForDisplay($record->submission->pii_json)),
+                                : CrmPayloadRedactor::flattenForDisplay($record->submission->pii_json, redact: false)),
                     ])
                     ->columns(2),
 
@@ -98,20 +98,20 @@ class CrmSyncAttemptInfolist
                     ->collapsible(),
 
                 Section::make('Request Payload')
-                    ->description('Keys are flattened and redacted before they render in Filament.')
+                    ->description('Keys are flattened for readability and shown in full to admins.')
                     ->schema([
-                        KeyValueEntry::make('request_payload_redacted')
-                            ->label('Redacted Request Payload')
-                            ->state(fn (CrmSyncAttempt $record): array => CrmPayloadRedactor::flattenForDisplay($record->request_payload)),
+                        KeyValueEntry::make('request_payload_display')
+                            ->label('Request Payload')
+                            ->state(fn (CrmSyncAttempt $record): array => CrmPayloadRedactor::flattenForDisplay($record->request_payload, redact: false)),
                     ])
                     ->collapsible(),
 
                 Section::make('Response Payload')
-                    ->description('Zoho responses are stored encrypted, then redacted again before display.')
+                    ->description('Zoho responses remain encrypted at rest and are shown in full to admins here.')
                     ->schema([
-                        KeyValueEntry::make('response_payload_redacted')
-                            ->label('Redacted Response Payload')
-                            ->state(fn (CrmSyncAttempt $record): array => CrmPayloadRedactor::flattenForDisplay($record->response_payload)),
+                        KeyValueEntry::make('response_payload_display')
+                            ->label('Response Payload')
+                            ->state(fn (CrmSyncAttempt $record): array => CrmPayloadRedactor::flattenForDisplay($record->response_payload, redact: false)),
                     ])
                     ->collapsible(),
 
@@ -172,7 +172,7 @@ class CrmSyncAttemptInfolist
                 'id' => $attempt->id,
                 'status' => $attempt->status,
                 'attempted_at' => $attempt->attempted_at,
-                'error_message' => CrmPayloadRedactor::redactMessage($attempt->error_message),
+                'error_message' => $attempt->error_message,
             ])
             ->all();
     }
@@ -184,7 +184,7 @@ class CrmSyncAttemptInfolist
     {
         $guidance = [
             'Only the latest failed attempt can be requeued from Filament.',
-            'Payload snapshots below are flattened and masked before display.',
+            'Payload snapshots below are flattened for readability and shown in full to admins.',
         ];
 
         $latestAttempt = $record->submission?->latestSyncAttempt;

@@ -8,6 +8,7 @@ use App\Enums\SyncAttemptStatus;
 use App\Models\CrmSyncAttempt;
 use App\Models\Journey;
 use App\Models\Submission;
+use App\Models\TrialClick;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
@@ -23,6 +24,7 @@ class DashboardMetricsService
      *     journeys_started: int,
      *     recommendations_issued: int,
      *     journey_consultations: int,
+     *     trial_starts: int,
      *     stalled_handoffs: int,
      *     routed_rate: float,
      *     submission_rate: float,
@@ -30,6 +32,7 @@ class DashboardMetricsService
      *     journey_trend: list<int>,
      *     recommendation_trend: list<int>,
      *     consultation_trend: list<int>,
+     *     trial_start_trend: list<int>,
      *     stalled_trend: list<int>
      * }
      */
@@ -53,6 +56,10 @@ class DashboardMetricsService
             ->whereNotNull('journey_id')
             ->count();
 
+        $trialStarts = TrialClick::query()
+            ->where('clicked_at', '>=', $windowStart)
+            ->count();
+
         $stalledHandoffs = Journey::query()
             ->where('created_at', '>=', $windowStart)
             ->whereNotNull('assigned_product_key')
@@ -66,6 +73,7 @@ class DashboardMetricsService
             'journeys_started' => $journeysStarted,
             'recommendations_issued' => $recommendationsIssued,
             'journey_consultations' => $journeyConsultations,
+            'trial_starts' => $trialStarts,
             'stalled_handoffs' => $stalledHandoffs,
             'routed_rate' => $this->percentage($recommendationsIssued, $journeysStarted),
             'submission_rate' => $this->percentage($journeyConsultations, $journeysStarted),
@@ -102,6 +110,16 @@ class DashboardMetricsService
                 ),
                 $trendDates,
             ),
+            'trial_start_trend' => $this->dailyTrend(
+                $this->keyedIntegerMetrics(
+                    TrialClick::query()
+                        ->where('clicked_at', '>=', $trendStart)
+                        ->selectRaw('DATE(clicked_at) as trend_date, COUNT(*) as aggregate_total')
+                        ->groupBy('trend_date')
+                        ->pluck('aggregate_total', 'trend_date'),
+                ),
+                $trendDates,
+            ),
             'stalled_trend' => $this->dailyTrend(
                 $this->keyedIntegerMetrics(
                     Journey::query()
@@ -122,7 +140,8 @@ class DashboardMetricsService
      * @return array{
      *     labels: list<string>,
      *     journey_starts: list<int>,
-     *     consultations: list<int>
+     *     consultations: list<int>,
+     *     trial_starts: list<int>
      * }
      */
     public function pageConversion(int $days = self::DEFAULT_WINDOW_DAYS): array
@@ -149,10 +168,20 @@ class DashboardMetricsService
                 ->pluck('aggregate_total', 'page_key'),
         );
 
+        /** @var array<string, int> $trialStarts */
+        $trialStarts = $this->keyedIntegerMetrics(
+            TrialClick::query()
+                ->where('clicked_at', '>=', $windowStart)
+                ->selectRaw('source_page_key, COUNT(*) as aggregate_total')
+                ->groupBy('source_page_key')
+                ->pluck('aggregate_total', 'source_page_key'),
+        );
+
         /** @var Collection<int, string> $pageKeys */
         $pageKeys = collect(array_unique([
             ...array_keys($journeyStarts),
             ...array_keys($consultations),
+            ...array_keys($trialStarts),
         ]))
             ->sortBy(fn (string $pageKey): int => $this->pageSortOrder($pageKey))
             ->values();
@@ -168,6 +197,10 @@ class DashboardMetricsService
                 ->all()),
             'consultations' => array_values($pageKeys
                 ->map(fn (string $pageKey): int => $consultations[$pageKey] ?? 0)
+                ->values()
+                ->all()),
+            'trial_starts' => array_values($pageKeys
+                ->map(fn (string $pageKey): int => $trialStarts[$pageKey] ?? 0)
                 ->values()
                 ->all()),
         ];

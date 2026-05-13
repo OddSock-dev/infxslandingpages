@@ -20,8 +20,8 @@ use Illuminate\Support\Str;
  * Executes a single Zoho CRM lead-creation attempt for a submission.
  *
  * Flow:
- *  1. Build the Zoho payload via LeadPayloadMapper (fail fast, no attempt row yet)
- *  2. Record a CrmSyncAttempt with status=Pending and the request payload
+ *  1. Record a CrmSyncAttempt with a payload snapshot and status=Pending
+ *  2. Build the final Zoho payload via LeadPayloadMapper
  *  3. Call Zoho CRM API
  *  4. Wrap local DB updates in a transaction so attempt + submission stay in sync
  *  5. Re-throw any exception so the queued job can retry
@@ -38,18 +38,22 @@ class SubmitLeadToZohoAction
      */
     public function execute(Submission $submission): void
     {
-        $payload = $this->mapper->map($submission);
-
         $attempt = CrmSyncAttempt::create([
             'submission_id' => $submission->id,
             'provider' => 'zoho_crm',
             'action' => 'create_lead',
-            'request_payload' => $payload,
+            'request_payload' => $this->mapper->snapshot($submission),
             'status' => SyncAttemptStatus::Pending,
             'attempted_at' => now(),
         ]);
 
         try {
+            $payload = $this->mapper->map($submission);
+
+            $attempt->update([
+                'request_payload' => $payload,
+            ]);
+
             $response = $this->client->createLead($payload);
 
             DB::transaction(function () use ($attempt, $submission, $response): void {
@@ -76,6 +80,10 @@ class SubmitLeadToZohoAction
 
     private function resolveErrorCode(\Throwable $exception): string
     {
+        if ($exception instanceof \InvalidArgumentException) {
+            return 'INVALID_SUBMISSION_DATA';
+        }
+
         if ($exception instanceof ConnectionException) {
             return 'CONNECTION_ERROR';
         }
