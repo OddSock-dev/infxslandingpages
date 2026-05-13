@@ -18,15 +18,19 @@
     <div class="pointer-events-none absolute -right-40 top-8 h-80 w-80 rounded-full bg-[radial-gradient(circle,rgba(56,189,248,0.06),transparent_74%)] blur-3xl"></div>
 
     @if($hasAside)
-        <div class="pointer-events-none absolute inset-x-0 top-0 z-0 hidden h-full overflow-hidden lg:block">
-            <img
-                src="{{ asset($heroImage) }}"
-                alt=""
-                aria-hidden="true"
-                fetchpriority="high"
-                decoding="async"
-                class="absolute left-[66rem] top-16 h-[calc(100%-4rem)] max-w-[58rem] object-contain object-bottom opacity-90 xl:left-[74rem] xl:top-14 xl:h-[calc(100%-3.5rem)]"
-            >
+        <div class="pointer-events-none absolute inset-0 z-0 hidden overflow-hidden lg:block">
+            <div class="relative mx-auto h-full max-w-7xl px-6 lg:px-8">
+                <div class="absolute inset-y-0 -right-16 flex w-[45rem] items-end xl:-right-20 xl:w-[50rem]">
+                    <img
+                        src="{{ asset($heroImage) }}"
+                        alt=""
+                        aria-hidden="true"
+                        fetchpriority="high"
+                        decoding="async"
+                        class="h-[calc(100%-4rem)] w-full object-contain object-bottom opacity-90 xl:h-[calc(100%-3.5rem)]"
+                    >
+                </div>
+            </div>
         </div>
     @endif
 
