@@ -27,6 +27,10 @@
                             : 'overflow-hidden rounded-[1.5rem] border border-slate-200/80 bg-slate-950/5';
                         $mediaClasses = $usesContainMedia ? 'h-52 w-full object-contain' : 'h-52 w-full object-cover';
                         $logoLabel = str_contains(strtolower((string) ($item['alt'] ?? '')), 'partner') ? 'Partner support' : 'Zoho product';
+                        $cardMediaUrl = match ((string) data_get($item, 'media_url')) {
+                            'media/zoho-one-hero.jpg' => 'media/zoho-one-hero-card.jpg',
+                            default => (string) data_get($item, 'media_url'),
+                        };
                     @endphp
                     <article class="panel panel-strong flex h-full flex-col gap-5 overflow-hidden p-5 sm:p-6" data-reveal style="transition-delay: {{ $index * 90 }}ms">
                         @if(! empty($item['media_url']))
@@ -34,22 +38,23 @@
                                 @if(data_get($item, 'media_type') === 'video')
                                     <video
                                         class="h-52 w-full object-cover"
-                                        src="{{ asset($item['media_url']) }}"
+                                        data-deferred-media="video"
+                                        data-src="{{ asset($item['media_url']) }}"
                                         aria-label="{{ data_get($item, 'media_alt', $item['title']) }}"
                                         autoplay
                                         loop
                                         muted
                                         playsinline
-                                        preload="metadata"
+                                        preload="none"
                                     ></video>
                                 @else
-                                    <img src="{{ asset($item['media_url']) }}" alt="{{ data_get($item, 'media_alt', $item['title']) }}" class="{{ $mediaClasses }}">
+                                    <img src="{{ asset($cardMediaUrl) }}" alt="{{ data_get($item, 'media_alt', $item['title']) }}" loading="lazy" decoding="async" class="{{ $mediaClasses }}">
                                 @endif
                             </div>
                         @endif
                         <div class="flex items-start gap-4 rounded-[1.25rem] border border-slate-200/80 bg-slate-50/90 px-4 py-4">
                             <div class="flex min-h-14 min-w-[7.5rem] items-center justify-center rounded-[1rem] border border-white bg-white px-4 py-3 shadow-[0_12px_24px_rgba(15,23,42,0.06)]">
-                                <img src="{{ $item['src'] }}" alt="{{ $item['alt'] }}" class="max-h-8 max-w-[8.5rem] w-auto object-contain">
+                                <img src="{{ $item['src'] }}" alt="{{ $item['alt'] }}" loading="lazy" decoding="async" class="max-h-8 max-w-[8.5rem] w-auto object-contain">
                             </div>
                             <div class="space-y-2">
                                 <p class="text-[0.7rem] font-semibold uppercase tracking-[0.2em] text-slate-500">{{ $logoLabel }}</p>

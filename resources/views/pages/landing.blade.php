@@ -5,6 +5,10 @@
     $content = $page['body_config'];
 @endphp
 
+@push('head')
+    <link rel="preload" as="image" href="{{ asset('media/OpsTeam.webp') }}" fetchpriority="high">
+@endpush
+
 @section('content')
     <x-marketing.hero
         :eyebrow="$content['eyebrow']"
@@ -43,7 +47,7 @@
                         <div class="absolute left-5 top-5 z-10 rounded-full border border-white/15 bg-slate-950/70 px-4 py-2 text-[0.65rem] font-semibold uppercase tracking-[0.28em] text-white">
                             Quick business check
                         </div>
-                        <img src="{{ asset(data_get($content, 'spotlight.media_url', 'media/systems-audit.webp')) }}" alt="{{ data_get($content, 'spotlight.media_alt', 'Business systems audit illustration') }}" class="h-full min-h-80 w-full object-cover">
+                        <img src="{{ asset(data_get($content, 'spotlight.media_url', 'media/systems-audit.webp')) }}" alt="{{ data_get($content, 'spotlight.media_alt', 'Business systems audit illustration') }}" loading="lazy" decoding="async" class="h-full min-h-80 w-full object-cover">
                     </div>
 
                     <div class="space-y-4">

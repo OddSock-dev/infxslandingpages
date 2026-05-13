@@ -138,3 +138,15 @@
 - [x] Add the fixed Zoho `Owner`, `Product`, and `Sales_Department` fields to every submitted lead payload
 - [x] Save a project-root markdown file containing the PowerShell `curl.exe` test example and matching JSON payload
 - [x] Include the routed Zoho solution label in `Description` so each synced lead clearly shows which landing-page product the user was funneled to
+
+---
+
+## Phase 13: Public performance optimisation
+
+- [x] Self-host the shared marketing fonts and remove the render-blocking Google Fonts dependency from the public layout
+- [x] Reduce landing-page hero LCP delay by preloading and prioritising the shared hero image
+- [x] Defer non-critical GA4 boot work while keeping early event tracking shims intact for the public funnel
+- [x] Lazy-load below-the-fold marketing images and only activate showcase videos when they enter view
+- [x] Improve static asset cache lifetimes for public images, fonts, videos, and built frontend assets
+- [x] Fix the low-contrast public qualifier step labels flagged by Lighthouse
+- [x] Reconcile `plan.md`, `tasks.md`, and verification coverage for the performance pass

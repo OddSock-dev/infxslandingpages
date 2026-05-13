@@ -291,10 +291,10 @@ new class extends Component
         <div class="grid grid-cols-5 gap-2 lg:gap-1.5">
             @foreach([1 => 'What do you need to improve?', 2 => 'What is slowing you down?', 3 => 'What does your team look like?', 4 => 'When do you want this live?', 5 => 'Where should we send it?'] as $stepNumber => $stepLabel)
                 <div class="space-y-2 text-center lg:space-y-1.5">
-                    <div class="{{ $step >= $stepNumber ? 'bg-teal-500 text-white' : 'bg-slate-100 text-slate-400' }} mx-auto flex h-9 w-9 items-center justify-center rounded-full text-sm font-semibold transition-colors lg:h-8 lg:w-8 lg:text-xs">
+                    <div class="{{ $step >= $stepNumber ? 'bg-teal-500 text-white' : 'bg-slate-100 text-slate-500' }} mx-auto flex h-9 w-9 items-center justify-center rounded-full text-sm font-semibold transition-colors lg:h-8 lg:w-8 lg:text-xs">
                         {{ $stepNumber }}
                     </div>
-                    <span class="hidden text-xs font-medium leading-4 text-slate-500 2xl:block lg:text-[11px]">{{ $stepLabel }}</span>
+                    <span class="hidden text-xs font-medium leading-4 text-slate-600 2xl:block lg:text-[11px]">{{ $stepLabel }}</span>
                 </div>
             @endforeach
         </div>
@@ -302,7 +302,7 @@ new class extends Component
         @if($step === 1)
             <div class="space-y-3">
                 <div class="rounded-3xl border border-slate-200 bg-slate-50 p-5 lg:p-4">
-                    <p class="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">Question 1 of 4</p>
+                    <p class="text-xs font-semibold uppercase tracking-[0.24em] text-slate-600">Question 1 of 4</p>
                     <h3 class="mt-2 text-lg font-semibold text-slate-950">What are you trying to improve first?</h3>
                     <p class="mt-2 text-sm leading-6 text-slate-600 lg:leading-5">Choose the business outcome that best matches why you are here today.</p>
                 </div>
@@ -327,7 +327,7 @@ new class extends Component
         @elseif($step === 2)
             <div class="space-y-3">
                 <div class="rounded-3xl border border-slate-200 bg-slate-50 p-5 lg:p-4">
-                    <p class="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">Question 2 of 4</p>
+                    <p class="text-xs font-semibold uppercase tracking-[0.24em] text-slate-600">Question 2 of 4</p>
                     <h3 class="mt-2 text-lg font-semibold text-slate-950">What is the biggest bottleneck in the current setup?</h3>
                     <p class="mt-2 text-sm leading-6 text-slate-600 lg:leading-5">Pick the issue that is creating the most friction for the team right now.</p>
                 </div>
@@ -352,7 +352,7 @@ new class extends Component
         @elseif($step === 3)
             <div class="space-y-3">
                 <div class="rounded-3xl border border-slate-200 bg-slate-50 p-5 lg:p-4">
-                    <p class="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">Question 3 of 4</p>
+                    <p class="text-xs font-semibold uppercase tracking-[0.24em] text-slate-600">Question 3 of 4</p>
                     <h3 class="mt-2 text-lg font-semibold text-slate-950">Which option sounds most like your team?</h3>
                     <p class="mt-2 text-sm leading-6 text-slate-600 lg:leading-5">This helps us understand whether you need business software, marketing tools, or a better way for your team to work together.</p>
                 </div>
@@ -377,7 +377,7 @@ new class extends Component
         @elseif($step === 4)
             <div class="space-y-3">
                 <div class="rounded-3xl border border-slate-200 bg-slate-50 p-5 lg:p-4">
-                    <p class="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">Question 4 of 4</p>
+                    <p class="text-xs font-semibold uppercase tracking-[0.24em] text-slate-600">Question 4 of 4</p>
                     <h3 class="mt-2 text-lg font-semibold text-slate-950">When do you want the right solution in motion?</h3>
                     <p class="mt-2 text-sm leading-6 text-slate-600 lg:leading-5">Your timing helps us suggest the most helpful place to start.</p>
                 </div>
@@ -401,7 +401,7 @@ new class extends Component
             @enderror
         @else
             <div class="rounded-3xl border border-slate-200 bg-slate-50 p-5 lg:p-4">
-                <p class="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">Final step</p>
+                <p class="text-xs font-semibold uppercase tracking-[0.24em] text-slate-600">Final step</p>
                 <p class="mt-2 text-sm leading-6 text-slate-600">
                     We will show you the Zoho option that suits you best and send you to the page where you can learn more or speak to us.
                 </p>
@@ -501,6 +501,6 @@ new class extends Component
             @endif
         </div>
 
-        <p class="text-center text-xs text-slate-400">Your details stay protected. Contact details are encrypted and handled securely. No spam. Clear next steps.</p>
+        <p class="text-center text-xs text-slate-500">Your details stay protected. Contact details are encrypted and handled securely. No spam. Clear next steps.</p>
     </div>
 </div>

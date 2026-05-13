@@ -29,6 +29,10 @@
     };
 @endphp
 
+@push('head')
+    <link rel="preload" as="image" href="{{ asset($heroImage) }}" fetchpriority="high">
+@endpush
+
 @section('content')
     <x-marketing.hero
         :eyebrow="$content['eyebrow']"
@@ -88,9 +92,9 @@
                             </span>
                         </div>
                         @if(data_get($content, 'spotlight.media_type') === 'video')
-                            <video class="{{ $spotlightMediaClasses }}" src="{{ asset(data_get($content, 'spotlight.media_url')) }}" controls playsinline muted preload="metadata"></video>
+                            <video class="{{ $spotlightMediaClasses }}" data-deferred-media="video" data-src="{{ asset(data_get($content, 'spotlight.media_url')) }}" controls playsinline muted preload="none"></video>
                         @else
-                            <img src="{{ asset(data_get($content, 'spotlight.media_url')) }}" alt="{{ data_get($content, 'spotlight.media_alt', $content['nav_label']) }}" class="{{ $spotlightMediaClasses }}">
+                            <img src="{{ asset(data_get($content, 'spotlight.media_url')) }}" alt="{{ data_get($content, 'spotlight.media_alt', $content['nav_label']) }}" loading="lazy" decoding="async" class="{{ $spotlightMediaClasses }}">
                         @endif
                     </div>
                 </div>

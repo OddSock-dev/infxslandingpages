@@ -38,7 +38,7 @@
     <div class="mx-auto flex max-w-7xl flex-col gap-10 px-6 py-14 lg:flex-row lg:gap-16 lg:px-8">
         <div class="max-w-xl space-y-6 lg:w-[24rem] lg:flex-none">
             <div class="flex items-center">
-                <img src="{{ asset('brand/infx-logo-wide.webp') }}" alt="INFX Solutions" class="h-12 w-auto sm:h-21">
+                <img src="{{ asset('brand/infx-logo-wide.webp') }}" alt="INFX Solutions" loading="lazy" decoding="async" class="h-12 w-auto sm:h-21">
             </div>
             <p class="max-w-xl text-sm leading-7 text-slate-600">
                 Clear Zoho guidance, practical support, and local expertise<br>to help your team move forward with confidence.
@@ -88,7 +88,7 @@
     <div class="border-t border-slate-200/70">
         <div class="mx-auto flex max-w-7xl flex-col gap-5 px-6 py-6 lg:flex-row lg:items-center lg:justify-between lg:px-8">
             <div class="flex items-center">
-                <img src="{{ asset('brand/zoho-authorized-partner.webp') }}" alt="Zoho Authorized Partner" class="h-11 w-auto shrink-0 sm:h-14">
+                <img src="{{ asset('brand/zoho-authorized-partner.webp') }}" alt="Zoho Authorized Partner" loading="lazy" decoding="async" class="h-11 w-auto shrink-0 sm:h-14">
             </div>
 
             <div class="flex flex-wrap items-center gap-3 lg:justify-end">

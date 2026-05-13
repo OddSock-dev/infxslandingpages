@@ -237,4 +237,28 @@ class PublicPagesTest extends TestCase
             'Sitemap: '.url('/sitemap.xml'),
         ]));
     }
+
+    public function test_it_renders_a_single_ga4_marker_when_analytics_is_enabled(): void
+    {
+        config()->set('services.analytics.enabled', true);
+        config()->set('services.analytics.ga4_measurement_id', 'G-TEST1234');
+
+        Page::factory()->create([
+            'page_key' => 'landing',
+            'page_type' => PageType::Landing,
+            'slug' => '/',
+            'is_active' => true,
+        ]);
+
+        $response = $this->get('/');
+        $content = $response->getContent();
+
+        $response->assertOk();
+        self::assertIsString($content);
+        self::assertSame(1, substr_count($content, 'window.infxBootGa4 = function ()'));
+        self::assertStringContainsString(
+            'https://www.googletagmanager.com/gtag/js?id=G-TEST1234',
+            $content,
+        );
+    }
 }

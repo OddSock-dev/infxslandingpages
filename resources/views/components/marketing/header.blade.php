@@ -7,7 +7,7 @@
         <div class="site-header__panel rounded-[1.75rem] px-4 py-3 sm:px-5 sm:py-3.5">
             <div class="flex items-center justify-between gap-4">
                 <a href="{{ route('home') }}" class="site-header__brand flex min-w-0 items-center">
-                    <img src="{{ asset('brand/infx-logo-wide.webp') }}" alt="INFX Solutions" class="site-header__brand-image h-11 w-auto sm:h-14">
+                    <img src="{{ asset('brand/infx-logo-wide-header.png') }}" alt="INFX Solutions" width="200" height="136" decoding="async" class="site-header__brand-image h-11 w-auto sm:h-14">
                 </a>
 
                 <nav class="hidden items-center gap-6 lg:flex">

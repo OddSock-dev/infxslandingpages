@@ -23,6 +23,8 @@
                 src="{{ asset($heroImage) }}"
                 alt=""
                 aria-hidden="true"
+                fetchpriority="high"
+                decoding="async"
                 class="absolute left-[66rem] top-16 h-[calc(100%-4rem)] max-w-[58rem] object-contain object-bottom opacity-90 xl:left-[74rem] xl:top-14 xl:h-[calc(100%-3.5rem)]"
             >
         </div>

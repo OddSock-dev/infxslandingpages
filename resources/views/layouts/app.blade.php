@@ -29,9 +29,7 @@
         <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('apple-touch-icon.png') }}">
         <link rel="manifest" href="{{ asset('site.webmanifest') }}">
         <meta name="theme-color" content="#ffffff">
-        <link rel="preconnect" href="https://fonts.googleapis.com">
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Sora:wght@500;600;700;800&display=swap" rel="stylesheet">
+        @stack('head')
 
         @if($shouldLoadVite)
             @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -41,7 +39,6 @@
         @endif
         @livewireStyles
 
-        <!-- Google Analytics GA4 -->
         <x-analytics.ga4-script />
     </head>
     <body class="bg-canvas font-sans text-slate-900 antialiased">

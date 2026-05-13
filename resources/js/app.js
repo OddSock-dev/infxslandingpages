@@ -4,6 +4,7 @@ const revealElements = document.querySelectorAll('[data-reveal]')
 const scrollHeader = document.querySelector('[data-scroll-header]')
 const navToggles = document.querySelectorAll('[data-nav-toggle]')
 const mobileNav = document.querySelector('[data-mobile-nav]')
+const deferredVideos = document.querySelectorAll('[data-deferred-media="video"]')
 
 if ('IntersectionObserver' in window) {
   const observer = new IntersectionObserver(
@@ -106,3 +107,66 @@ mobileNav?.querySelectorAll('a').forEach((link) => {
     navToggles.forEach((toggle) => toggle.setAttribute('aria-expanded', 'false'))
   })
 })
+
+const loadDeferredVideo = (video) => {
+  if (!(video instanceof HTMLVideoElement) || video.dataset.loaded === 'true') {
+    return
+  }
+
+  const source = video.dataset.src
+
+  if (!source) {
+    return
+  }
+
+  video.src = source
+  video.dataset.loaded = 'true'
+  video.load()
+}
+
+if ('IntersectionObserver' in window) {
+  const deferredVideoObserver = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        const video = entry.target
+
+        if (!(video instanceof HTMLVideoElement)) {
+          return
+        }
+
+        if (entry.isIntersecting) {
+          loadDeferredVideo(video)
+
+          const playPromise = video.play()
+          if (playPromise !== undefined) {
+            playPromise.catch(() => {})
+          }
+
+          return
+        }
+
+        if (video.dataset.loaded === 'true') {
+          video.pause()
+        }
+      })
+    },
+    {
+      rootMargin: '220px 0px',
+      threshold: 0.2,
+    },
+  )
+
+  deferredVideos.forEach((video) => deferredVideoObserver.observe(video))
+} else {
+  deferredVideos.forEach((video) => {
+    if (!(video instanceof HTMLVideoElement)) {
+      return
+    }
+
+    loadDeferredVideo(video)
+    const playPromise = video.play()
+    if (playPromise !== undefined) {
+      playPromise.catch(() => {})
+    }
+  })
+}
