@@ -161,7 +161,7 @@ class ZohoCrmClient
             nonRetryableStatus: $this->settings->connectionConfig()['token_expired_status_code'],
             throw: false,
         )
-            ->withToken($token);
+            ->withHeader('Authorization', "Zoho-oauthtoken {$token}");
     }
 
     private function baseRequest(?int $nonRetryableStatus = null, bool $throw = true): PendingRequest

@@ -64,6 +64,24 @@ class SubmitLeadToZohoActionTest extends TestCase
         $this->assertNotNull($attempt->response_payload);
     }
 
+    public function test_sends_zoho_oauth_token_authorization_header_to_crm(): void
+    {
+        $submission = Submission::factory()->create();
+
+        Http::fake([
+            'https://www.zohoapis.test/crm/v8/Leads' => Http::response([
+                'data' => [['code' => 'SUCCESS']],
+            ], 201),
+        ]);
+
+        app(SubmitLeadToZohoAction::class)->execute($submission);
+
+        Http::assertSent(function (Request $request): bool {
+            return $request->url() === 'https://www.zohoapis.test/crm/v8/Leads'
+                && $request->hasHeader('Authorization', 'Zoho-oauthtoken valid-access-token');
+        });
+    }
+
     public function test_records_failed_attempt_on_http_error(): void
     {
         $submission = Submission::factory()->create();
