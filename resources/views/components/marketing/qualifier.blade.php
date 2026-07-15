@@ -282,9 +282,16 @@ new class extends Component
 
 <div class="panel panel-strong overflow-hidden p-0 shadow-hero">
     <div class="border-b border-white/10 bg-slate-950 px-6 py-5 text-white sm:px-7 lg:px-6 lg:py-4">
-        <p class="eyebrow !text-teal-200/90">Find Your Best Zoho Option</p>
-        <h2 class="mt-2 font-display text-2xl font-semibold leading-tight text-balance lg:text-[2rem]">Answer a few clear questions and we will suggest the Zoho option that suits you best.</h2>
-        <p class="mt-2 text-sm text-slate-300 lg:max-w-xl">Tell us what you need, what is slowing you down, and how soon you want to improve things so we can point you in the right direction.</p>
+        <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+            <div>
+                <p class="eyebrow !text-teal-200/90">Your Zoho Recommendation</p>
+                <h2 class="mt-2 font-display text-2xl font-semibold leading-tight text-balance lg:text-[2rem]">Four quick questions. One clearer place to start.</h2>
+                <p class="mt-2 text-sm text-slate-300 lg:max-w-xl">Get a recommendation shaped around your goals, team, and timing in about two minutes.</p>
+            </div>
+            <div class="shrink-0 rounded-2xl bg-white px-3 py-2 shadow-soft">
+                <img src="{{ asset('brand/zoho-authorized-partner.webp') }}" alt="Zoho Authorized Partner" class="h-8 w-auto">
+            </div>
+        </div>
     </div>
 
     <div class="space-y-5 px-6 py-6 sm:px-7 lg:space-y-4 lg:px-6 lg:py-5">
@@ -306,16 +313,17 @@ new class extends Component
                     <h3 class="mt-2 text-lg font-semibold text-slate-950">What are you trying to improve first?</h3>
                     <p class="mt-2 text-sm leading-6 text-slate-600 lg:leading-5">Choose the business outcome that best matches why you are here today.</p>
                 </div>
-                <div class="grid gap-3 lg:grid-cols-3">
+                <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
                     @foreach($goalOptions as $option)
                         <button
                             type="button"
                             wire:click="$set('primaryGoal', '{{ $option['value'] }}')"
-                            class="{{ $primaryGoal === $option['value'] ? 'border-teal-400 bg-teal-50 shadow-soft' : 'border-slate-200 bg-white hover:border-teal-200 hover:bg-teal-50/50' }} w-full rounded-3xl border p-5 text-left transition-all lg:h-full lg:p-3.5"
+                            aria-pressed="{{ $primaryGoal === $option['value'] ? 'true' : 'false' }}"
+                            class="{{ $primaryGoal === $option['value'] ? 'border-teal-400 bg-teal-50 shadow-soft' : 'border-slate-200 bg-white hover:border-teal-200 hover:bg-teal-50/50' }} w-full rounded-3xl border p-5 text-left transition-all sm:last:col-span-2 lg:last:col-span-1 lg:p-4 xl:last:col-span-2"
                         >
                             <div class="space-y-1.5">
                                 <div class="text-base font-semibold text-slate-950 lg:text-[0.95rem] lg:leading-5">{{ $option['label'] }}</div>
-                                <div class="text-sm leading-6 text-slate-600 lg:hidden xl:block xl:leading-5">{{ $option['description'] }}</div>
+                                <div class="text-sm leading-6 text-slate-600">{{ $option['description'] }}</div>
                             </div>
                         </button>
                     @endforeach
@@ -331,16 +339,17 @@ new class extends Component
                     <h3 class="mt-2 text-lg font-semibold text-slate-950">What is the biggest bottleneck in the current setup?</h3>
                     <p class="mt-2 text-sm leading-6 text-slate-600 lg:leading-5">Pick the issue that is creating the most friction for the team right now.</p>
                 </div>
-                <div class="grid gap-3 lg:grid-cols-3">
+                <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
                     @foreach($gapOptions as $option)
                         <button
                             type="button"
                             wire:click="$set('biggestGap', '{{ $option['value'] }}')"
-                            class="{{ $biggestGap === $option['value'] ? 'border-teal-400 bg-teal-50 shadow-soft' : 'border-slate-200 bg-white hover:border-teal-200 hover:bg-teal-50/50' }} w-full rounded-3xl border p-5 text-left transition-all lg:h-full lg:p-3.5"
+                            aria-pressed="{{ $biggestGap === $option['value'] ? 'true' : 'false' }}"
+                            class="{{ $biggestGap === $option['value'] ? 'border-teal-400 bg-teal-50 shadow-soft' : 'border-slate-200 bg-white hover:border-teal-200 hover:bg-teal-50/50' }} w-full rounded-3xl border p-5 text-left transition-all sm:last:col-span-2 lg:last:col-span-1 lg:p-4 xl:last:col-span-2"
                         >
                             <div class="space-y-1.5">
                                 <div class="text-base font-semibold text-slate-950 lg:text-[0.95rem] lg:leading-5">{{ $option['label'] }}</div>
-                                <div class="text-sm leading-6 text-slate-600 lg:hidden xl:block xl:leading-5">{{ $option['description'] }}</div>
+                                <div class="text-sm leading-6 text-slate-600">{{ $option['description'] }}</div>
                             </div>
                         </button>
                     @endforeach
@@ -356,16 +365,17 @@ new class extends Component
                     <h3 class="mt-2 text-lg font-semibold text-slate-950">Which option sounds most like your team?</h3>
                     <p class="mt-2 text-sm leading-6 text-slate-600 lg:leading-5">This helps us understand whether you need business software, marketing tools, or a better way for your team to work together.</p>
                 </div>
-                <div class="grid gap-3 lg:grid-cols-3">
+                <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
                     @foreach($teamOptions as $option)
                         <button
                             type="button"
                             wire:click="$set('teamShape', '{{ $option['value'] }}')"
-                            class="{{ $teamShape === $option['value'] ? 'border-teal-400 bg-teal-50 shadow-soft' : 'border-slate-200 bg-white hover:border-teal-200 hover:bg-teal-50/50' }} w-full rounded-3xl border p-5 text-left transition-all lg:h-full lg:p-3.5"
+                            aria-pressed="{{ $teamShape === $option['value'] ? 'true' : 'false' }}"
+                            class="{{ $teamShape === $option['value'] ? 'border-teal-400 bg-teal-50 shadow-soft' : 'border-slate-200 bg-white hover:border-teal-200 hover:bg-teal-50/50' }} w-full rounded-3xl border p-5 text-left transition-all sm:last:col-span-2 lg:last:col-span-1 lg:p-4 xl:last:col-span-2"
                         >
                             <div class="space-y-1.5">
                                 <div class="text-base font-semibold text-slate-950 lg:text-[0.95rem] lg:leading-5">{{ $option['label'] }}</div>
-                                <div class="text-sm leading-6 text-slate-600 lg:hidden xl:block xl:leading-5">{{ $option['description'] }}</div>
+                                <div class="text-sm leading-6 text-slate-600">{{ $option['description'] }}</div>
                             </div>
                         </button>
                     @endforeach
@@ -381,16 +391,17 @@ new class extends Component
                     <h3 class="mt-2 text-lg font-semibold text-slate-950">When do you want the right solution in motion?</h3>
                     <p class="mt-2 text-sm leading-6 text-slate-600 lg:leading-5">Your timing helps us suggest the most helpful place to start.</p>
                 </div>
-                <div class="grid gap-3 lg:grid-cols-3">
+                <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
                     @foreach($timelineOptions as $option)
                         <button
                             type="button"
                             wire:click="$set('timeline', '{{ $option['value'] }}')"
-                            class="{{ $timeline === $option['value'] ? 'border-teal-400 bg-teal-50 shadow-soft' : 'border-slate-200 bg-white hover:border-teal-200 hover:bg-teal-50/50' }} w-full rounded-3xl border p-5 text-left transition-all lg:h-full lg:p-3.5"
+                            aria-pressed="{{ $timeline === $option['value'] ? 'true' : 'false' }}"
+                            class="{{ $timeline === $option['value'] ? 'border-teal-400 bg-teal-50 shadow-soft' : 'border-slate-200 bg-white hover:border-teal-200 hover:bg-teal-50/50' }} w-full rounded-3xl border p-5 text-left transition-all sm:last:col-span-2 lg:last:col-span-1 lg:p-4 xl:last:col-span-2"
                         >
                             <div class="space-y-1.5">
                                 <div class="text-base font-semibold text-slate-950 lg:text-[0.95rem] lg:leading-5">{{ $option['label'] }}</div>
-                                <div class="text-sm leading-6 text-slate-600 lg:hidden xl:block xl:leading-5">{{ $option['description'] }}</div>
+                                <div class="text-sm leading-6 text-slate-600">{{ $option['description'] }}</div>
                             </div>
                         </button>
                     @endforeach
@@ -403,7 +414,7 @@ new class extends Component
             <div class="rounded-3xl border border-slate-200 bg-slate-50 p-5 lg:p-4">
                 <p class="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">Final step</p>
                 <p class="mt-2 text-sm leading-6 text-slate-600">
-                    We will show you the Zoho option that suits you best and send you to the page where you can learn more or speak to us.
+                    Add your details to see the recommendation immediately. If you ask for help afterwards, INFX will reply within one business day.
                 </p>
             </div>
 
@@ -425,7 +436,7 @@ new class extends Component
                 </div>
 
                 <div>
-                    <label for="qualifier-phone" class="mb-2 block text-sm font-medium text-slate-700">Phone Number</label>
+                    <label for="qualifier-phone" class="mb-2 block text-sm font-medium text-slate-700">Phone Number <span class="font-normal text-slate-400">(optional)</span></label>
                     <input wire:model.blur="phone" id="qualifier-phone" type="tel" placeholder="+27 82 123 4567" class="field-input">
                     @error('phone')
                         <p class="mt-2 text-sm text-rose-600">{{ $message }}</p>
@@ -433,7 +444,7 @@ new class extends Component
                 </div>
 
                 <div>
-                    <label for="qualifier-company" class="mb-2 block text-sm font-medium text-slate-700">Company</label>
+                    <label for="qualifier-company" class="mb-2 block text-sm font-medium text-slate-700">Company <span class="font-normal text-slate-400">(optional)</span></label>
                     <input wire:model.blur="company" id="qualifier-company" type="text" placeholder="Acme (Pty) Ltd" class="field-input">
                     @error('company')
                         <p class="mt-2 text-sm text-rose-600">{{ $message }}</p>
@@ -484,9 +495,9 @@ new class extends Component
                 <button
                     type="button"
                     wire:click="nextStep"
-                    class="inline-flex flex-1 items-center justify-center rounded-2xl bg-linear-to-r from-teal-500 to-cyan-500 px-5 py-3.5 text-sm font-semibold text-white shadow-soft transition-transform hover:-translate-y-0.5"
+                    class="inline-flex flex-1 items-center justify-center rounded-2xl bg-linear-to-r from-teal-500 to-cyan-500 px-5 py-3.5 text-sm font-semibold text-white shadow-soft transition-transform hover:-translate-y-0.5 data-loading:opacity-70"
                 >
-                    Continue
+                    Next Question
                 </button>
             @else
                 <button
@@ -501,6 +512,6 @@ new class extends Component
             @endif
         </div>
 
-        <p class="text-center text-xs text-slate-400">Your details stay protected. Contact details are encrypted and handled securely. No spam. Clear next steps.</p>
+        <p class="text-center text-xs text-slate-400">Encrypted details. No spam. No obligation. A clear next step.</p>
     </div>
 </div>

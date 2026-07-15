@@ -13,3 +13,6 @@ parameters:
         - tests
     level: 10
     tmpDir: storage/framework/cache/phpstan
+    ignoreErrors:
+        - identifier: larastan.noEnvCallsOutsideOfConfig
+          path: config/*

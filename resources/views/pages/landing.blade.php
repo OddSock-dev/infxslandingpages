@@ -13,7 +13,7 @@
         :primary-action="['label' => $page['cta_text'], 'url' => $page['cta_url']]"
         :secondary-action="$content['cta_secondary']"
     >
-        <div id="qualify" class="relative mx-auto w-full max-w-124 lg:mx-0 lg:ml-auto">
+        <div id="qualify" class="relative mx-auto w-full max-w-124 scroll-mt-32 lg:mx-0 lg:ml-auto">
             <div class="absolute inset-0 rounded-4xl bg-linear-to-br from-teal-400/14 via-transparent to-cyan-400/10 blur-2xl"></div>
             <div class="relative z-10">
                 <livewire:marketing.qualifier />
@@ -43,7 +43,7 @@
                         <div class="absolute left-5 top-5 z-10 rounded-full border border-white/15 bg-slate-950/70 px-4 py-2 text-[0.65rem] font-semibold uppercase tracking-[0.28em] text-white">
                             Quick business check
                         </div>
-                        <img src="{{ asset(data_get($content, 'spotlight.media_url', 'media/systems-audit.webp')) }}" alt="{{ data_get($content, 'spotlight.media_alt', 'Business systems audit illustration') }}" class="h-full min-h-80 w-full object-cover">
+                        <img src="{{ asset(data_get($content, 'spotlight.media_url', 'media/home-systems-review-v2.webp')) }}" alt="{{ data_get($content, 'spotlight.media_alt', 'Business leaders reviewing a systems workflow') }}" class="h-full min-h-80 w-full object-cover object-center">
                     </div>
 
                     <div class="space-y-4">

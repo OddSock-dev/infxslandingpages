@@ -429,12 +429,17 @@ new class extends Component
 
 <div class="panel panel-strong overflow-hidden p-0 shadow-hero">
     <div class="border-b border-white/10 bg-slate-950 px-6 py-5 text-white sm:px-7">
-        <p class="eyebrow text-teal-200/90!">{{ $qualificationComplete ? 'Your Next Steps' : 'Quick Product Questions' }}</p>
+        <div class="flex items-start justify-between gap-4">
+            <p class="eyebrow text-teal-200/90!">{{ $qualificationComplete ? 'Your Next Steps' : 'Two-Minute Fit Check' }}</p>
+            <div class="shrink-0 rounded-xl bg-white px-2.5 py-1.5">
+                <img src="{{ asset('brand/zoho-authorized-partner.webp') }}" alt="Zoho Authorized Partner" class="h-6 w-auto">
+            </div>
+        </div>
         <h2 class="mt-2 font-display text-2xl font-semibold leading-tight text-balance">
-            {{ $qualificationComplete ? "Choose how you would like to continue with {$productName}." : "Answer four quick questions so we can unlock the right next step for {$productName}." }}
+            {{ $qualificationComplete ? "Choose how you would like to continue with {$productName}." : "Answer four quick questions to see your best next step for {$productName}." }}
         </h2>
         <p class="mt-2 text-sm text-slate-300">
-            {{ $qualificationComplete ? 'Your best next step is ready. Start a free trial for hands-on access or ask INFX to help you plan the rollout first.' : 'These answers help us unlock the right next step, including a free trial when hands-on access makes sense for your team.' }}
+            {{ $qualificationComplete ? 'Start a free trial for hands-on access or ask INFX to help you plan the rollout first.' : 'You will see the trial and consultation choices immediately after this quick fit check.' }}
         </p>
     </div>
 
@@ -729,6 +734,6 @@ new class extends Component
             @endif
         @endunless
 
-        <p class="text-center text-xs text-slate-400">Your details stay protected. Verification is enabled. Clear next steps within one business day.</p>
+        <p class="text-center text-xs text-slate-400">No obligation. Your details stay protected. INFX replies within one business day when you request help.</p>
     </div>
 </div>

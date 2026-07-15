@@ -4,7 +4,7 @@
     /** @var array<string, mixed> $page */
     $content = $page['body_config'];
     $heroAction = [
-        'label' => request()->filled('t') ? 'Review My Next Steps' : 'Qualify for a Free Trial',
+        'label' => request()->filled('t') ? 'Review My Next Steps' : 'See My Trial & Consultation Options',
         'url' => '#consultation',
     ];
     $heroSecondaryAction = filled($page['cta_url'] ?? null) && data_get($page, 'cta_url') !== '#consultation'
@@ -38,7 +38,7 @@
         :secondary-action="$heroSecondaryAction"
         :hero-image="$heroImage"
     >
-        <div id="consultation" class="relative">
+        <div id="consultation" class="relative scroll-mt-32">
             <div class="absolute inset-0 rounded-4xl bg-linear-to-br from-teal-300/14 via-transparent to-cyan-400/10 blur-2xl"></div>
             <div class="relative z-10">
                 <livewire:marketing.product-lead :page-key="$page['page_key']" :product-name="$content['nav_label']" :trial-url="$page['trial_url']" />

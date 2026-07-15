@@ -24,7 +24,7 @@ class JourneyModelTest extends TestCase
 
     public function test_it_assigns_an_expiry_when_created_without_one(): void
     {
-        $now = CarbonImmutable::create(2026, 5, 7, 12, 0, 0, 'UTC');
+        $now = new CarbonImmutable('2026-05-07 12:00:00', 'UTC');
         Date::setTestNow($now);
 
         $journey = Journey::create([
@@ -33,7 +33,9 @@ class JourneyModelTest extends TestCase
         ])->fresh();
 
         $this->assertInstanceOf(Journey::class, $journey);
-        $this->assertInstanceOf(CarbonImmutable::class, $journey->expires_at);
-        $this->assertTrue($journey->expires_at->equalTo($now->addHours(24)));
+        $expiresAt = $journey->expires_at;
+
+        $this->assertInstanceOf(CarbonImmutable::class, $expiresAt);
+        $this->assertTrue($expiresAt->equalTo($now->addHours(24)));
     }
 }

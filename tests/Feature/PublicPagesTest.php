@@ -26,9 +26,9 @@ class PublicPagesTest extends TestCase
 
         $this->get('/')
             ->assertOk()
-            ->assertSee('Find the Zoho setup')
-            ->assertSee('Answer a few simple questions about your business')
-            ->assertSee('Find Your Best Zoho Option')
+            ->assertSee('Stop losing time to disconnected tools')
+            ->assertSee('Answer four practical questions')
+            ->assertSee('Your Zoho Recommendation')
             ->assertSee('Start the questionnaire')
             ->assertSee('What are you trying to improve first?')
             ->assertSee('max-w-124', false)
@@ -45,7 +45,7 @@ class PublicPagesTest extends TestCase
             ->assertDontSee('5-minute guided match')
             ->assertDontSee('Compare Zoho One, Marketing Plus, and Workplace with less guesswork')
             ->assertDontSee('questions to guide your choice')
-            ->assertDontSee('Zoho Authorised Partner')
+            ->assertSee('Zoho Authorized Partner')
             ->assertDontSee('Will the next page still ask a few questions?');
     }
 
@@ -57,8 +57,9 @@ class PublicPagesTest extends TestCase
                 'headline' => 'Run your whole business from one connected system',
                 'hero_image' => 'media/OpsTeam.webp',
                 'content_media' => [
-                    'media/zoho-one-content-team.webp',
+                    'media/zoho-one-connected-operations-v2.webp',
                     'media/zoho-one-content-planning.webp',
+                    'media/zoho-one-leadership-visibility-v2.webp',
                 ],
             ],
             'zoho_marketing_plus' => [
@@ -66,8 +67,9 @@ class PublicPagesTest extends TestCase
                 'headline' => 'Run every campaign from one smarter marketing workspace',
                 'hero_image' => 'media/MarketingTeam.webp',
                 'content_media' => [
-                    'media/marketing-plus-content-team.webp',
+                    'media/marketing-plus-campaign-team-v2.webp',
                     'media/marketing-plus-content-support.webp',
+                    'media/marketing-plus-performance-visibility-v2.webp',
                 ],
             ],
             'zoho_workplace' => [
@@ -91,7 +93,7 @@ class PublicPagesTest extends TestCase
                 ->assertSee($productPage['headline'])
                 ->assertSee('Why teams choose', false)
                 ->assertDontSee('Why this page stands alone')
-                ->assertSee('Quick Product Questions')
+                ->assertSee('Two-Minute Fit Check')
                 ->assertSee($productPage['hero_image'], false)
                 ->assertSee('inset-x-0 top-0', false)
                 ->assertDontSee('bottom-0', false)
