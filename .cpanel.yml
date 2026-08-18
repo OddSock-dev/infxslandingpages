@@ -1,21 +1,20 @@
 ---
 deployment:
   tasks:
-    - /bin/cp -R $REPOROOT/app /home/infxsolutionsco/public_html/zoho.infxsolutions.co.za/
-    - /bin/cp -R $REPOROOT/bootstrap /home/infxsolutionsco/public_html/zoho.infxsolutions.co.za/
-    - /bin/cp -R $REPOROOT/config /home/infxsolutionsco/public_html/zoho.infxsolutions.co.za/
-    - /bin/cp -R $REPOROOT/database /home/infxsolutionsco/public_html/zoho.infxsolutions.co.za/
-    - /bin/cp -R $REPOROOT/public /home/infxsolutionsco/public_html/zoho.infxsolutions.co.za/
-    - /bin/cp -R $REPOROOT/resources /home/infxsolutionsco/public_html/zoho.infxsolutions.co.za/
-    - /bin/cp -R $REPOROOT/routes /home/infxsolutionsco/public_html/zoho.infxsolutions.co.za/
-    - /bin/cp $REPOROOT/artisan /home/infxsolutionsco/public_html/zoho.infxsolutions.co.za/artisan
-    - /bin/cp $REPOROOT/composer.json /home/infxsolutionsco/public_html/zoho.infxsolutions.co.za/composer.json
-    - /bin/cp $REPOROOT/composer.lock /home/infxsolutionsco/public_html/zoho.infxsolutions.co.za/composer.lock
-    - /bin/mkdir -p /home/infxsolutionsco/public_html/zoho.infxsolutions.co.za/storage/framework/cache
-    - /bin/mkdir -p /home/infxsolutionsco/public_html/zoho.infxsolutions.co.za/storage/framework/sessions
-    - /bin/mkdir -p /home/infxsolutionsco/public_html/zoho.infxsolutions.co.za/storage/framework/views
-    - /bin/mkdir -p /home/infxsolutionsco/public_html/zoho.infxsolutions.co.za/storage/logs
-    - /bin/mkdir -p /home/infxsolutionsco/public_html/zoho.infxsolutions.co.za/storage/app/public
+    - echo "REPOROOT=$REPOROOT" > /home/infxsolutionsco/public_html/zoho.infxsolutions.co.za/deploy.log
+    - echo "PWD=$(pwd)" >> /home/infxsolutionsco/public_html/zoho.infxsolutions.co.za/deploy.log
+    - which cp >> /home/infxsolutionsco/public_html/zoho.infxsolutions.co.za/deploy.log 2>&1
+    - ls "$REPOROOT/" >> /home/infxsolutionsco/public_html/zoho.infxsolutions.co.za/deploy.log 2>&1
+    - cp -R "$REPOROOT/app" /home/infxsolutionsco/public_html/zoho.infxsolutions.co.za/ >> /home/infxsolutionsco/public_html/zoho.infxsolutions.co.za/deploy.log 2>&1
+    - cp -R "$REPOROOT/bootstrap" /home/infxsolutionsco/public_html/zoho.infxsolutions.co.za/ >> /home/infxsolutionsco/public_html/zoho.infxsolutions.co.za/deploy.log 2>&1
+    - cp -R "$REPOROOT/config" /home/infxsolutionsco/public_html/zoho.infxsolutions.co.za/ >> /home/infxsolutionsco/public_html/zoho.infxsolutions.co.za/deploy.log 2>&1
+    - cp -R "$REPOROOT/database" /home/infxsolutionsco/public_html/zoho.infxsolutions.co.za/ >> /home/infxsolutionsco/public_html/zoho.infxsolutions.co.za/deploy.log 2>&1
+    - cp -R "$REPOROOT/public" /home/infxsolutionsco/public_html/zoho.infxsolutions.co.za/ >> /home/infxsolutionsco/public_html/zoho.infxsolutions.co.za/deploy.log 2>&1
+    - cp -R "$REPOROOT/resources" /home/infxsolutionsco/public_html/zoho.infxsolutions.co.za/ >> /home/infxsolutionsco/public_html/zoho.infxsolutions.co.za/deploy.log 2>&1
+    - cp -R "$REPOROOT/routes" /home/infxsolutionsco/public_html/zoho.infxsolutions.co.za/ >> /home/infxsolutionsco/public_html/zoho.infxsolutions.co.za/deploy.log 2>&1
+    - cp "$REPOROOT/artisan" /home/infxsolutionsco/public_html/zoho.infxsolutions.co.za/artisan >> /home/infxsolutionsco/public_html/zoho.infxsolutions.co.za/deploy.log 2>&1
+    - cp "$REPOROOT/composer.json" /home/infxsolutionsco/public_html/zoho.infxsolutions.co.za/composer.json >> /home/infxsolutionsco/public_html/zoho.infxsolutions.co.za/deploy.log 2>&1
+    - cp "$REPOROOT/composer.lock" /home/infxsolutionsco/public_html/zoho.infxsolutions.co.za/composer.lock >> /home/infxsolutionsco/public_html/zoho.infxsolutions.co.za/deploy.log 2>&1
     - /opt/cpanel/composer/bin/composer install --no-dev --optimize-autoloader --no-interaction --working-dir=/home/infxsolutionsco/public_html/zoho.infxsolutions.co.za
     - cd /home/infxsolutionsco/public_html/zoho.infxsolutions.co.za && php artisan migrate --force
     - cd /home/infxsolutionsco/public_html/zoho.infxsolutions.co.za && php artisan config:cache
