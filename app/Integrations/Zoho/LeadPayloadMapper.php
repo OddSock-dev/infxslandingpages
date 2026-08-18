@@ -5,17 +5,15 @@ declare(strict_types=1);
 namespace App\Integrations\Zoho;
 
 use App\Models\Submission;
+use App\Services\ZohoConnectionSettings;
 use Illuminate\Support\Str;
 
-/**
- * Maps a local Submission to the Zoho CRM v2 Lead API payload.
- *
- * PII comes from the encrypted pii_json column; UTM attribution and
- * other context come from meta_json. Only non-PII meta fields are
- * forwarded (utm_*, source_page_key).
- */
 class LeadPayloadMapper
 {
+    public function __construct(
+        private readonly ZohoConnectionSettings $settings,
+    ) {}
+
     /**
      * @return array{data: list<array<string, mixed>>}
      */
@@ -27,6 +25,8 @@ class LeadPayloadMapper
         /** @var array<string, mixed> $meta */
         $meta = $submission->meta_json;
 
+        $defaults = $this->settings->leadDefaults();
+
         [$firstName, $lastName] = $this->splitName($pii);
 
         /** @var array<string, mixed> $lead */
@@ -36,9 +36,29 @@ class LeadPayloadMapper
             'Email' => isset($pii['email']) && is_string($pii['email']) ? $pii['email'] : null,
             'Phone' => isset($pii['phone']) && is_string($pii['phone']) ? $pii['phone'] : null,
             'Company' => isset($pii['company']) && is_string($pii['company']) ? $pii['company'] : null,
-            'Lead_Source' => $this->mapLeadSource($meta),
+            'Lead_Source' => $this->resolveLeadSource($defaults),
             'Description' => $this->buildDescription($meta, $submission->product_key),
         ], fn (mixed $v): bool => $v !== null && $v !== '');
+
+        $tags = $this->buildTags($defaults);
+        if ($tags !== []) {
+            $lead['Tag'] = $tags;
+        }
+
+        $ownerId = $defaults['lead_owner_id'];
+        if ($ownerId !== '') {
+            $lead['Owner'] = ['id' => $ownerId];
+        }
+
+        $brand = $defaults['lead_brand'];
+        if ($brand !== '') {
+            $lead['Brand'] = $brand;
+        }
+
+        $franchise = $defaults['lead_franchise'];
+        if ($franchise !== '') {
+            $lead['Franchise'] = $franchise;
+        }
 
         return ['data' => [$lead]];
     }
@@ -66,24 +86,35 @@ class LeadPayloadMapper
     }
 
     /**
-     * Maps utm_source to a Zoho Lead_Source picklist value.
-     *
-     * @param  array<string, mixed>  $meta
+     * @param  array{lead_source: string}  $defaults
      */
-    private function mapLeadSource(array $meta): ?string
+    private function resolveLeadSource(array $defaults): string
     {
-        if (! isset($meta['utm_source']) || ! is_string($meta['utm_source'])) {
-            return null;
+        $source = $defaults['lead_source'];
+
+        return $source !== '' ? $source : 'INFX Zoho Magnet';
+    }
+
+    /**
+     * @param  array{lead_tags: string}  $defaults
+     * @return list<array{name: string}>
+     */
+    private function buildTags(array $defaults): array
+    {
+        $raw = $defaults['lead_tags'];
+        if (trim($raw) === '') {
+            return [];
         }
 
-        return match (strtolower($meta['utm_source'])) {
-            'google', 'google_ads' => 'Google AdWords',
-            'facebook', 'fb' => 'Facebook',
-            'linkedin' => 'LinkedIn',
-            'organic', 'seo' => 'Organic Search',
-            'email', 'newsletter' => 'Email',
-            default => 'Web Site',
-        };
+        $tags = [];
+        foreach (explode(',', $raw) as $tag) {
+            $tag = trim($tag);
+            if ($tag !== '') {
+                $tags[] = ['name' => $tag];
+            }
+        }
+
+        return $tags;
     }
 
     /**
@@ -99,6 +130,10 @@ class LeadPayloadMapper
 
         if (isset($meta['source_page_key']) && is_string($meta['source_page_key'])) {
             $parts[] = "Source page: {$meta['source_page_key']}";
+        }
+
+        if (isset($meta['utm_source']) && is_string($meta['utm_source'])) {
+            $parts[] = "UTM source: {$meta['utm_source']}";
         }
 
         $contextLabels = [

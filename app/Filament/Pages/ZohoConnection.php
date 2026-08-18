@@ -107,6 +107,32 @@ class ZohoConnection extends Page implements HasForms
                             ->label('Auth URI Query Parameters')
                             ->helperText('For example: access_type=offline&prompt=consent'),
                     ]),
+                Section::make('Lead Defaults')
+                    ->description('Default field values applied to every lead pushed to Zoho CRM.')
+                    ->schema([
+                        Grid::make(2)
+                            ->schema([
+                                TextInput::make('lead_owner_id')
+                                    ->label('Lead Owner ID')
+                                    ->helperText('Zoho user ID assigned as lead owner (e.g. 2960730000120595001).')
+                                    ->maxLength(255),
+                                TextInput::make('lead_source')
+                                    ->label('Lead Source')
+                                    ->helperText('Must match a Zoho CRM Lead_Source picklist value.')
+                                    ->maxLength(255),
+                                TextInput::make('lead_tags')
+                                    ->label('Tags')
+                                    ->helperText('Comma-separated tag names (e.g. INFXS,INFX).')
+                                    ->maxLength(255),
+                                TextInput::make('lead_brand')
+                                    ->label('Brand')
+                                    ->maxLength(255),
+                                TextInput::make('lead_franchise')
+                                    ->label('Franchise')
+                                    ->maxLength(255),
+                            ]),
+                    ]),
+
                 Section::make('Request handling')
                     ->schema([
                         Grid::make(2)
