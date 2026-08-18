@@ -3,30 +3,28 @@ deployment:
   tasks:
     - export DEPLOYPATH=/home/infxsolutionsco/public_html/zoho.infxsolutions.co.za
 
-    # Clean old app files from deploy path, preserving .env, storage, and vendor
-    - find $DEPLOYPATH -maxdepth 1 -mindepth 1 ! -name '.env' ! -name '.env.backup' ! -name '.env.production' ! -name 'storage' ! -name 'vendor' -exec rm -rf {} +
-
-    # Copy application directories
-    - cp -r $REPOROOT/app $DEPLOYPATH/app
-    - cp -r $REPOROOT/bootstrap $DEPLOYPATH/bootstrap
-    - cp -r $REPOROOT/config $DEPLOYPATH/config
-    - cp -r $REPOROOT/database $DEPLOYPATH/database
-    - cp -r $REPOROOT/public $DEPLOYPATH/public
-    - cp -r $REPOROOT/resources $DEPLOYPATH/resources
-    - cp -r $REPOROOT/routes $DEPLOYPATH/routes
+    # Copy application directories (overwrites in place, never deletes first)
+    - /bin/cp -R $REPOROOT/app $DEPLOYPATH/
+    - /bin/cp -R $REPOROOT/bootstrap $DEPLOYPATH/
+    - /bin/cp -R $REPOROOT/config $DEPLOYPATH/
+    - /bin/cp -R $REPOROOT/database $DEPLOYPATH/
+    - /bin/cp -R $REPOROOT/public $DEPLOYPATH/
+    - /bin/cp -R $REPOROOT/resources $DEPLOYPATH/
+    - /bin/cp -R $REPOROOT/routes $DEPLOYPATH/
 
     # Copy application root files
-    - cp $REPOROOT/artisan $DEPLOYPATH/artisan
-    - cp $REPOROOT/composer.json $DEPLOYPATH/composer.json
-    - cp $REPOROOT/composer.lock $DEPLOYPATH/composer.lock
-    - cp $REPOROOT/.editorconfig $DEPLOYPATH/.editorconfig
+    - /bin/cp $REPOROOT/artisan $DEPLOYPATH/artisan
+    - /bin/cp $REPOROOT/composer.json $DEPLOYPATH/composer.json
+    - /bin/cp $REPOROOT/composer.lock $DEPLOYPATH/composer.lock
 
     # Ensure storage directory structure exists
-    - mkdir -p $DEPLOYPATH/storage/framework/{cache,sessions,views}
-    - mkdir -p $DEPLOYPATH/storage/logs
-    - mkdir -p $DEPLOYPATH/storage/app/public
+    - /bin/mkdir -p $DEPLOYPATH/storage/framework/cache
+    - /bin/mkdir -p $DEPLOYPATH/storage/framework/sessions
+    - /bin/mkdir -p $DEPLOYPATH/storage/framework/views
+    - /bin/mkdir -p $DEPLOYPATH/storage/logs
+    - /bin/mkdir -p $DEPLOYPATH/storage/app/public
 
-    # Install PHP dependencies (no dev packages in production)
+    # Install PHP dependencies
     - /opt/cpanel/composer/bin/composer install --no-dev --optimize-autoloader --no-interaction --working-dir=$DEPLOYPATH
 
     # Run database migrations
