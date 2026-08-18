@@ -19,7 +19,7 @@ class SubmissionsTable
     public static function configure(Table $table): Table
     {
         return $table
-            ->modifyQueryUsing(fn (Builder $query): Builder => $query->with('latestSyncAttempt:id,submission_id,status'))
+            ->modifyQueryUsing(fn (Builder $query): Builder => $query->with('latestSyncAttempt:crm_sync_attempts.id,crm_sync_attempts.submission_id,crm_sync_attempts.status'))
             ->columns([
                 TextColumn::make('id')
                     ->sortable(),
