@@ -1,45 +1,28 @@
 ---
 deployment:
   tasks:
-    - export DEPLOYPATH=/home/infxsolutionsco/public_html/zoho.infxsolutions.co.za
-
-    # Copy application directories (overwrites in place, never deletes first)
-    - /bin/cp -R $REPOROOT/app $DEPLOYPATH/
-    - /bin/cp -R $REPOROOT/bootstrap $DEPLOYPATH/
-    - /bin/cp -R $REPOROOT/config $DEPLOYPATH/
-    - /bin/cp -R $REPOROOT/database $DEPLOYPATH/
-    - /bin/cp -R $REPOROOT/public $DEPLOYPATH/
-    - /bin/cp -R $REPOROOT/resources $DEPLOYPATH/
-    - /bin/cp -R $REPOROOT/routes $DEPLOYPATH/
-
-    # Copy application root files
-    - /bin/cp $REPOROOT/artisan $DEPLOYPATH/artisan
-    - /bin/cp $REPOROOT/composer.json $DEPLOYPATH/composer.json
-    - /bin/cp $REPOROOT/composer.lock $DEPLOYPATH/composer.lock
-
-    # Ensure storage directory structure exists
-    - /bin/mkdir -p $DEPLOYPATH/storage/framework/cache
-    - /bin/mkdir -p $DEPLOYPATH/storage/framework/sessions
-    - /bin/mkdir -p $DEPLOYPATH/storage/framework/views
-    - /bin/mkdir -p $DEPLOYPATH/storage/logs
-    - /bin/mkdir -p $DEPLOYPATH/storage/app/public
-
-    # Install PHP dependencies
-    - /opt/cpanel/composer/bin/composer install --no-dev --optimize-autoloader --no-interaction --working-dir=$DEPLOYPATH
-
-    # Run database migrations
-    - cd $DEPLOYPATH && php artisan migrate --force
-
-    # Clear and rebuild caches
-    - cd $DEPLOYPATH && php artisan config:cache
-    - cd $DEPLOYPATH && php artisan route:cache
-    - cd $DEPLOYPATH && php artisan view:cache
-    - cd $DEPLOYPATH && php artisan event:cache
-    - cd $DEPLOYPATH && php artisan icons:cache
-    - cd $DEPLOYPATH && php artisan filament:cache-components
-
-    # Link public storage if not already linked
-    - cd $DEPLOYPATH && php artisan storage:link 2>/dev/null || true
-
-    # Restart queue workers to pick up new code
-    - cd $DEPLOYPATH && php artisan queue:restart
+    - /bin/cp -R /home/infxsolutionsco/infxlandingpages/app /home/infxsolutionsco/public_html/zoho.infxsolutions.co.za/
+    - /bin/cp -R /home/infxsolutionsco/infxlandingpages/bootstrap /home/infxsolutionsco/public_html/zoho.infxsolutions.co.za/
+    - /bin/cp -R /home/infxsolutionsco/infxlandingpages/config /home/infxsolutionsco/public_html/zoho.infxsolutions.co.za/
+    - /bin/cp -R /home/infxsolutionsco/infxlandingpages/database /home/infxsolutionsco/public_html/zoho.infxsolutions.co.za/
+    - /bin/cp -R /home/infxsolutionsco/infxlandingpages/public /home/infxsolutionsco/public_html/zoho.infxsolutions.co.za/
+    - /bin/cp -R /home/infxsolutionsco/infxlandingpages/resources /home/infxsolutionsco/public_html/zoho.infxsolutions.co.za/
+    - /bin/cp -R /home/infxsolutionsco/infxlandingpages/routes /home/infxsolutionsco/public_html/zoho.infxsolutions.co.za/
+    - /bin/cp /home/infxsolutionsco/infxlandingpages/artisan /home/infxsolutionsco/public_html/zoho.infxsolutions.co.za/artisan
+    - /bin/cp /home/infxsolutionsco/infxlandingpages/composer.json /home/infxsolutionsco/public_html/zoho.infxsolutions.co.za/composer.json
+    - /bin/cp /home/infxsolutionsco/infxlandingpages/composer.lock /home/infxsolutionsco/public_html/zoho.infxsolutions.co.za/composer.lock
+    - /bin/mkdir -p /home/infxsolutionsco/public_html/zoho.infxsolutions.co.za/storage/framework/cache
+    - /bin/mkdir -p /home/infxsolutionsco/public_html/zoho.infxsolutions.co.za/storage/framework/sessions
+    - /bin/mkdir -p /home/infxsolutionsco/public_html/zoho.infxsolutions.co.za/storage/framework/views
+    - /bin/mkdir -p /home/infxsolutionsco/public_html/zoho.infxsolutions.co.za/storage/logs
+    - /bin/mkdir -p /home/infxsolutionsco/public_html/zoho.infxsolutions.co.za/storage/app/public
+    - /opt/cpanel/composer/bin/composer install --no-dev --optimize-autoloader --no-interaction --working-dir=/home/infxsolutionsco/public_html/zoho.infxsolutions.co.za
+    - cd /home/infxsolutionsco/public_html/zoho.infxsolutions.co.za && php artisan migrate --force
+    - cd /home/infxsolutionsco/public_html/zoho.infxsolutions.co.za && php artisan config:cache
+    - cd /home/infxsolutionsco/public_html/zoho.infxsolutions.co.za && php artisan route:cache
+    - cd /home/infxsolutionsco/public_html/zoho.infxsolutions.co.za && php artisan view:cache
+    - cd /home/infxsolutionsco/public_html/zoho.infxsolutions.co.za && php artisan event:cache
+    - cd /home/infxsolutionsco/public_html/zoho.infxsolutions.co.za && php artisan icons:cache
+    - cd /home/infxsolutionsco/public_html/zoho.infxsolutions.co.za && php artisan filament:cache-components
+    - cd /home/infxsolutionsco/public_html/zoho.infxsolutions.co.za && php artisan storage:link 2>/dev/null || true
+    - cd /home/infxsolutionsco/public_html/zoho.infxsolutions.co.za && php artisan queue:restart
