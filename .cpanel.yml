@@ -4,9 +4,10 @@ deployment:
     - export DEPLOYPATH=/home/infxsolutionsco/public_html/zoho.infxsolutions.co.za
 
     # Copy application files to the deployment path
+    # Built assets in public/build are committed to the repo and deployed as-is.
     # Excludes: git internals, installed deps, env secrets, runtime storage,
-    #           built assets (rebuilt below), and dev-only files.
-    - /bin/rsync -rlpt --delete --exclude='.git' --exclude='node_modules' --exclude='vendor' --exclude='.env' --exclude='storage' --exclude='public/build' --exclude='.cpanel.yml' --exclude='ReferenceDocs' --exclude='tests' --exclude='phpstan.neon' --exclude='phpunit.xml' --exclude='pint.json' --exclude='docker-compose.yml' --exclude='.playwright' --exclude='.playwright-cli' --exclude='AGENTS.md' --exclude='GA4_IMPLEMENTATION.md' --exclude='GA4_QUICK_REFERENCE.md' --exclude='tasks.md' $REPOROOT/ $DEPLOYPATH/
+    #           node tooling, and dev-only files.
+    - /bin/rsync -rlpt --delete --exclude='.git' --exclude='node_modules' --exclude='vendor' --exclude='.env' --exclude='storage' --exclude='.cpanel.yml' --exclude='ReferenceDocs' --exclude='tests' --exclude='phpstan.neon' --exclude='phpunit.xml' --exclude='pint.json' --exclude='docker-compose.yml' --exclude='.playwright' --exclude='.playwright-cli' --exclude='AGENTS.md' --exclude='GA4_IMPLEMENTATION.md' --exclude='GA4_QUICK_REFERENCE.md' --exclude='tasks.md' --exclude='package.json' --exclude='package-lock.json' --exclude='vite.config.mjs' --exclude='.npmrc' $REPOROOT/ $DEPLOYPATH/
 
     # Ensure storage directory structure exists
     - mkdir -p $DEPLOYPATH/storage/framework/{cache,sessions,views}
@@ -15,10 +16,6 @@ deployment:
 
     # Install PHP dependencies (no dev packages in production)
     - /opt/cpanel/composer/bin/composer install --no-dev --optimize-autoloader --no-interaction --working-dir=$DEPLOYPATH
-
-    # Install Node dependencies and build frontend assets
-    - cd $DEPLOYPATH && npm ci --ignore-scripts
-    - cd $DEPLOYPATH && npx vite build
 
     # Run database migrations
     - cd $DEPLOYPATH && php artisan migrate --force
