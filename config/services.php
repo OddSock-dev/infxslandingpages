@@ -42,10 +42,10 @@ return [
             'ZOHO_DEFAULT_SCOPE',
             'ZohoCRM.modules.ALL,ZohoCRM.settings.ALL,ZohoCRM.users.ALL,ZohoCRM.org.ALL'
         ),
-        'lead_owner_id' => env('ZOHO_LEAD_OWNER_ID'),
-        'lead_source' => env('ZOHO_LEAD_SOURCE', 'INFX Zoho Magnet'),
+        'lead_owner_id' => env('ZOHO_LEAD_OWNER_ID', '2960730000106543001'),
+        'lead_source' => env('ZOHO_LEAD_SOURCE', 'INFX website'),
         'lead_tags' => env('ZOHO_LEAD_TAGS', 'INFXS,Zoho'),
-        'lead_client' => env('ZOHO_LEAD_CLIENT', 'INFX Solutions'),
+        'lead_brand' => env('ZOHO_LEAD_BRAND', 'INFX Solutions'),
     ],
 
 ];

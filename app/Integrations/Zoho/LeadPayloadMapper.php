@@ -43,9 +43,9 @@ class LeadPayloadMapper
             $lead['Owner'] = ['id' => $ownerId];
         }
 
-        $client = config('services.zoho.lead_client');
-        if (is_string($client) && $client !== '') {
-            $lead['Client'] = $client;
+        $brand = config('services.zoho.lead_brand');
+        if (is_string($brand) && $brand !== '') {
+            $lead['Brand'] = $brand;
         }
 
         return ['data' => [$lead]];
@@ -77,7 +77,7 @@ class LeadPayloadMapper
     {
         $source = config('services.zoho.lead_source');
 
-        return is_string($source) && $source !== '' ? $source : 'INFX Zoho Magnet';
+        return is_string($source) && $source !== '' ? $source : 'INFX website';
     }
 
     /**
