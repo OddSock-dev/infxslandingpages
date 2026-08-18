@@ -63,6 +63,41 @@ class ZohoConnectionSettings
     }
 
     /**
+     * @return array{
+     *     lead_owner_id: string,
+     *     lead_source: string,
+     *     lead_tags: string,
+     *     lead_brand: string,
+     *     lead_franchise: string
+     * }
+     */
+    public function leadDefaults(): array
+    {
+        return [
+            'lead_owner_id' => $this->value(
+                ZohoCredential::LEAD_OWNER_ID,
+                $this->configString('services.zoho.lead_owner_id'),
+            ),
+            'lead_source' => $this->value(
+                ZohoCredential::LEAD_SOURCE,
+                $this->configString('services.zoho.lead_source', 'INFX Zoho Magnet'),
+            ),
+            'lead_tags' => $this->value(
+                ZohoCredential::LEAD_TAGS,
+                $this->configString('services.zoho.lead_tags', 'INFXS,INFX'),
+            ),
+            'lead_brand' => $this->value(
+                ZohoCredential::LEAD_BRAND,
+                $this->configString('services.zoho.lead_brand', 'INFX: Zoho'),
+            ),
+            'lead_franchise' => $this->value(
+                ZohoCredential::LEAD_FRANCHISE,
+                $this->configString('services.zoho.lead_franchise', 'INFX Solutions'),
+            ),
+        ];
+    }
+
+    /**
      * @return array<string, mixed>
      */
     public function formState(): array
@@ -71,6 +106,7 @@ class ZohoConnectionSettings
 
         return [
             ...$config,
+            ...$this->leadDefaults(),
             'redirect_url' => $this->redirectUrl(),
             'grant_type' => 'Authorization Code',
             'authentication' => 'Header',
@@ -97,6 +133,12 @@ class ZohoConnectionSettings
             is_scalar($tokenExpiredStatusCode) ? (string) $tokenExpiredStatusCode : '401',
         );
         $this->storeString(ZohoCredential::ALLOWED_DOMAINS, $state['allowed_domains'] ?? null);
+
+        $this->storeString(ZohoCredential::LEAD_OWNER_ID, $state['lead_owner_id'] ?? null);
+        $this->storeString(ZohoCredential::LEAD_SOURCE, $state['lead_source'] ?? null);
+        $this->storeString(ZohoCredential::LEAD_TAGS, $state['lead_tags'] ?? null);
+        $this->storeString(ZohoCredential::LEAD_BRAND, $state['lead_brand'] ?? null);
+        $this->storeString(ZohoCredential::LEAD_FRANCHISE, $state['lead_franchise'] ?? null);
     }
 
     public function redirectUrl(): string

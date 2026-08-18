@@ -46,6 +46,16 @@ class ZohoCredential extends Model
 
     public const string ALLOWED_DOMAINS = 'allowed_domains';
 
+    public const string LEAD_OWNER_ID = 'lead_owner_id';
+
+    public const string LEAD_SOURCE = 'lead_source';
+
+    public const string LEAD_TAGS = 'lead_tags';
+
+    public const string LEAD_BRAND = 'lead_brand';
+
+    public const string LEAD_FRANCHISE = 'lead_franchise';
+
     public const string CONNECTED_AT = 'connected_at';
 
     protected $primaryKey = 'key';

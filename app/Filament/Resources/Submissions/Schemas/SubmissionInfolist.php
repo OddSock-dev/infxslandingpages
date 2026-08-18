@@ -8,7 +8,6 @@ use App\Enums\CrmStatus;
 use App\Enums\SyncAttemptStatus;
 use App\Models\CrmSyncAttempt;
 use App\Models\Submission;
-use App\Support\CrmPayloadRedactor;
 use Carbon\CarbonImmutable;
 use Filament\Infolists\Components\RepeatableEntry;
 use Filament\Infolists\Components\RepeatableEntry\TableColumn;
@@ -56,7 +55,7 @@ class SubmissionInfolist
                     ->columns(2),
 
                 Section::make('CRM Sync Activity')
-                    ->description('Attempt summaries stay visible while contact and payload data remain masked for operators.')
+                    ->description('Attempt summaries and full contact details are visible to operators.')
                     ->schema([
                         TextEntry::make('latestSyncAttempt.status')
                             ->label('Latest Attempt Status')
@@ -129,12 +128,12 @@ class SubmissionInfolist
                 ])));
             }
 
-            return $fullName === '' ? null : CrmPayloadRedactor::redactField('name', $fullName);
+            return $fullName === '' ? null : $fullName;
         }
 
         $value = data_get($pii, $field);
 
-        return is_string($value) ? CrmPayloadRedactor::redactField($field, $value) : null;
+        return is_string($value) ? $value : null;
     }
 
     /**
@@ -155,7 +154,7 @@ class SubmissionInfolist
                 'id' => $attempt->id,
                 'status' => $attempt->status,
                 'attempted_at' => $attempt->attempted_at,
-                'error_message' => CrmPayloadRedactor::redactMessage($attempt->error_message),
+                'error_message' => $attempt->error_message,
             ])
             ->all();
     }

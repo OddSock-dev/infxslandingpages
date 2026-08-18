@@ -5,10 +5,15 @@ declare(strict_types=1);
 namespace App\Integrations\Zoho;
 
 use App\Models\Submission;
+use App\Services\ZohoConnectionSettings;
 use Illuminate\Support\Str;
 
 class LeadPayloadMapper
 {
+    public function __construct(
+        private readonly ZohoConnectionSettings $settings,
+    ) {}
+
     /**
      * @return array{data: list<array<string, mixed>>}
      */
@@ -20,6 +25,8 @@ class LeadPayloadMapper
         /** @var array<string, mixed> $meta */
         $meta = $submission->meta_json;
 
+        $defaults = $this->settings->leadDefaults();
+
         [$firstName, $lastName] = $this->splitName($pii);
 
         /** @var array<string, mixed> $lead */
@@ -29,27 +36,27 @@ class LeadPayloadMapper
             'Email' => isset($pii['email']) && is_string($pii['email']) ? $pii['email'] : null,
             'Phone' => isset($pii['phone']) && is_string($pii['phone']) ? $pii['phone'] : null,
             'Company' => isset($pii['company']) && is_string($pii['company']) ? $pii['company'] : null,
-            'Lead_Source' => $this->resolveLeadSource(),
+            'Lead_Source' => $this->resolveLeadSource($defaults),
             'Description' => $this->buildDescription($meta, $submission->product_key),
         ], fn (mixed $v): bool => $v !== null && $v !== '');
 
-        $tags = $this->buildTags();
+        $tags = $this->buildTags($defaults);
         if ($tags !== []) {
             $lead['Tag'] = $tags;
         }
 
-        $ownerId = config('services.zoho.lead_owner_id');
-        if (is_string($ownerId) && $ownerId !== '') {
+        $ownerId = $defaults['lead_owner_id'];
+        if ($ownerId !== '') {
             $lead['Owner'] = ['id' => $ownerId];
         }
 
-        $brand = config('services.zoho.lead_brand');
-        if (is_string($brand) && $brand !== '') {
+        $brand = $defaults['lead_brand'];
+        if ($brand !== '') {
             $lead['Brand'] = $brand;
         }
 
-        $franchise = config('services.zoho.lead_franchise');
-        if (is_string($franchise) && $franchise !== '') {
+        $franchise = $defaults['lead_franchise'];
+        if ($franchise !== '') {
             $lead['Franchise'] = $franchise;
         }
 
@@ -78,20 +85,24 @@ class LeadPayloadMapper
         return ['', ''];
     }
 
-    private function resolveLeadSource(): string
+    /**
+     * @param  array{lead_source: string}  $defaults
+     */
+    private function resolveLeadSource(array $defaults): string
     {
-        $source = config('services.zoho.lead_source');
+        $source = $defaults['lead_source'];
 
-        return is_string($source) && $source !== '' ? $source : 'INFX Zoho Magnet';
+        return $source !== '' ? $source : 'INFX Zoho Magnet';
     }
 
     /**
+     * @param  array{lead_tags: string}  $defaults
      * @return list<array{name: string}>
      */
-    private function buildTags(): array
+    private function buildTags(array $defaults): array
     {
-        $raw = config('services.zoho.lead_tags');
-        if (! is_string($raw) || trim($raw) === '') {
+        $raw = $defaults['lead_tags'];
+        if (trim($raw) === '') {
             return [];
         }
 

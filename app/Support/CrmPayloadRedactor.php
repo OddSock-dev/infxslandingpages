@@ -40,6 +40,23 @@ class CrmPayloadRedactor
         return $flattened;
     }
 
+    /**
+     * @param  array<int|string, mixed>|null  $payload
+     * @return array<string, string>
+     */
+    public static function flattenRaw(?array $payload): array
+    {
+        if ($payload === null) {
+            return [];
+        }
+
+        $flattened = [];
+        self::flatten('', $payload, $flattened);
+        ksort($flattened);
+
+        return $flattened;
+    }
+
     public static function redactField(string $field, ?string $value): ?string
     {
         if ($value === null) {

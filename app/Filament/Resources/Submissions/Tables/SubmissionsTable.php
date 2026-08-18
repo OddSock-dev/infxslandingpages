@@ -8,7 +8,6 @@ use App\Enums\CrmStatus;
 use App\Enums\SyncAttemptStatus;
 use App\Filament\Resources\CrmSyncAttempts\CrmSyncAttemptResource;
 use App\Models\Submission;
-use App\Support\CrmPayloadRedactor;
 use Filament\Actions\Action;
 use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
@@ -29,9 +28,7 @@ class SubmissionsTable
                     ->state(function (Submission $record): ?string {
                         $email = data_get($record->pii_json, 'email');
 
-                        return is_string($email)
-                            ? CrmPayloadRedactor::redactField('email', $email)
-                            : null;
+                        return is_string($email) ? $email : null;
                     })
                     ->searchable(false),
                 TextColumn::make('product_key')
