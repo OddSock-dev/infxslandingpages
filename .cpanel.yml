@@ -3,11 +3,23 @@ deployment:
   tasks:
     - export DEPLOYPATH=/home/infxsolutionsco/public_html/zoho.infxsolutions.co.za
 
-    # Copy application files to the deployment path
-    # Built assets in public/build are committed to the repo and deployed as-is.
-    # Excludes: git internals, installed deps, env secrets, runtime storage,
-    #           node tooling, and dev-only files.
-    - /bin/rsync -rlpt --delete --exclude='.git' --exclude='node_modules' --exclude='vendor' --exclude='.env' --exclude='storage' --exclude='.cpanel.yml' --exclude='ReferenceDocs' --exclude='tests' --exclude='phpstan.neon' --exclude='phpunit.xml' --exclude='pint.json' --exclude='docker-compose.yml' --exclude='.playwright' --exclude='.playwright-cli' --exclude='AGENTS.md' --exclude='GA4_IMPLEMENTATION.md' --exclude='GA4_QUICK_REFERENCE.md' --exclude='tasks.md' --exclude='package.json' --exclude='package-lock.json' --exclude='vite.config.mjs' --exclude='.npmrc' $REPOROOT/ $DEPLOYPATH/
+    # Clean old app files from deploy path, preserving .env, storage, and vendor
+    - find $DEPLOYPATH -maxdepth 1 -mindepth 1 ! -name '.env' ! -name '.env.backup' ! -name '.env.production' ! -name 'storage' ! -name 'vendor' -exec rm -rf {} +
+
+    # Copy application directories
+    - cp -r $REPOROOT/app $DEPLOYPATH/app
+    - cp -r $REPOROOT/bootstrap $DEPLOYPATH/bootstrap
+    - cp -r $REPOROOT/config $DEPLOYPATH/config
+    - cp -r $REPOROOT/database $DEPLOYPATH/database
+    - cp -r $REPOROOT/public $DEPLOYPATH/public
+    - cp -r $REPOROOT/resources $DEPLOYPATH/resources
+    - cp -r $REPOROOT/routes $DEPLOYPATH/routes
+
+    # Copy application root files
+    - cp $REPOROOT/artisan $DEPLOYPATH/artisan
+    - cp $REPOROOT/composer.json $DEPLOYPATH/composer.json
+    - cp $REPOROOT/composer.lock $DEPLOYPATH/composer.lock
+    - cp $REPOROOT/.editorconfig $DEPLOYPATH/.editorconfig
 
     # Ensure storage directory structure exists
     - mkdir -p $DEPLOYPATH/storage/framework/{cache,sessions,views}
