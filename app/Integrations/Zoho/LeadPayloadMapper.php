@@ -48,6 +48,11 @@ class LeadPayloadMapper
             $lead['Brand'] = $brand;
         }
 
+        $franchise = config('services.zoho.lead_franchise');
+        if (is_string($franchise) && $franchise !== '') {
+            $lead['Franchise'] = $franchise;
+        }
+
         return ['data' => [$lead]];
     }
 
@@ -77,7 +82,7 @@ class LeadPayloadMapper
     {
         $source = config('services.zoho.lead_source');
 
-        return is_string($source) && $source !== '' ? $source : 'INFX website';
+        return is_string($source) && $source !== '' ? $source : 'INFX Zoho Magnet';
     }
 
     /**
