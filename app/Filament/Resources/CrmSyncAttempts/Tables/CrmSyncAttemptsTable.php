@@ -102,9 +102,9 @@ class CrmSyncAttemptsTable
                     ->icon('heroicon-o-arrow-path')
                     ->requiresConfirmation()
                     ->modalDescription('This resets the submission to pending and safely queues a fresh Zoho sync attempt.')
-                    ->visible(fn (CrmSyncAttempt $record, RequeueSubmissionSyncAction $action): bool => $action->canRequeueAttempt($record))
-                    ->action(function (CrmSyncAttempt $record, RequeueSubmissionSyncAction $action): void {
-                        self::sendNotification($action->executeForAttempt($record));
+                    ->visible(fn (CrmSyncAttempt $record): bool => app(RequeueSubmissionSyncAction::class)->canRequeueAttempt($record))
+                    ->action(function (CrmSyncAttempt $record): void {
+                        self::sendNotification(app(RequeueSubmissionSyncAction::class)->executeForAttempt($record));
                     }),
             ])
             ->toolbarActions([
@@ -114,7 +114,8 @@ class CrmSyncAttemptsTable
                         ->icon('heroicon-o-arrow-path')
                         ->requiresConfirmation()
                         ->deselectRecordsAfterCompletion()
-                        ->action(function (Collection $records, RequeueSubmissionSyncAction $action): void {
+                        ->action(function (Collection $records): void {
+                            $requeueAction = app(RequeueSubmissionSyncAction::class);
                             $queuedCount = 0;
                             $skippedCount = 0;
 
@@ -123,7 +124,7 @@ class CrmSyncAttemptsTable
                                     continue;
                                 }
 
-                                $result = $action->executeForAttempt($record);
+                                $result = $requeueAction->executeForAttempt($record);
 
                                 if ($result->queued) {
                                     $queuedCount++;

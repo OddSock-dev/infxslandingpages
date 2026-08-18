@@ -29,9 +29,9 @@ class ViewCrmSyncAttempt extends ViewRecord
                 ->icon('heroicon-o-arrow-path')
                 ->requiresConfirmation()
                 ->modalDescription('This resets the submission to pending and queues a fresh Zoho retry.')
-                ->visible(fn (RequeueSubmissionSyncAction $action): bool => $action->canRequeueAttempt($this->record()))
-                ->action(function (RequeueSubmissionSyncAction $action): void {
-                    $this->sendNotification($action->executeForAttempt($this->record()));
+                ->visible(fn (): bool => app(RequeueSubmissionSyncAction::class)->canRequeueAttempt($this->record()))
+                ->action(function (): void {
+                    $this->sendNotification(app(RequeueSubmissionSyncAction::class)->executeForAttempt($this->record()));
                 }),
         ];
     }
